@@ -36,11 +36,4 @@ public class DBUtil {
     }
   }
 
-  public static void main(String[] args) {
-    Connection conn = getConnection();
-    System.out.println(conn);
-
-  }
-
-
 }

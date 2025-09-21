@@ -6,7 +6,8 @@ out/
 !**/src/test/**/out/
 
 # Database connection properties file
-src/config/dbinfo.properties
+.idea/src/config/dbinfo.properties
+
 
 ### Eclipse ###
 .apt_generated
