@@ -1,7 +1,8 @@
-package model.support;
+package model.support.service.dao.daoImpl;
 
 import config.DBUtil;
 import domain.support.Faq;
+import model.support.service.dao.FaqDAO;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FaqDAO {
+public class FaqDaoImpl implements FaqDAO {
     private Connection conn;
     List<Faq> faqList = new ArrayList<>();
     List<Faq> faqCategoryList = new ArrayList<>();

@@ -1,7 +1,8 @@
 package controller.support;
 
 import domain.support.Notice;
-import model.support.NoticeDAO;
+import model.support.service.dao.NoticeDAO;
+import model.support.service.dao.daoImpl.NoticeDaoImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,7 +10,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class NoticeMenu {
-    NoticeDAO noticeDAO;
+    NoticeDAO noticeDAO = new NoticeDaoImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 메인 & 창고 관리자 & 회원 <공지사항> 메뉴 ---------------------------------------------------------------------------------------------
@@ -199,7 +200,7 @@ public class NoticeMenu {
 
     // 공지사항 전체 출력 ---------------------------------------------------------------------------------------------------
     public void noticeReadAll() {
-        noticeDAO = new NoticeDAO();
+        noticeDAO = new NoticeDaoImpl();
         System.out.println("\n------------------------------<< 공지사항 전체 목록 >>------------------------------");
         System.out.printf("%-5S\t | %-10S\t | %-35S\t | %-10S\t\n", "NO", "날짜", "제목", "내용");
         line();

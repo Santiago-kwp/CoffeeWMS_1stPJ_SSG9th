@@ -1,7 +1,7 @@
 package controller.support;
 
 import domain.support.Notice;
-import model.support.NoticeDAO;
+import model.support.service.dao.daoImpl.NoticeDaoImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class CSMenu {
             System.out.println("\n--------------------------------------------------------------------------------");
             System.out.println("                          Welcome to the Coffee World ");
             System.out.println("----------------------------------<< 공지사항 >>----------------------------------");
-            NoticeDAO noticeDAO = new NoticeDAO();
+            NoticeDaoImpl noticeDAO = new NoticeDaoImpl();
             // -- 공지사항 메인화면 출력
             List<Notice> noticeListMain = noticeDAO.readNoticeMain();
             for (Notice notice : noticeListMain) {
@@ -80,6 +80,7 @@ public class CSMenu {
                     noticeMenu.managerNoticeMenu();
                     break;
                 case 2:
+//                    inquiryMenu.inquiryMenu(user);
                     inquiryMenu.managerInquiryMenu();
                     break;
                 case 3:
@@ -91,13 +92,4 @@ public class CSMenu {
             }
         }
     }
-
-
-
-
-
-
-
-
-
 }

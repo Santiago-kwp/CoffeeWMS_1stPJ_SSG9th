@@ -1,13 +1,14 @@
-package model.support;
+package model.support.service.dao.daoImpl;
 
 import config.DBUtil;
 import domain.support.Notice;
+import model.support.service.dao.NoticeDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoticeDAO {
+public class NoticeDaoImpl implements NoticeDAO {
     private Connection conn;
     List<Notice> noticeList = new ArrayList<>();
 
