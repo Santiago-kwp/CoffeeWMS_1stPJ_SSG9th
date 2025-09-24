@@ -1,0 +1,228 @@
+package controller.support;
+
+import domain.support.Inquiry;
+import model.support.InquiryDAO;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.List;
+
+public class InquiryMenu {
+    InquiryDAO inquiryDAO;
+    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+
+    // 총관리자 1:1문의 메뉴 -------------------------------------------------------------------------------------------------
+    public void managerInquiryMenu() throws IOException {
+        KI:
+        while (true) {
+            inquiryReadAll();
+
+            System.out.println("\n-------------------------------<< 1:1 문의 메뉴 >>-------------------------------");
+            System.out.println("문의 메뉴: 1.상세 조회 | 2.뒤로가기");
+            System.out.print("메뉴 선택 > ");
+            int choice = 0;
+            try {
+                choice = Integer.parseInt(input.readLine());
+            } catch (IOException e) {
+                System.out.println("입력도중 에러 발생");
+            } catch (NumberFormatException e1) {
+                System.out.println("숫자만 입력");
+            } catch (Exception e2) {
+                System.out.println("에러 발생");
+            }
+            switch (choice) {
+                case 1:
+                    System.out.println("문의 번호를 입력해주세요.");
+                    System.out.print("> ");
+                    int readChoice = Integer.parseInt(input.readLine());
+                    line();
+                    System.out.println("[선택하신 문의]");
+                    Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
+                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "내용", oneInquiry.getInquiryContent());
+                    break;
+                case 2:
+                    System.out.println("[뒤로가기]");
+                    break KI;
+            }
+        }
+    }
+
+//    // 공지사항 메뉴 ------------------------------------------------------------------------------------------------------
+//    public void noticeMenu() throws IOException {
+//        KIKI:
+//        while (true) {
+//            noticeReadAll();
+//
+//            System.out.println("\n------------------------------<< 공지사항 메인 메뉴 >>------------------------------");
+//            System.out.println("공지사항 메인 메뉴: 1.공지 생성 | 2.상세 조회 | 3.뒤로가기");
+//            System.out.print("메뉴 선택 > ");
+//            int choice = 0;
+//            try {
+//                choice = Integer.parseInt(input.readLine());
+//            } catch (IOException e) {
+//                System.out.println("입력도중 에러 발생");
+//            } catch (NumberFormatException e1) {
+//                System.out.println("숫자만 입력");
+//            } catch (Exception e2) {
+//                System.out.println("에러 발생");
+//            }
+//            switch (choice) {
+//                case 1:
+//                    Notice notice = noticeDataInput();
+//                    boolean pass = noticeDAO.createNotice(notice);
+//                    if (pass) System.out.println("공지사항이 성공적으로 생성되었습니다.");
+//                    else {
+//                        System.out.println("생성 실패, 다시 시도 부탁드립니다. ");
+//                    }
+//                    break;
+//                case 2:
+//                    System.out.println("공지 번호를 입력해주세요.");
+//                    System.out.print("> ");
+//                    int readChoice = Integer.parseInt(input.readLine());
+//                    line();
+//                    System.out.println("[선택하신 공지]");
+//                    Notice oneNotice = noticeDAO.readNoticeOne(readChoice);
+//                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneNotice.getNoticeDate(), "제목", oneNotice.getNoticeTitle(), "내용", oneNotice.getNoticeContent());
+//                    noticeDetailMenu(readChoice);
+//                    break;
+//                case 3:
+//                    System.out.println("[뒤로가기]");
+//                    break KIKI;
+//            }
+//        }
+//    }
+//
+//    // 공지사항 상세 메뉴 ---------------------------------------------------------------------------------------------------
+//    public void noticeDetailMenu(Integer readChoice) throws IOException {
+//        System.out.println("\n------------------------------<< 공지사항 상세 메뉴 >>------------------------------");
+//        System.out.println("공지사항 상세 메뉴: 1.수정 | 2.삭제 | 3.뒤로가기");
+//        System.out.print("메뉴 선택 > ");
+//        int choice = 0;
+//        try {
+//            choice = Integer.parseInt(input.readLine());
+//        } catch (IOException e) {
+//            System.out.println("입력도중 에러 발생");
+//        } catch (NumberFormatException e1) {
+//            System.out.println("숫자만 입력");
+//        } catch (Exception e2) {
+//            System.out.println("에러 발생");
+//        }
+//        line();
+//        switch (choice) {
+//            case 1:
+//                Notice notice = noticeDataUpdate(readChoice);
+//                boolean update = noticeDAO.updateNotice(notice);
+//                if (update) System.out.println("공지사항이 성공적으로 수정되었습니다.");
+//                else {
+//                    System.out.println("수정 실패, 다시 시도 부탁드립니다. ");
+//                }
+//                break;
+//            case 2:
+//                System.out.println("관리자 아이디");
+//                System.out.print("> ");
+//                String managerId = input.readLine();
+//
+//                boolean delete = noticeDAO.deleteNotice(readChoice, managerId);
+//                if (delete) System.out.println("공지사항이 성공적으로 삭제되었습니다.");
+//                else {
+//                    System.out.println("삭제 실패, 다시 시도 부탁드립니다.");
+//                }
+//                break;
+//            case 3:
+//                System.out.println("[뒤로가기]");
+//                break;
+//        }
+//    }
+//
+//    //######################################################################################################################
+//    // 공지사항 데이터 입력 -------------------------------------------------------------------------------------------------
+//    public Notice noticeDataInput() throws IOException {
+//        Notice notice = new Notice();
+//        System.out.println("\n[공지사항 생성]");
+//        System.out.println("제목 입력");
+//        System.out.print("> ");
+//        String title = input.readLine();
+//        notice.setNoticeTitle(title);
+//
+//        System.out.println("내용 입력");
+//        System.out.print("> ");
+//        String content = input.readLine();
+//        notice.setNoticeContent(content);
+//
+//        System.out.println("상단고정 여부");
+//        System.out.print("Y / N > ");
+//        Character C = input.readLine().charAt(0);
+//        boolean fixed = yesOrNo(C);
+//        notice.setNoticeFixed(fixed);
+//
+//        // 매니저 아이디 가져오기 (임시)
+//        System.out.println("관리자 아이디");
+//        System.out.print("> ");
+//        String managerId = input.readLine();
+//        notice.setNoticeManagerId(managerId);
+//
+//        return notice;
+//    }
+//
+//    // 공지사항 데이터 수정 -------------------------------------------------------------------------------------------------
+//    public Notice noticeDataUpdate(Integer readChoice) throws IOException {
+//        Notice notice = new Notice();
+//
+//        notice.setNoticeId(readChoice);
+//
+//        System.out.println("\n[공지사항 수정]");
+//        System.out.println("제목 입력");
+//        System.out.print("> ");
+//        String title = input.readLine();
+//        notice.setNoticeTitle(title);
+//
+//        System.out.println("내용 입력");
+//        System.out.print("> ");
+//        String content = input.readLine();
+//        notice.setNoticeContent(content);
+//
+//        System.out.println("상단고정 여부");
+//        System.out.print("Y / N > ");
+//        Character C = input.readLine().charAt(0);
+//        boolean fixed = yesOrNo(C);
+//        notice.setNoticeFixed(fixed);
+//
+//        // 매니저 아이디 가져오기 (임시)
+//        System.out.println("관리자 아이디");
+//        System.out.print("> ");
+//        String managerId = input.readLine();
+//        notice.setNoticeManagerId(managerId);
+//
+//        return notice;
+//    }
+
+    // 1:1문의 전체 조회 ---------------------------------------------------------------------------------------------------
+    public void inquiryReadAll() {
+        inquiryDAO = new InquiryDAO();
+        System.out.println("\n------------------------------<< 1:1문의 전체 목록 >>------------------------------");
+        System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "날짜", "카테고리", "문의 내용", "답변 상태");
+        line();
+        List<Inquiry> readAll = inquiryDAO.readInquiryManagerAll();
+        for (Inquiry inquiry : readAll) {
+
+            // 내용을 30글자만 출력
+            String content = inquiry.getInquiryContent();
+            if (content.length() > 10) content = content.substring(0, 10);
+
+            String status = null;
+            switch (inquiry.getInquiryStatus()) {
+                case PENDING -> status = "답변 대기";
+                case DONE -> status = "답변 완료";
+            }
+            System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t",
+                    inquiry.getInquiryId(), inquiry.getInquiryDate(), inquiry.getInquiryCategoryName(), content, status);
+            System.out.println();
+        }
+    }
+
+    // 라인 -------------------------------------------------------------------------------------------------------------
+    public void line() {
+        System.out.println("--------------------------------------------------------------------------------");
+    }
+}
