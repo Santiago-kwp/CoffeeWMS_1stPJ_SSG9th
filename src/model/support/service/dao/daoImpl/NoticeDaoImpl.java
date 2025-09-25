@@ -1,7 +1,9 @@
 package model.support.service.dao.daoImpl;
 
 import config.DBUtil;
+import constant.support.CSExceptionMessage;
 import domain.support.Notice;
+import exception.support.NotFoundException;
 import model.support.service.dao.NoticeDAO;
 
 import java.sql.*;
@@ -38,11 +40,11 @@ public class NoticeDaoImpl implements NoticeDAO {
                     noticeList.add(notice);
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new NotFoundException(CSExceptionMessage.NOT_CREATE_BOARD.getMessage());
             }
             return pass;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_CREATE_BOARD.getMessage());
         }
     }
 
@@ -66,7 +68,7 @@ public class NoticeDaoImpl implements NoticeDAO {
             }
             return noticeList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_LIST.getMessage());
         }
     }
 
@@ -92,7 +94,7 @@ public class NoticeDaoImpl implements NoticeDAO {
             }
             return noticeList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_LIST.getMessage());
         }
     }
 
@@ -117,7 +119,7 @@ public class NoticeDaoImpl implements NoticeDAO {
                 return oneNotice;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_BOARD.getMessage());
         }
         return null;
     }
@@ -127,7 +129,7 @@ public class NoticeDaoImpl implements NoticeDAO {
 
         conn = DBUtil.getConnection();
 
-        String sql = "CALL update_notice(?,?,?,?)";
+        String sql = "CALL update_notice(?,?,?,?,?)";
 
         try (CallableStatement cStmt = conn.prepareCall(sql)) {
             cStmt.setInt(1, notice.getNoticeId());
@@ -141,7 +143,7 @@ public class NoticeDaoImpl implements NoticeDAO {
             if (pass > 0) return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NotFoundException(CSExceptionMessage.NOT_UPDATE_BOARD.getMessage());
         }
         return false;
     }
@@ -161,7 +163,7 @@ public class NoticeDaoImpl implements NoticeDAO {
 
             if (pass > 0) return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new NotFoundException(CSExceptionMessage.NOT_DELETE_BOARD.getMessage());
         }
         return false;
     }

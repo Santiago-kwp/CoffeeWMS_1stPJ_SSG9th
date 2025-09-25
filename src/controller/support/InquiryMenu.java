@@ -1,7 +1,9 @@
 package controller.support;
 
+import constant.support.CSExceptionMessage;
 import constant.support.CSMenuMessage;
 import domain.support.Inquiry;
+import exception.support.InputException;
 import model.support.service.dao.InquiryDAO;
 import model.support.service.dao.daoImpl.InquiryDaoImpl;
 import model.support.service.inputService.InquiryInput;
@@ -28,49 +30,60 @@ public class InquiryMenu {
 //    }
 
     // 총관리자 1:1문의 메뉴 -------------------------------------------------------------------------------------------------
-    public void managerInquiryMenu(String managerId) throws IOException {
+    public void managerInquiryMenu(String managerId) {
         KI:
         while (true) {
             inquiryRead.managerInquiryReadAll();
 
             System.out.print(CSMenuMessage.INQUIRY_MENU_SIMPLE.getMessage());
 
-            int choice = 0;
+            int choice;
             try {
                 choice = Integer.parseInt(input.readLine());
+                if (choice <= 0 || choice > 2) System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
             } catch (IOException e) {
-                System.out.println("입력도중 에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
             } catch (NumberFormatException e1) {
-                System.out.println("숫자만 입력");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
             } catch (Exception e2) {
-                System.out.println("에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
             }
 
             switch (choice) {
                 case 1:
                     System.out.print(CSMenuMessage.INQUIRY_INSERT_ID.getMessage());
 
-                    int readChoice = Integer.parseInt(input.readLine());
+                    int readChoice;
+                    try {
+                        readChoice = Integer.parseInt(input.readLine());
+                    } catch (IOException e) {
+                        throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+                    }
 
                     System.out.println(CSMenuMessage.LINE.getMessage());
 
                     System.out.println(CSMenuMessage.INQUIRY_CHOICE.getMessage());
 
-                    String status = null;
+                    String status;
                     Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
                     switch (oneInquiry.getInquiryStatus()) {
                         case PENDING -> {
                             status = "답변 대기";
                             System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status);
+                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(),
+                                    "문의", oneInquiry.getInquiryContent(), "답변 상태", status);
                         }
                         case DONE -> {
                             status = "답변 완료";
                             System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status, "답변날짜", oneInquiry.getReplyDate(), "답변", oneInquiry.getReplyContent());
+                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(),
+                                    "문의", oneInquiry.getInquiryContent(), "답변 상태", status,
+                                    "답변날짜", oneInquiry.getReplyDate(), "답변", oneInquiry.getReplyContent());
                         }
                     }
+
                     managerInquiryDetailMenu(readChoice, managerId);
+
                     break;
 
                 case 2:
@@ -81,7 +94,7 @@ public class InquiryMenu {
     }
 
     // 회원 1:1문의 메뉴 -------------------------------------------------------------------------------------------------
-    public void memberInquiryMenu(String memberId) throws IOException {
+    public void memberInquiryMenu(String memberId) {
         KI:
         while (true) {
 
@@ -89,15 +102,16 @@ public class InquiryMenu {
 
             System.out.print(CSMenuMessage.INQUIRY_MENU.getMessage());
 
-            int choice = 0;
+            int choice;
             try {
                 choice = Integer.parseInt(input.readLine());
+                if (choice <= 0 || choice > 3) System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
             } catch (IOException e) {
-                System.out.println("입력도중 에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
             } catch (NumberFormatException e1) {
-                System.out.println("숫자만 입력");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
             } catch (Exception e2) {
-                System.out.println("에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
             }
 
             switch (choice) {
@@ -113,25 +127,40 @@ public class InquiryMenu {
                 case 2:
                     System.out.print(CSMenuMessage.INQUIRY_INSERT_ID.getMessage());
 
-                    int readChoice = Integer.parseInt(input.readLine());
+                    int readChoice = 0;
+                    try {
+                        readChoice = Integer.parseInt(input.readLine());
+                    } catch (IOException e) {
+                        throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+                    }
 
                     System.out.println(CSMenuMessage.LINE.getMessage());
 
                     System.out.println(CSMenuMessage.INQUIRY_CHOICE.getMessage());
 
-                    String status = null;
+                    String status;
                     Inquiry oneInquiry = inquiryDAO.readInquiryMemberOne(memberId, readChoice);
+
+                    if (oneInquiry == null) {
+                        System.out.println(CSExceptionMessage.NOT_FOUND_BOARD.getMessage());
+                        break;
+                    }
+
                     switch (oneInquiry.getInquiryStatus()) {
                         case PENDING -> {
                             status = "답변 대기";
                             System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status);
+                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(),
+                                    "문의", oneInquiry.getInquiryContent(), "답변 상태", status);
                         }
                         case DONE -> {
                             status = "답변 완료";
                             System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status, "답변날짜", oneInquiry.getReplyDate(), "답변", oneInquiry.getReplyContent());
+                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(),
+                                    "문의", oneInquiry.getInquiryContent(), "답변 상태", status,
+                                    "답변날짜", oneInquiry.getReplyDate(), "답변", oneInquiry.getReplyContent());
                         }
+                        default -> System.out.println(CSExceptionMessage.NOT_FOUND_BOARD.getMessage());
                     }
                     memberInquiryDetailMenu(memberId, readChoice);
                     break;
@@ -144,25 +173,28 @@ public class InquiryMenu {
     }
 
     // 총관리자 공지사항 상세 메뉴 ---------------------------------------------------------------------------------------------------
-    public void managerInquiryDetailMenu(Integer readChoice, String managerId) throws IOException {
+    public void managerInquiryDetailMenu(Integer readChoice, String managerId) {
         System.out.print(CSMenuMessage.INQUIRY_DETAIL_MENU_MANAGER.getMessage());
 
-        int choice = 0;
+        int choice;
         try {
             choice = Integer.parseInt(input.readLine());
+            if (choice <= 0 || choice > 3)
+                System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
         } catch (IOException e) {
-            System.out.println("입력도중 에러 발생");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
         } catch (NumberFormatException e1) {
-            System.out.println("숫자만 입력");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
         } catch (Exception e2) {
-            System.out.println("에러 발생");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
         }
 
         System.out.println(CSMenuMessage.LINE.getMessage());
 
         switch (choice) {
             case 1:
-                Inquiry inquiry = inquiryInput.managerInquiryDataUpdate(readChoice, managerId);
+                Inquiry inquiry;
+                inquiry = inquiryInput.managerInquiryDataUpdate(readChoice, managerId);
 
                 boolean update = inquiryDAO.updateInquiryManager(inquiry);
 
@@ -184,18 +216,20 @@ public class InquiryMenu {
     }
 
     // 회원 공지사항 상세 메뉴 ---------------------------------------------------------------------------------------------------
-    public void memberInquiryDetailMenu(String memberIdEx, Integer readChoice) throws IOException {
+    public void memberInquiryDetailMenu(String memberIdEx, Integer readChoice) {
         System.out.print(CSMenuMessage.INQUIRY_DETAIL_MENU_MEMBER.getMessage());
 
-        int choice = 0;
+        int choice;
         try {
             choice = Integer.parseInt(input.readLine());
+            if (choice <= 0 || choice > 3)
+                System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
         } catch (IOException e) {
-            System.out.println("입력도중 에러 발생");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
         } catch (NumberFormatException e1) {
-            System.out.println("숫자만 입력");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
         } catch (Exception e2) {
-            System.out.println("에러 발생");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
         }
 
         System.out.println(CSMenuMessage.LINE.getMessage());

@@ -1,8 +1,10 @@
 package model.support.service.dao.daoImpl;
 
 import config.DBUtil;
+import constant.support.CSExceptionMessage;
 import domain.support.Category;
 import domain.support.Inquiry;
+import exception.support.NotFoundException;
 import model.support.service.dao.InquiryDAO;
 
 import java.sql.CallableStatement;
@@ -43,11 +45,11 @@ public class InquiryDaoImpl implements InquiryDAO {
                     inquiryList.add(inquiry);
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new NotFoundException(CSExceptionMessage.NOT_CREATE_BOARD.getMessage());
             }
             return pass;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_CREATE_BOARD.getMessage());
         }
     }
 
@@ -82,7 +84,7 @@ public class InquiryDaoImpl implements InquiryDAO {
             }
             return inquiryList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_LIST.getMessage());
         }
     }
 
@@ -116,7 +118,7 @@ public class InquiryDaoImpl implements InquiryDAO {
             }
             return inquiryList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_LIST.getMessage());
         }
     }
 
@@ -151,7 +153,7 @@ public class InquiryDaoImpl implements InquiryDAO {
             }
             return null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_BOARD.getMessage());
         }
     }
 
@@ -183,10 +185,10 @@ public class InquiryDaoImpl implements InquiryDAO {
                     return inquiry;
                 }
             }
-            return null;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_BOARD.getMessage());
         }
+        return null;
     }
 
     // 1:1 문의 수정 (회원)-------------------------------------------------------------------------------------------------
@@ -205,8 +207,9 @@ public class InquiryDaoImpl implements InquiryDAO {
             int pass = cStmt.executeUpdate();
 
             if (pass > 0) return true;
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NotFoundException(CSExceptionMessage.NOT_UPDATE_BOARD.getMessage());
         }
         return false;
     }
@@ -228,7 +231,7 @@ public class InquiryDaoImpl implements InquiryDAO {
             if (pass > 0) return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NotFoundException(CSExceptionMessage.NOT_UPDATE_BOARD.getMessage());
         }
         return false;
     }
@@ -252,7 +255,7 @@ public class InquiryDaoImpl implements InquiryDAO {
                 return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new NotFoundException(CSExceptionMessage.NOT_DELETE_BOARD.getMessage());
         }
         return false;
     }
@@ -275,7 +278,7 @@ public class InquiryDaoImpl implements InquiryDAO {
                 return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new NotFoundException(CSExceptionMessage.NOT_DELETE_BOARD.getMessage());
         }
         return false;
     }
@@ -300,7 +303,7 @@ public class InquiryDaoImpl implements InquiryDAO {
             }
             return inquiryCategoryList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_LIST.getMessage());
         }
     }
 }

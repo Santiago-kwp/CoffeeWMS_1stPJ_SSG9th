@@ -1,8 +1,10 @@
 package controller.support;
 
+import constant.support.CSExceptionMessage;
 import constant.support.CSMenuMessage;
 import constant.support.MainMenuMessage;
 import domain.support.Notice;
+import exception.support.InputException;
 import model.support.service.dao.daoImpl.NoticeDaoImpl;
 
 import java.io.BufferedReader;
@@ -17,7 +19,7 @@ public class CSMenu {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 메인 페이지
-    public void mainMenu() throws IOException {
+    public void mainMenu() {
         TheEnd:
         while (true) {
             System.out.print(MainMenuMessage.MAIN_MENU.getMessage());
@@ -31,15 +33,17 @@ public class CSMenu {
                 System.out.println();
             }
             System.out.print(MainMenuMessage.MAIN_MENU_OPTION.getMessage());
-            int choice = 0;
+            int choice;
             try {
                 choice = Integer.parseInt(input.readLine());
+                if (choice <= 0 || choice > 3)
+                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
             } catch (IOException e) {
-                System.out.println("입력도중 에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
             } catch (NumberFormatException e1) {
-                System.out.println("숫자만 입력");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
             } catch (Exception e2) {
-                System.out.println("에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
             }
             switch (choice) {
                 case 1:
@@ -50,41 +54,44 @@ public class CSMenu {
                     noticeMenu.memberNoticeMenu();
                     break;
                 case 3:
-                    System.out.println(MainMenuMessage.MAIN_MENU_OPTION.getMessage());
+                    System.out.println(CSMenuMessage.LINE.getMessage());
+                    System.out.println(MainMenuMessage.MAIN_MENU_END.getMessage());
                     break TheEnd;
             }
         }
     }
 
     // 고객센터 ------------------------------------------------------------------------------------------------------
-    public void csMenu() throws IOException {
+    public void csMenu() {
         String managerId = "manager1"; // -> String userId = User.getUserId()
         String memberId = "member1"; // -> String userId = User.getUserId()
         TheEndCS:
         while (true) {
             System.out.print(CSMenuMessage.CS_MENU.getMessage());
-            int choice = 0;
+            int choice;
             try {
                 choice = Integer.parseInt(input.readLine());
+                if (choice <= 0 || choice > 4)
+                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
             } catch (IOException e) {
-                System.out.println("입력도중 에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
             } catch (NumberFormatException e1) {
-                System.out.println("숫자만 입력");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
             } catch (Exception e2) {
-                System.out.println("에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
             }
             switch (choice) {
                 case 1:
-                    noticeMenu.memberNoticeMenu();
-//                    noticeMenu.managerNoticeMenu(managerId);
+//                    noticeMenu.memberNoticeMenu();
+                    noticeMenu.managerNoticeMenu(managerId);
                     break;
                 case 2:
-                    inquiryMenu.memberInquiryMenu(memberId);
-//                    inquiryMenu.managerInquiryMenu(managerId);
+//                    inquiryMenu.memberInquiryMenu(memberId);
+                    inquiryMenu.managerInquiryMenu(managerId);
                     break;
                 case 3:
-                    faqMenu.memberFaqMenu();
-//                    faqMenu.managerFaqMenu(managerId);
+//                    faqMenu.memberFaqMenu();
+                    faqMenu.managerFaqMenu(managerId);
                     break;
                 case 4:
                     System.out.println(CSMenuMessage.BACK.getMessage());

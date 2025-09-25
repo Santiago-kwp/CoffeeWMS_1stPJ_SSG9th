@@ -34,14 +34,14 @@ public enum CSMenuMessage {
     NOTICE_CHOICE("[선택하신 공지]"),
 
 
-    NOTICE_CREATE_SUCCESS("공지사항이 성공적으로 생성되었습니다."),
-    NOTICE_CREATE_FAILURE("공지사항 생성을 실패했습니다. 다시 시도해주세요."),
+    NOTICE_CREATE_SUCCESS("[공지사항이 성공적으로 생성되었습니다.]"),
+    NOTICE_CREATE_FAILURE("[공지사항 생성을 실패했습니다. 다시 시도해주세요.]"),
 
-    NOTICE_UPDATE_SUCCESS("공지사항이 성공적으로 수정되었습니다."),
-    NOTICE_UPDATE_FAILURE("공지사항 수정을 실패했습니다. 다시 시도해주세요."),
+    NOTICE_UPDATE_SUCCESS("[공지사항이 성공적으로 수정되었습니다.]"),
+    NOTICE_UPDATE_FAILURE("[공지사항 수정을 실패했습니다. 다시 시도해주세요.]"),
 
-    NOTICE_DELETE_SUCCESS("공지사항이 성공적으로 삭제되었습니다."),
-    NOTICE_DELETE_FAILURE("공지사항 삭제를 실패했습니다. 다시 시도해주세요."),
+    NOTICE_DELETE_SUCCESS("[공지사항이 성공적으로 삭제되었습니다.]"),
+    NOTICE_DELETE_FAILURE("[공지사항 삭제를 실패했습니다. 다시 시도해주세요.]"),
 
     // 1:1 문의----------------------------------------------------------------------------------------------------------
     INQUIRY_MENU("""
@@ -71,17 +71,17 @@ public enum CSMenuMessage {
     INQUIRY_CHOICE("[선택하신 문의]"),
 
 
-    INQUIRY_CREATE_SUCCESS("문의가 성공적으로 생성되었습니다."),
-    INQUIRY_CREATE_FAILURE("문의 생성을 실패했습니다. 다시 시도해주세요."),
+    INQUIRY_CREATE_SUCCESS("[문의가 성공적으로 생성되었습니다.]"),
+    INQUIRY_CREATE_FAILURE("[문의 생성을 실패했습니다. 다시 시도해주세요.]"),
 
-    INQUIRY_UPDATE_SUCCESS("문의가 성공적으로 수정되었습니다."),
-    INQUIRY_UPDATE_FAILURE("문의 수정을 실패했습니다. 다시 시도해주세요."),
+    INQUIRY_UPDATE_SUCCESS("[문의가 성공적으로 수정되었습니다.]"),
+    INQUIRY_UPDATE_FAILURE("[문의 수정을 실패했습니다. 다시 시도해주세요.]"),
 
-    INQUIRY_REPLY_SUCCESS("문의가 성공적으로 답변되었습니다."),
-    INQUIRY_REPLY_FAILURE("문의 답변을 실패했습니다. 다시 시도해주세요."),
+    INQUIRY_REPLY_SUCCESS("[문의가 성공적으로 답변되었습니다.]"),
+    INQUIRY_REPLY_FAILURE("[문의 답변을 실패했습니다. 다시 시도해주세요.]"),
 
-    INQUIRY_DELETE_SUCCESS("문의가 성공적으로 삭제되었습니다."),
-    INQUIRY_DELETE_FAILURE("문의 삭제를 실패했습니다. 다시 시도해주세요."),
+    INQUIRY_DELETE_SUCCESS("[문의가 성공적으로 삭제되었습니다.]"),
+    INQUIRY_DELETE_FAILURE("[문의 삭제를 실패했습니다. 다시 시도해주세요.]"),
 
     // FAQ--------------------------------------------------------------------------------------------------------------
     FAQ_MENU("""
@@ -106,14 +106,14 @@ public enum CSMenuMessage {
     FAQ_CHOICE("[선택하신 FAQ]"),
 
 
-    FAQ_CREATE_SUCCESS("FAQ가 성공적으로 생성되었습니다."),
-    FAQ_CREATE_FAILURE("FAQ 생성을 실패했습니다. 다시 시도해주세요."),
+    FAQ_CREATE_SUCCESS("[FAQ가 성공적으로 생성되었습니다.]"),
+    FAQ_CREATE_FAILURE("[FAQ 생성을 실패했습니다. 다시 시도해주세요.]"),
 
-    FAQ_UPDATE_SUCCESS("FAQ가 성공적으로 수정되었습니다."),
-    FAQ_UPDATE_FAILURE("FAQ 수정을 실패했습니다. 다시 시도해주세요."),
+    FAQ_UPDATE_SUCCESS("[FAQ가 성공적으로 수정되었습니다.]"),
+    FAQ_UPDATE_FAILURE("[FAQ 수정을 실패했습니다. 다시 시도해주세요.]"),
 
-    FAQ_DELETE_SUCCESS("FAQ가 성공적으로 삭제되었습니다."),
-    FAQ_DELETE_FAILURE("FAQ 삭제를 실패했습니다. 다시 시도해주세요."),
+    FAQ_DELETE_SUCCESS("[FAQ가 성공적으로 삭제되었습니다.]"),
+    FAQ_DELETE_FAILURE("[FAQ 삭제를 실패했습니다. 다시 시도해주세요.]"),
 
     //##################################################################################################################
     TITLE("""

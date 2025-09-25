@@ -1,8 +1,10 @@
 package model.support.service.dao.daoImpl;
 
 import config.DBUtil;
+import constant.support.CSExceptionMessage;
 import domain.support.Faq;
 import domain.support.Category;
+import exception.support.NotFoundException;
 import model.support.service.dao.FaqDAO;
 
 import java.sql.CallableStatement;
@@ -43,11 +45,11 @@ public class FaqDaoImpl implements FaqDAO {
                     faqList.add(faq);
                 }
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new NotFoundException(CSExceptionMessage.NOT_CREATE_BOARD.getMessage());
             }
             return pass;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_CREATE_BOARD.getMessage());
         }
     }
 
@@ -74,7 +76,7 @@ public class FaqDaoImpl implements FaqDAO {
             }
             return faqList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_LIST.getMessage());
         }
     }
 
@@ -99,7 +101,7 @@ public class FaqDaoImpl implements FaqDAO {
                 return oneFaq;
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_BOARD.getMessage());
         }
         return null;
     }
@@ -115,13 +117,14 @@ public class FaqDaoImpl implements FaqDAO {
             cStmt.setInt(1, faq.getFaqId());
             cStmt.setString(2, faq.getFaqQuestion());
             cStmt.setString(3, faq.getFaqReply());
+            cStmt.setString(4, faq.getFaqManagerId());
 
             int pass = cStmt.executeUpdate();
 
             if (pass > 0) return true;
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new NotFoundException(CSExceptionMessage.NOT_UPDATE_BOARD.getMessage());
         }
         return false;
     }
@@ -142,7 +145,7 @@ public class FaqDaoImpl implements FaqDAO {
             if (pass > 0) return true;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new NotFoundException(CSExceptionMessage.NOT_DELETE_BOARD.getMessage());
         }
         return false;
     }
@@ -167,7 +170,7 @@ public class FaqDaoImpl implements FaqDAO {
             }
             return faqCategoryList;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_LIST.getMessage());
         }
     }
 }

@@ -1,7 +1,9 @@
 package controller.support;
 
+import constant.support.CSExceptionMessage;
 import constant.support.CSMenuMessage;
 import domain.support.Faq;
+import exception.support.InputException;
 import model.support.service.dao.FaqDAO;
 import model.support.service.dao.daoImpl.FaqDaoImpl;
 import model.support.service.inputService.FaqInput;
@@ -20,29 +22,36 @@ public class FaqMenu {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 창고관리자 & 회원 <FAQ> 메뉴 ------------------------------------------------------------------------------------------------------
-    public void memberFaqMenu() throws IOException {
+    public void memberFaqMenu() {
         KIKI:
         while (true) {
             faqRead.faqReadAll();
 
             System.out.print(CSMenuMessage.FAQ_MENU_SIMPLE.getMessage());
 
-            int choice = 0;
+            int choice;
             try {
                 choice = Integer.parseInt(input.readLine());
+                if (choice <= 0 || choice > 2)
+                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
             } catch (IOException e) {
-                System.out.println("입력도중 에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
             } catch (NumberFormatException e1) {
-                System.out.println("숫자만 입력");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
             } catch (Exception e2) {
-                System.out.println("에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
             }
 
             switch (choice) {
                 case 1:
                     System.out.print(CSMenuMessage.FAQ_INSERT_ID.getMessage());
 
-                    int readChoice = Integer.parseInt(input.readLine());
+                    int readChoice;
+                    try {
+                        readChoice = Integer.parseInt(input.readLine());
+                    } catch (IOException e) {
+                        throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+                    }
 
                     System.out.println(CSMenuMessage.LINE.getMessage());
 
@@ -50,7 +59,8 @@ public class FaqMenu {
 
                     Faq oneFaq = faqDAO.readFaqOne(readChoice);
                     System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                            "작성일", oneFaq.getFaqDate(), "카테고리", oneFaq.getFaqCategoryName(), "질문", oneFaq.getFaqQuestion(), "답변", oneFaq.getFaqReply());
+                            "작성일", oneFaq.getFaqDate(), "카테고리", oneFaq.getFaqCategoryName(),
+                            "질문", oneFaq.getFaqQuestion(), "답변", oneFaq.getFaqReply());
                     break;
 
                 case 2:
@@ -61,22 +71,24 @@ public class FaqMenu {
     }
 
     // 총관리자 <FAQ> 메뉴 ------------------------------------------------------------------------------------------------------
-    public void managerFaqMenu(String managerId) throws IOException {
+    public void managerFaqMenu(String managerId) {
         KIKI:
         while (true) {
             faqRead.faqReadAll();
 
             System.out.print(CSMenuMessage.FAQ_MENU.getMessage());
 
-            int choice = 0;
+            int choice;
             try {
                 choice = Integer.parseInt(input.readLine());
+                if (choice <= 0 || choice > 3)
+                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
             } catch (IOException e) {
-                System.out.println("입력도중 에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
             } catch (NumberFormatException e1) {
-                System.out.println("숫자만 입력");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
             } catch (Exception e2) {
-                System.out.println("에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
             }
 
             switch (choice) {
@@ -92,14 +104,20 @@ public class FaqMenu {
                 case 2:
                     System.out.print(CSMenuMessage.FAQ_INSERT_ID.getMessage());
 
-                    int readChoice = Integer.parseInt(input.readLine());
+                    int readChoice;
+                    try {
+                        readChoice = Integer.parseInt(input.readLine());
+                    } catch (IOException e) {
+                        throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+                    }
 
                     System.out.println(CSMenuMessage.LINE.getMessage());
 
                     System.out.println(CSMenuMessage.FAQ_CHOICE.getMessage());
 
                     Faq oneFaq = faqDAO.readFaqOne(readChoice);
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneFaq.getFaqDate(), "카테고리", oneFaq.getFaqCategoryName(), "질문", oneFaq.getFaqQuestion(), "답변", oneFaq.getFaqReply());
+                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneFaq.getFaqDate(),
+                            "카테고리", oneFaq.getFaqCategoryName(), "질문", oneFaq.getFaqQuestion(), "답변", oneFaq.getFaqReply());
                     faqDetailMenu(readChoice, managerId);
                     break;
 
@@ -111,18 +129,20 @@ public class FaqMenu {
     }
 
     //  총관리자 <FAQ> 상세 메뉴 ---------------------------------------------------------------------------------------------------
-    public void faqDetailMenu(Integer readChoice, String managerId) throws IOException {
+    public void faqDetailMenu(Integer readChoice, String managerId) {
         System.out.print(CSMenuMessage.FAQ_DETAIL_MENU.getMessage());
 
-        int choice = 0;
+        int choice;
         try {
             choice = Integer.parseInt(input.readLine());
+            if (choice <= 0 || choice > 3)
+                System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
         } catch (IOException e) {
-            System.out.println("입력도중 에러 발생");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
         } catch (NumberFormatException e1) {
-            System.out.println("숫자만 입력");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
         } catch (Exception e2) {
-            System.out.println("에러 발생");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
         }
 
         System.out.println(CSMenuMessage.LINE.getMessage());

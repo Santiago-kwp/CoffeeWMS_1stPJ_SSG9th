@@ -1,7 +1,9 @@
 package controller.support;
 
+import constant.support.CSExceptionMessage;
 import constant.support.CSMenuMessage;
 import domain.support.Notice;
+import exception.support.InputException;
 import model.support.service.dao.NoticeDAO;
 import model.support.service.dao.daoImpl.NoticeDaoImpl;
 import model.support.service.inputService.NoticeInput;
@@ -21,29 +23,36 @@ public class NoticeMenu {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 메인 & 창고 관리자 & 회원 <공지사항> 메뉴 ---------------------------------------------------------------------------------------------
-    public void memberNoticeMenu() throws IOException {
+    public void memberNoticeMenu() {
         KI:
         while (true) {
             noticeRead.noticeReadAll();
 
             System.out.print(CSMenuMessage.NOTICE_MENU_SIMPLE.getMessage());
 
-            int choice = 0;
+            int choice;
             try {
                 choice = Integer.parseInt(input.readLine());
+                if (choice <= 0 || choice > 2)
+                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
             } catch (IOException e) {
-                System.out.println("입력도중 에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
             } catch (NumberFormatException e1) {
-                System.out.println("숫자만 입력");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
             } catch (Exception e2) {
-                System.out.println("에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
             }
 
             switch (choice) {
                 case 1:
                     System.out.print(CSMenuMessage.NOTICE_INSERT_ID.getMessage());
 
-                    int readChoice = Integer.parseInt(input.readLine());
+                    int readChoice;
+                    try {
+                        readChoice = Integer.parseInt(input.readLine());
+                    } catch (IOException e) {
+                        throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+                    }
 
                     System.out.println(CSMenuMessage.LINE.getMessage());
 
@@ -63,23 +72,26 @@ public class NoticeMenu {
     }
 
     // 총관리자 <공지사항> 메뉴 ----------------------------------------------------------------------------------------------
-    public void managerNoticeMenu(String managerId) throws IOException {
+    public void managerNoticeMenu(String managerId) {
         KIKI:
         while (true) {
             noticeRead.noticeReadAll();
 
             System.out.print(CSMenuMessage.NOTICE_MENU.getMessage());
 
-            int choice = 0;
+            int choice;
             try {
                 choice = Integer.parseInt(input.readLine());
+                if (choice <= 0 || choice > 3)
+                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
             } catch (IOException e) {
-                System.out.println("입력도중 에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
             } catch (NumberFormatException e1) {
-                System.out.println("숫자만 입력");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
             } catch (Exception e2) {
-                System.out.println("에러 발생");
+                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
             }
+
             switch (choice) {
                 case 1:
                     Notice notice = noticeInput.noticeDataInput(managerId);
@@ -93,16 +105,22 @@ public class NoticeMenu {
                     break;
 
                 case 2:
-                    System.out.print(CSMenuMessage.NOTICE_INSERT_ID);
+                    System.out.print(CSMenuMessage.NOTICE_INSERT_ID.getMessage());
 
-                    int readChoice = Integer.parseInt(input.readLine());
+                    int readChoice;
+                    try {
+                        readChoice = Integer.parseInt(input.readLine());
+                    } catch (IOException e) {
+                        throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+                    }
 
                     System.out.println(CSMenuMessage.LINE.getMessage());
 
                     System.out.println(CSMenuMessage.NOTICE_CHOICE.getMessage());
 
                     Notice oneNotice = noticeDAO.readNoticeOne(readChoice);
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneNotice.getNoticeDate(), "제목", oneNotice.getNoticeTitle(), "내용", oneNotice.getNoticeContent());
+                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                            "작성일", oneNotice.getNoticeDate(), "제목", oneNotice.getNoticeTitle(), "내용", oneNotice.getNoticeContent());
                     noticeDetailMenu(readChoice, managerId);
                     break;
 
@@ -114,18 +132,19 @@ public class NoticeMenu {
     }
 
     // 총관리자 공지사항 상세 메뉴 --------------------------------------------------------------------------------------------
-    public void noticeDetailMenu(Integer readChoice,String managerId) throws IOException {
+    public void noticeDetailMenu(Integer readChoice, String managerId) {
         System.out.print(CSMenuMessage.NOTICE_DETAIL_MENU.getMessage());
 
-        int choice = 0;
+        int choice;
         try {
             choice = Integer.parseInt(input.readLine());
+            if (choice <= 0 || choice > 3) System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
         } catch (IOException e) {
-            System.out.println("입력도중 에러 발생");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
         } catch (NumberFormatException e1) {
-            System.out.println("숫자만 입력");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
         } catch (Exception e2) {
-            System.out.println("에러 발생");
+            throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
         }
 
         System.out.println(CSMenuMessage.LINE.getMessage());
