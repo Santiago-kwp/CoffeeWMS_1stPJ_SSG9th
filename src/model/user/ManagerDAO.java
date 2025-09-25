@@ -1,7 +1,7 @@
 package model.user;
 
 import config.DBUtil;
-import domain.user.Member;
+import domain.user.Manager;
 import domain.user.User;
 
 import java.sql.CallableStatement;
@@ -9,41 +9,37 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
 
-public class MemberDAO implements UserDAO {
+public class ManagerDAO implements UserDAO {
 
-    private final Member member;
+    private final Manager manager;
 
-    public MemberDAO(Member loginUser) {
-        this.member = loginUser;
+    public ManagerDAO(Manager manager) {
+        this.manager = manager;
     }
 
     @Override
-    public Member searchUserDetails() {
-        return member;
+    public Manager searchUserDetails() {
+        return manager;
     }
 
     @Override
     public boolean updateUserInfo(User newInfo) {
-        String sql = "{call member_update(?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{call manager_update(?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
-            call.setString(1, member.getId());
+            call.setString(1, manager.getId());
             call.setString(2, newInfo.getPwd());
             call.setString(3, newInfo.getName());
             call.setString(4, newInfo.getPhone());
             call.setString(5, newInfo.getEmail());
-            call.setString(6, newInfo.getCompanyCode());
-            call.setString(7, newInfo.getAddress());
 
             call.execute();
 
             // 현재 사용자 정보 갱신 -> 다음에 자신의 정보 조회할 때 반영해야 함
-            member.setPwd(newInfo.getPwd());
-            member.setName(newInfo.getName());
-            member.setPhone(newInfo.getPhone());
-            member.setEmail(newInfo.getEmail());
-            member.setCompanyCode(newInfo.getCompanyCode());
-            member.setAddress(newInfo.getAddress());
+            manager.setPwd(newInfo.getPwd());
+            manager.setName(newInfo.getName());
+            manager.setPhone(newInfo.getPhone());
+            manager.setEmail(newInfo.getEmail());
 
             return true;
         } catch (SQLException e) {
@@ -53,11 +49,11 @@ public class MemberDAO implements UserDAO {
     }
 
     @Override
-    public boolean deleteUserInfo() {   // 회원 탈퇴
-        String sql = "{call member_delete(?, ?)}";
+    public boolean deleteUserInfo() {
+        String sql = "{call manager_delete(?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
-            call.setString(1, member.getId());
+            call.setString(1, manager.getId());
             call.setInt(2, Types.INTEGER);
             call.execute();
 
@@ -67,5 +63,14 @@ public class MemberDAO implements UserDAO {
             System.out.println(e.getMessage());
         }
         return false;
+    }
+
+    public User searchUser(String targetID) {
+        if (targetID.equals(manager.getId())) {
+            return searchUserDetails();
+        }
+        String sql = "{}";
+
+        return null;
     }
 }

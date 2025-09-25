@@ -1,5 +1,6 @@
 package model.user;
 
+
 import config.DBUtil;
 import domain.user.Manager;
 import domain.user.Member;
@@ -135,22 +136,36 @@ public class LoginDAO {
         return foundID;
     }
 
-    public String findPassword(String userID) {
-        String sql = "{call find_pwd(?, ?)}";
-        String foundPwd = null;
+    public boolean isExistID(String userID) {
+        String sql = "{call has_userID(?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, userID);
-            call.registerOutParameter(2, Types.VARCHAR);
+            call.registerOutParameter(2, Types.BOOLEAN);
 
             call.execute();
 
-            foundPwd = call.getString(2);
-            return foundPwd;
+            return call.getBoolean(2);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        return foundPwd;
+        return false;
+    }
+
+    public boolean updatePassword(String userID, String newPwd) {
+        String sql = "{call update_pwd(?, ?)}";
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, userID);
+            call.setString(2, newPwd);
+
+            call.execute();
+
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
     }
 
     public static void logout(String userID) {

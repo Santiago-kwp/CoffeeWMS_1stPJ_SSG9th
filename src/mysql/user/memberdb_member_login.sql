@@ -1,3 +1,4 @@
+use testdb1;
 
 #########################################################
 # 1. 로그인 메뉴의 주요 기능 구현
@@ -35,6 +36,7 @@ BEGIN
 			select * from members where member_id = login_id;
         end if;
 	end if;
+    commit;
 END $$
 DELIMITER ;
 
@@ -60,6 +62,7 @@ BEGIN
             select * from managers where manager_id = login_id;
         end if;
     end if;
+    commit;
 END $$
 DELIMITER ;
 
@@ -151,10 +154,12 @@ call register('wmsadmin', 'admin1234', '홍길동', '010-1234-5678', 'wmsAdmin@t
 select * from users;
 select * from managers;
 
+
 call register('wmscargoman', 'wms123456', '김철수', null, 'wmscargoman@test.com', null, '서울시 강남구', '창고관리자');
 select * from users;
 select * from managers;
 
+delete from users;
 delete from members;
 delete from managers;
 
@@ -188,28 +193,79 @@ select @found_ID, @result;
 ##############################################################
 # 1-4 비밀번호 찾기
 
-DROP PROCEDURE IF EXISTS find_pwd;
+-- 비밀번호를 변경할 아이디가 존재하는지 확인
+DROP PROCEDURE IF EXISTS has_userID;
 DELIMITER $$
-CREATE PROCEDURE find_pwd(IN userID varchar(15), OUT found_pwd varchar(20))
+CREATE PROCEDURE has_userID(IN targetID varchar(15), OUT isExist boolean)
 BEGIN
-    declare userType varchar(10);
+	declare member_count int default 0;
+    declare manager_count int default 0;
     
-    select user_type into userType from users where user_id = userID and user_approval = '승인완료';
+    select count(*) into member_count 
+    from users 
+    where user_approval = '승인완료' and user_id = (
+		select member_id
+        from members
+        where member_id = targetID
+    );
     
-    if (userType like '%관리자') then
-		select manager_pwd into found_pwd from managers where manager_id = userID;
-	elseif (userType = '일반회원') then
-		select member_pwd into found_pwd from members where member_id = userID;
+    select count(*) into manager_count
+    from users
+    where user_approval = '승인완료' and user_id = (
+		select manager_id
+        from managers
+        where manager_id = targetID
+    );
+    
+    if (member_count + manager_count = 1) then
+		set isExist = true;
+    else
+		set isExist = false;
+    end if;
+END $$
+DELIMITER ;
+call has_userID('wmsAdmin', @result);
+select @result;
+
+-- 비밀번호 변경: users 테이블의 비밀번호 변경
+DROP PROCEDURE IF EXISTS update_pwd;
+DELIMITER $$
+CREATE PROCEDURE update_pwd(IN targetID varchar(15), IN newPwd varchar(20))
+BEGIN
+	set @targetID = targetID;
+    set @newPwd = newPwd;
+    
+    set @updatePwd = 'update users set user_pwd = ? where user_id = ? and user_approval = \'승인완료\'';
+    prepare updateQuery from @updatePwd;
+    execute updateQuery using @newPwd, @targetID;
+    
+    deallocate prepare updateQuery;
+    commit;
+END $$
+DELIMITER ;
+
+-- 변경된 비밀번호를 members, managers 테이블에도 적용
+DROP TRIGGER IF EXISTS update_pwd_trigger;
+DELIMITER $$
+CREATE TRIGGER update_pwd_trigger
+	AFTER UPDATE ON users
+    FOR EACH ROW
+BEGIN
+	if (old.user_pwd != new.user_pwd) then
+		if (new.user_type = '%관리자') then
+			update managers set manager_pwd = new.user_pwd where manager_id = new.user_id;
+        else 
+			update members set member_pwd = new.user_pwd where member_id = new.user_id;
+        end if;
     end if;
 END $$
 DELIMITER ;
 
--- 비밀번호 찾기 테스트
-call find_pwd('wmsAdmin', @found_pwd, @result);
-select @found_pwd, @result;
-call find_pwd('manager', @found_pwd, @result);
-select @found_pwd, @result;
+select * from users where user_id = 'wmsmember';
 
+call update_pwd('wmsmember', 'wms1234');
+select * from users where user_id = 'wmsmember';
+select * from members where member_id = 'wmsmember';
 
 #########################################
 # 1-5. 로그아웃 기능 구현
@@ -247,11 +303,13 @@ BEGIN
             set message = '로그아웃 완료';
         end if;
 	end if;
+    commit;
 END $$
 DELIMITER ;
 
 call login_manager('wmscargoman', 'wms123456', '창고관리자');
 call logout('wmscargoman', @result);
 call logout('wmsAdmin', @result);
-call logout('wmsmember', @result);
+call logout('member12350', @result);
 select @result;
+commit;

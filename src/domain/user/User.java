@@ -1,10 +1,12 @@
 package domain.user;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class User {
 
     protected String id;
@@ -16,8 +18,6 @@ public class User {
     protected String address;
     protected String type;
 
-    public User() {
-    }
     public User(String id, String pwd, String name, String phone, String email, String type) {
         this.id = id;
         this.pwd = pwd;

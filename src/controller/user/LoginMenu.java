@@ -1,6 +1,6 @@
 package controller.user;
 
-import constant.user.LoginMessage;
+import constant.user.LoginPage;
 import domain.user.User;
 import model.user.LoginDAO;
 
@@ -30,13 +30,13 @@ public class LoginMenu {
     public void loginMenu() {
         while (!quitLogin) {
             try {
-                System.out.print(LoginMessage.LOGIN_MENU_TITLE);
+                System.out.print(LoginPage.LOGIN_MENU_TITLE);
                 String menuNum = input.readLine();
                 switch (menuNum) {
                     case "1" -> login();
                     case "2" -> register();
                     case "3" -> findID();
-                    case "4" -> findPassword();
+                    case "4" -> updatePassword();
                     case "5" -> exitLoginMenu();
                 }
             } catch (IOException e) {
@@ -46,19 +46,22 @@ public class LoginMenu {
     }
 
     public void login() throws IOException {
-        System.out.println(LoginMessage.INPUT_ID);
+        System.out.println(LoginPage.INPUT_ID);
         String userID = input.readLine();
-        System.out.println(LoginMessage.INPUT_PWD);
+        System.out.println(LoginPage.INPUT_PWD);
         String userPwd = input.readLine();
 
         User loginUser = dao.login(userID, userPwd);
+        if (loginUser == null) {
+            throw new IllegalStateException("계정이 존재하지 않습니다.");
+        }
         WMSMenu wmsMenu = new WMSMenu(loginUser);
         wmsMenu.run();
     }
 
     public void register() throws IOException {
-        LoginMessage.print(LoginMessage.SIGN_UP);
-        System.out.print(LoginMessage.INPUT_MEMBERSHIP_TYPE);
+        LoginPage.print(LoginPage.SIGN_UP);
+        System.out.print(LoginPage.INPUT_MEMBERSHIP_TYPE);
         String type = input.readLine();
 
         boolean ack = false;
@@ -74,28 +77,28 @@ public class LoginMenu {
         }
 
         if (ack) {
-            System.out.println("회원가입이 완료되었습니다.");
+            System.out.println(LoginPage.REGISTER_SUCCESS);
         } else {
-            System.out.println("회원가입에 실패했습니다.");
+            System.out.println(LoginPage.REGISTER_FAILED);
         }
     }
 
     public User inputMemberInfo() throws IOException {
-        LoginMessage.print(LoginMessage.MEMBER_REGISTER);
+        LoginPage.print(LoginPage.MEMBER_REGISTER);
 
-        System.out.println(LoginMessage.INPUT_ID);
+        System.out.println(LoginPage.INPUT_ID);
         String userID = input.readLine();
-        System.out.println(LoginMessage.INPUT_PWD);
+        System.out.println(LoginPage.INPUT_PWD);
         String userPwd = input.readLine();
-        System.out.println(LoginMessage.INPUT_COMPANY_NAME);
+        System.out.println(LoginPage.INPUT_COMPANY_NAME);
         String companyName = input.readLine();
-        System.out.println(LoginMessage.INPUT_PHONE);
+        System.out.println(LoginPage.INPUT_PHONE);
         String phone = input.readLine();
-        System.out.println(LoginMessage.INPUT_EMAIL);
+        System.out.println(LoginPage.INPUT_EMAIL);
         String email = input.readLine();
-        System.out.println(LoginMessage.INPUT_COMPANY_CODE);
+        System.out.println(LoginPage.INPUT_COMPANY_CODE);
         String companyCode = input.readLine();
-        System.out.println(LoginMessage.INPUT_ADDRESS);
+        System.out.println(LoginPage.INPUT_ADDRESS);
         String address = input.readLine();
 
         User newUser = new User(userID, userPwd, companyName, phone, email, "일반회원");
@@ -105,42 +108,58 @@ public class LoginMenu {
     }
 
     public User inputManagerInfo() throws IOException {
-        LoginMessage.print(LoginMessage.MANAGER_REGISTER);
-        System.out.println(LoginMessage.INPUT_ID);
+        LoginPage.print(LoginPage.MEMBER_REGISTER);
+        System.out.println(LoginPage.INPUT_ID);
         String userID = input.readLine();
-        System.out.println(LoginMessage.INPUT_PWD);
+        System.out.println(LoginPage.INPUT_PWD);
         String userPwd = input.readLine();
-        System.out.println(LoginMessage.INPUT_NAME);
+        System.out.println(LoginPage.INPUT_NAME);
         String name = input.readLine();
-        System.out.println(LoginMessage.INPUT_PHONE);
+        System.out.println(LoginPage.INPUT_PHONE);
         String phone = input.readLine();
-        System.out.println(LoginMessage.INPUT_EMAIL);
+        System.out.println(LoginPage.INPUT_EMAIL);
         String email = input.readLine();
-        System.out.println(LoginMessage.INPUT_MANAGER_POSITION);
+        System.out.println(LoginPage.INPUT_MANAGER_POSITION);
         String position = input.readLine();
 
-        User newUser = new User(userID, userPwd, name, phone, email, position);
-        return newUser;
+        return new User(userID, userPwd, name, phone, email, position);
     }
 
     public void findID() throws IOException {
-        LoginMessage.print(LoginMessage.FIND_ID);
-        System.out.println(LoginMessage.INPUT_EMAIL);
+        LoginPage.print(LoginPage.FIND_ID);
+        System.out.println(LoginPage.INPUT_EMAIL);
         String userEmail = input.readLine();
+        String foundID = dao.findID(userEmail);
 
-        System.out.println(dao.findID(userEmail));
+        if (foundID != null) {
+            System.out.printf(LoginPage.FOUND_ID.toString(), foundID);
+        } else {
+            System.out.println(LoginPage.NOT_FOUND_ID);
+        }
     }
 
-    public void findPassword() throws IOException {
-        LoginMessage.print(LoginMessage.FIND_PWD);
-        System.out.println(LoginMessage.INPUT_ID);
+    public void updatePassword() throws IOException {
+        LoginPage.print(LoginPage.FIND_PWD);
+        System.out.println(LoginPage.INPUT_ID);
         String userID = input.readLine();
 
-        System.out.println(dao.findPassword(userID));
+        if (!dao.isExistID(userID)) {
+            System.out.println(LoginPage.ID_NOT_EXIST);
+            return;
+        }
+        System.out.println(LoginPage.NEW_PASSWORD);
+        String newPassword = input.readLine();
+
+        boolean ack = dao.updatePassword(userID, newPassword);
+        if (ack) {
+            System.out.println(LoginPage.UPDATE_PASSWORD);
+        } else {
+            System.out.println(LoginPage.NOT_UPDATE_PASSWORD);
+        }
     }
 
     public void exitLoginMenu() {
         quitLogin = true;
-        System.out.println(LoginMessage.EXIT_LOGIN_MENU);
+        System.out.println(LoginPage.EXIT_LOGIN_MENU);
     }
 }

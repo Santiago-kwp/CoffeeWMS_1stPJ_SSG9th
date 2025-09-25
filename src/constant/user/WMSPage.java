@@ -1,6 +1,6 @@
 package constant.user;
 
-public enum WMSMessage {
+public enum WMSPage {
 
     MANAGER_MENU_TITLE("""
             ---------------------------<< 관리자 WMS 메뉴 >>-----------------------------
@@ -18,7 +18,7 @@ public enum WMSMessage {
 
     private final String page;
 
-    WMSMessage(String page) {
+    WMSPage(String page) {
         this.page = page;
     }
 
