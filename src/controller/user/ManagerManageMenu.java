@@ -75,8 +75,13 @@ public class ManagerManageMenu implements UserManageMenu {
     private void readOtherUser() throws IOException {
         System.out.println(UserPage.INPUT_ID_FOR_SEARCH);
         String targetID = input.readLine();
-        User found = dao.searchUser(targetID);
 
+        String userType = dao.searchUserTypeBy(targetID);
+        User found = dao.searchUser(targetID, userType);
+
+        if (userType == null || found == null) {
+            throw new RuntimeException("해당하는 회원을 찾을 수 없습니다.");
+        }
         switch (currentManager.getPosition()) {
             case "창고관리자":
                 if (found instanceof Manager) {
@@ -134,9 +139,11 @@ public class ManagerManageMenu implements UserManageMenu {
     public void updateManagerRole() {
         String position = currentManager.getPosition();
         if (!position.equals("총관리자")) {
+            // 예외 처리 필요
             System.out.println(UserPage.NOT_HAVE_PERMISSION);
             return;
         }
+
     }
 
     public User inputNewManager() throws IOException {

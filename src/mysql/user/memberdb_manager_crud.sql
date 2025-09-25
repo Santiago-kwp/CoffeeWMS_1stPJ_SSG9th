@@ -90,13 +90,29 @@ BEGIN
 END $$
 DELIMITER ;
 
-DROP PROCEDURE IF EXISTS cargo_manager_search;
+DROP PROCEDURE IF EXISTS other_user_type;
 DELIMITER $$
-CREATE PROCEDURE cargo_manager_search(IN targetID varchar(15), IN userType varchar(10))
+CREATE PROCEDURE other_user_type(IN targetID varchar(15), OUT userType varchar(10))
 BEGIN
-	-- 
-	if (userType like '창고관리자') then
-		select * from members;
-    end if;
+	select user_type into userType
+    from users
+    where user_id = targetID and user_approval = '승인완료';
 END $$
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS search_other_member;
+DELIMITER $$
+CREATE PROCEDURE search_other_member(IN targetID varchar(15))
+BEGIN
+	select * from members where member_id = targetID;
+END $$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS search_other_manager;
+DELIMITER $$
+CREATE PROCEDURE search_other_manager(IN targetID varchar(15))
+BEGIN
+	select * from managers where manager_id = targetID;
+END $$
+DELIMITER ;
+

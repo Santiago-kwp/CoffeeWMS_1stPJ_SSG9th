@@ -2,10 +2,12 @@ package model.user;
 
 import config.DBUtil;
 import domain.user.Manager;
+import domain.user.Member;
 import domain.user.User;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
@@ -65,12 +67,72 @@ public class ManagerDAO implements UserDAO {
         return false;
     }
 
-    public User searchUser(String targetID) {
+    public String searchUserTypeBy(String targetID) {
+        String sql = "{call other_user_type(?, ?)}";
+        try (Connection conn = DBUtil.getConnection();
+                CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, targetID);
+            call.registerOutParameter(2, Types.VARCHAR);
+
+            call.execute();
+
+            return call.getString(2);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    public User searchUser(String targetID, String targetType) {
         if (targetID.equals(manager.getId())) {
             return searchUserDetails();
         }
-        String sql = "{}";
 
+        String sql = (targetType.endsWith("관리자"))
+                ? "{call search_other_manager(?)}"
+                : "{call search_other_member(?)}";
+        try (Connection conn = DBUtil.getConnection();
+                CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, targetID);
+
+            try (ResultSet rs = call.executeQuery()) {
+                if (rs.next()) {
+                    return (targetType.endsWith("관리자")) ? getManager(rs) : getMember(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
         return null;
+    }
+    private Member getMember(ResultSet rs) throws SQLException {
+        Member member = new Member(
+                rs.getString(1),
+                rs.getString(2),
+                rs.getString(3),
+                rs.getString(4),
+                rs.getString(5)
+        );
+        member.setCompanyCode(rs.getString(6));
+        member.setAddress(rs.getString(7));
+        member.setLogin(rs.getBoolean(8));
+        member.setStart_date(rs.getDate(9));
+        member.setExpired_date(rs.getDate(10));
+
+        return member;
+    }
+    private Manager getManager(ResultSet rs) throws SQLException {
+        Manager manager = new Manager(
+                rs.getString(1),
+                rs.getString(2),
+                rs.getString(3),
+                rs.getString(4),
+                rs.getString(5),
+                rs.getString(8)
+        );
+        manager.setLogin(rs.getBoolean(6));
+        manager.setHireDate(rs.getDate(7));
+
+        return manager;
     }
 }

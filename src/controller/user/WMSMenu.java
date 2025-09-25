@@ -15,8 +15,8 @@ public class WMSMenu {
     private static final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     private final User currentLoginUser;
-    private boolean quitWMS;
 
+    private boolean quitWMS;
     private UserManageMenu userManageMenu;
 
     public WMSMenu(User loginUser) {

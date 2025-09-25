@@ -123,9 +123,13 @@ BEGIN
 	-- 탈퇴로 인해 회원정보가 삭제되면, 해당 회원의 ID로 더 이상 로그인 불가 -> 일반회원/관리자 테이블의 기존 아이디 앞에 'deleted_' 접두어 추가
     -- 현재 로그인한 회원이 총관리자일 때는 회원탈퇴 불가
     IF (OLD.user_type = '일반회원') THEN
-		update members set member_id = concat('del_', member_id), member_login = false where member_id = old.user_id and member_login = true;
+		update members 
+        set member_id = concat('del_', member_id), member_login = false 
+        where member_id = old.user_id and member_login = true;
     ELSEIF (OLD.user_type = '창고관리자') THEN
-		update managers set manager_id = concat('del_', manager_id), manager_login = false where manager_id = old.user_id and manager_login = true;
+		update managers 
+        set manager_id = concat('del_', manager_id), manager_login = false 
+        where manager_id = old.user_id and manager_login = true;
     END IF;
 END $$
 DELIMITER ;
