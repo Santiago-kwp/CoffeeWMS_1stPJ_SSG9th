@@ -9,20 +9,29 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class InboundRequest {
-  String inboundRequestId;
-  String memberId;
-  String managerId;
-  boolean inboundRequestApproved = false;
-  Date inboundDate;
-  String inboundReceipt;
+  private String inboundRequestId;
+  private String memberId;
+  private String managerId;
+  private String requestItemsJson;
+  private Date inboundRequestDate;
 
-  public InboundRequest(String inboundRequestId, String memberId, String managerId) {
+  public void setInboundRequestId(String inboundRequestId) {
     this.inboundRequestId = inboundRequestId;
+  }
+
+  public void setMemberId(String memberId) {
     this.memberId = memberId;
+  }
+
+  public void setManagerId(String managerId) {
     this.managerId = managerId;
   }
 
+  public void setRequestItemsJson(String requestItemsJson) {
+    this.requestItemsJson = requestItemsJson;
+  }
 
-
-
+  public void setInboundRequestDate(Date inboundRequestDate) {
+    this.inboundRequestDate = inboundRequestDate;
+  }
 }

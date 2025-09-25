@@ -1,145 +1,252 @@
 package view.transaction;
 
+
+import constant.transaction.ErrorCode;
+import constant.transaction.TransactionText;
+import constant.transaction.ValidCheck;
 import controller.transaction.InboundController;
-import java.util.InputMismatchException;
+import domain.transaction.Coffee;
+import exception.transaction.TransactionException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * InboundView
+ * 사용자와 상호작용하는 뷰 역할을 담당하는 클래스.
+ * 컨트롤러로부터 받은 데이터를 화면에 표시합니다.
+ */
 public class InboundView {
+  private static ValidCheck validCheck = new ValidCheck();
+  private InboundController controller;
+  private final Scanner scanner;
 
-  private final InboundController inboundController;
-  private final Scanner sc;
-
-  public InboundView() {
-    this.inboundController = new InboundController();
-    sc = new Scanner();
+  public InboundView(InboundController controller) {
+    this.controller = controller;
+    this.scanner = new Scanner(System.in);
   }
 
-  public void displayInboundMenu(String memberId) {
-    System.out.println("--- 입고(회원) ---");
+  public void setController(InboundController controller) {
+    this.controller = controller;
+  }
+
+
+  /**
+   * 로그인 -> 입고화면으로 이동시 웰컴 화면 표시
+   */
+  public void displayMemberInboundMenu() {
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.MEMBER_INBOUND_HEADER.getText());
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.MEMBER_INBOUND.getText());
+  }
+
+  public void displayManagerInboundMenu() {
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.MANAGER_INBOUND_HEADER.getText());
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.MANAGER_INBOUND.getText());
+  }
+
+  /**
+   * 입고 가능한 커피 목록을 화면에 표시합니다.
+   * @param coffees 컨트롤러로부터 전달받은 커피 목록
+   */
+  public void displayCoffees(List<Coffee> coffees) {
+    AtomicInteger inboundRequestCoffeeNum = new AtomicInteger(1);
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.MEMBER_INBOUND_HEADER.getText());
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.COFFEES_HEADER.getText());
+    System.out.println(TransactionText.COFFEE_ATTRIBUTES_HEADER.getText());
+
+    if (coffees.isEmpty()) {
+      System.out.println(TransactionText.NO_AVAILABLE_COFFEE);
+    } else {
+      coffees.forEach(coffee -> System.out.printf("|   %-4d %s\n",inboundRequestCoffeeNum.getAndIncrement(), coffee.toString()));
+    }
+    System.out.println(TransactionText.BORDER_LINE.getText());
+  }
+
+
+  public int getIntegerInput(String s) {
+    System.out.println(s);
+    String numberInput = scanner.nextLine();
+    try {
+      validCheck.isValidForMainMenu(numberInput);
+    }
+    catch (TransactionException e) {
+      System.out.println(e.getMessage());
+      getIntegerInput(s);
+    }
+    return Integer.parseInt(numberInput);
+  }
+
+  /**
+   * 사용자에게 메시지를 표시합니다.
+   * @param message 표시할 메시지
+   */
+  public void displayMessage(String message) {
+    System.out.println(message);
+  }
+
+
+  public String getStringInput(String prompt) {
+    System.out.print(prompt);
+    return scanner.nextLine();
+  }
+
+  /**
+   * 사용자로부터 상품 ID와 수량을 반복적으로 입력받아 JSON 형식으로 변환합니다.
+   * 'exit' 입력 시 종료됩니다.
+   * @param prompt 사용자에게 보여줄 안내 메시지
+   * @return JSON 형식의 문자열
+   */
+  public String getJsonInput(String prompt) {
+    System.out.println(prompt);
+    List<Map<String, Object>> items = new ArrayList<>();
+    List<Coffee> coffees = controller.showAvailableCoffees();
+
     while (true) {
-      System.out.println("1. 입고 요청 | 2. 입고 요청내역 조회 | 3. 입고현황 조회 | 4. 뒤로 가기 >> 로그인(회원)");
-      System.out.print("메뉴 선택: ");
+      // 예외가 발생할 수 있는 코드
       try {
-        int menu = sc.nextInt();
-        sc.nextLine(); // 버퍼 비우기
-        switch (menu) {
-          case 1:
-            requestInbound(memberId);
-            break;
-          case 2:
-            viewInboundRequestHistory(memberId);
-            break;
-          case 3:
-            viewInboundStatus(memberId);
-            break;
-          case 4:
-            System.out.println("이전 메뉴로 돌아갑니다.");
-            return;
-          default:
-            System.out.println("잘못된 메뉴 번호입니다. 다시 입력해주세요.");
-            break;
+        System.out.print("커피 번호를 입력하세요 (종료: 'exit'): ");
+        String coffeeNumInput = scanner.nextLine().trim();
+
+        if ("exit".equalsIgnoreCase(coffeeNumInput)) {
+          break;
         }
-      } catch (InputMismatchException e) {
-        System.out.println("잘못된 입력입니다. 숫자를 입력해주세요.");
-        sc.nextLine(); // 잘못된 입력 버퍼 비우기
-      }
-    }
-  }
 
-  private void requestInbound(String memberId) {
-    System.out.println("--- 입고 요청 ---");
-    try {
-      System.out.print("입고 요청할 창고 관리자 아이디를 입력하세요: ");
-      String managerId = sc.nextLine();
+        // 커피 번호 유효성 검사
+        validCheck.isValidCoffeeNumber(coffeeNumInput, coffees.size());
 
-      // InboundRequest 객체 생성 (기본정보)
-      InboundRequest request = new InboundRequest();
-      request.setMemberId(memberId);
-      request.setManagerId(managerId);
+        System.out.print("수량을 입력하세요: ");
+        String quantityInput = scanner.nextLine().trim();
 
-      // 입고 요청 아이템 목록 입력
-      System.out.println("입고 요청할 품목을 입력하세요 (입력을 마치려면 'end' 입력)");
-      do {
-        System.out.print("커피 ID: ");
-        String coffeeId = sc.nextLine();
-        if (coffeeId.equalsIgnoreCase("end")) break;
+        // 수량 유효성 검사
+        int quantity = validCheck.isValidCoffeeQuantity(quantityInput);
 
-        System.out.print("수량: ");
-        int quantity = sc.nextInt();
-        sc.nextLine(); // 버퍼 비우기
+        int coffeeIndex = Integer.parseInt(coffeeNumInput) - 1;
+        Coffee selectedCoffee = coffees.get(coffeeIndex);
 
-        InboundRequestItems item = new InboundRequestItems();
-        item.setCoffeeId(coffeeId);
-        item.setInboundRequestQuantity(quantity);
-        request.addInboundItem(item);
-      } while (true);
+        // 사용자에게 확인 요청
+        System.out.printf("선택하신 상품: %s, 수량: %d. 맞습니까? (y/n)\n", selectedCoffee.getCoffeeName(), quantity);
+        System.out.print(">> ");
+        String confirm = scanner.nextLine().trim();
 
-      boolean success = inboundController.requestInbound(request);
-      if (success) {
-        System.out.println("입고 요청이 성공적으로 접수되었습니다. 관리자 승인을 기다려주세요.");
-      } else {
-        System.out.println("입고 요청에 실패했습니다. 입력 정보를 확인해주세요.");
-      }
-    } catch (InputMismatchException e) {
-      System.out.println("잘못된 입력입니다. 숫자를 입력해주세요.");
-      sc.nextLine();
-    }
-  }
-
-  private void viewInboundRequestHistory(String memberId) {
-    System.out.println("--- 입고 요청내역 조회 ---");
-    try {
-      List<InboundRequest> requests = inboundController.getInboundRequestHistory(memberId);
-      if (requests.isEmpty()) {
-        System.out.println("입고 요청내역이 없습니다.");
-        return;
-      }
-
-      for (InboundRequest request : requests) {
-        System.out.println("----------------------------------------");
-        System.out.println("요청 ID: " + request.getInboundRequestId());
-        System.out.println("요청일: " + request.getInboundDate());
-        System.out.println("승인 상태: " + (request.isInboundRequestApproved() ? "승인완료" : "미승인"));
-        System.out.println("관리자 ID: " + request.getManagerId());
-        System.out.println("--- 요청 품목 ---");
-        for (InboundRequestItems item : request.getInboundItems()) {
-          System.out.println("  - 커피 ID: " + item.getCoffeeId() + ", 수량: " + item.getInboundRequestQuantity());
+        if ("y".equalsIgnoreCase(confirm)) {
+          Map<String, Object> item = new HashMap<>();
+          item.put("coffee_id", selectedCoffee.getCoffeeId());
+          item.put("quantity", quantity);
+          items.add(item);
+          System.out.println("상품이 추가되었습니다. 계속 입력하세요.");
+        } else if ("n".equalsIgnoreCase(confirm)) {
+          System.out.println("상품 추가가 취소되었습니다. 다시 입력해주세요.");
+        } else {
+          System.out.println("유효하지 않은 입력입니다. 상품 추가가 취소되었습니다.");
         }
+      } catch (TransactionException | NumberFormatException e) {
+        // 예외가 발생하면 예외 메시지를 출력합니다.
+        System.out.println(e.getMessage());
+        // 그리고 continue 키워드를 사용하여 반복문의 처음으로 돌아갑니다.
+        continue;
       }
-      System.out.println("----------------------------------------");
-    } catch (Exception e) {
-      System.out.println("입고 요청내역 조회 중 오류가 발생했습니다: " + e.getMessage());
     }
+
+    // 수집된 데이터를 수동으로 JSON 문자열로 변환
+    StringBuilder jsonBuilder = new StringBuilder("[");
+    for (int i = 0; i < items.size(); i++) {
+      Map<String, Object> item = items.get(i);
+      jsonBuilder.append(String.format("{\"coffee_id\":\"%s\", \"quantity\":%d}",
+          item.get("coffee_id"), item.get("quantity")));
+      if (i < items.size() - 1) {
+        jsonBuilder.append(",");
+      }
+    }
+    jsonBuilder.append("]");
+
+    return jsonBuilder.toString();
   }
 
-  private void viewInboundStatus(String memberId) {
-    System.out.println("--- 입고 현황 조회 ---");
-    try {
-      List<InboundRequest> approvedRequests = inboundController.getApprovedInboundRequests(memberId);
-      if (approvedRequests.isEmpty()) {
-        System.out.println("승인된 입고 요청이 없습니다.");
-        return;
-      }
-
-      System.out.println("입고가 완료된/진행 중인 요청 목록:");
-      for (InboundRequest request : approvedRequests) {
-        System.out.println("----------------------------------------");
-        System.out.println("요청 ID: " + request.getInboundRequestId());
-        System.out.println("입고일: " + request.getInboundDate());
-        System.out.println("관리자 ID: " + request.getManagerId());
-        System.out.println("--- 입고 품목 ---");
-        for (InboundRequestItems item : request.getInboundItems()) {
-          System.out.println("  - 커피 ID: " + item.getCoffeeId() + ", 입고 수량: " + item.getInboundRequestQuantity());
+  /**
+   * 사용자에게 날짜 입력을 요청하고 반환합니다.
+   * "yyyy-MM-dd" 형식의 날짜만 허용합니다.
+   * @param prompt 사용자에게 보여줄 안내 메시지
+   * @return 입력받은 Date 객체
+   */
+  public Date getDateInput(String prompt) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    sdf.setLenient(false); // 형식 검사
+    Date date = null;
+    while (date == null) {
+      System.out.print(prompt);
+      String input = scanner.nextLine().trim();
+      try {
+        date = sdf.parse(input);
+        validCheck.isValidInboundDate(date); // 새로운 유효성 검사 메소드 호출
+      } catch (ParseException e) {
+        System.out.println("잘못된 날짜 형식입니다. 'yyyy-MM-dd' 형식으로 다시 입력해주세요.");
+        date = null; // 날짜를 다시 null로 설정하여 루프를 계속함
+      } catch (TransactionException e) {
+        System.out.println(e.getMessage());
+        // 유효하지 않은 날짜인 경우, 한 달 후의 날짜를 계산하여 출력
+        if (e.error == ErrorCode.INVALID_INBOUND_DATE) {
+          Calendar cal = Calendar.getInstance();
+          cal.add(Calendar.MONTH, 1);
+          SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+          System.out.println("입력 가능한 최소 날짜는 " + outputFormat.format(cal.getTime()) + "입니다.");
         }
+        date = null;
       }
-      System.out.println("----------------------------------------");
+    }
+    return date;
+  }
 
-    } catch (Exception e) {
-      System.out.println("입고 현황 조회 중 오류가 발생했습니다: " + e.getMessage());
+  public void displayUnapprovedRequests(List<Map<String, Object>> requests) {
+    if (requests.isEmpty()) {
+      System.out.println(TransactionText.EMPTY_UNAPPROVED_INBOUND.getText());
+    } else {
+      System.out.println(TransactionText.UNAPPROVED_INBOUNDS_LIST.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.printf(TransactionText.UNAPPROVED_INBOUND_LIST_HEADER.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      for (Map<String, Object> request : requests) {
+        System.out.printf("%-15s | %-15s | %-10s | %-15s\n",
+            request.get("memberId"),
+            request.get("coffeeName"),
+            request.get("quantity"),
+            request.get("inboundDate")
+        );
+      }
     }
   }
-}
+
+  public void displayApprovedRequests(List<Map<String, Object>> requests) {
+    if (requests.isEmpty()) {
+      System.out.println(TransactionText.EMPTY_APPROVED_INBOUND.getText());
+    } else {
+      System.out.println(TransactionText.APPROVED_INBOUNDS_LIST.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.printf(TransactionText.APPROVED_INBOUND_LIST_HEADER.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      for (Map<String, Object> request : requests) {
+        System.out.printf("%-15s | %-15s | %-10s | %-15s\n",
+            request.get("memberId"),
+            request.get("coffeeName"),
+            request.get("quantity"),
+            request.get("inboundDate")
+        );
+      }
+    }
+  }
+
 
 
 }
