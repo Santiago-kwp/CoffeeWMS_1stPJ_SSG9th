@@ -14,7 +14,7 @@ public class InquiryReadImpl implements InquiryRead {
     public void inquiryReadAll() {
         inquiryDAO = new InquiryDaoImpl();
         System.out.println("\n------------------------------<< 1:1문의 전체 목록 >>------------------------------");
-        System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "날짜", "카테고리", "문의 내용", "답변 상태");
+        System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "문의날짜", "카테고리", "문의", "답변 상태");
         line();
         List<Inquiry> readAll = inquiryDAO.readInquiryManagerAll();
         for (Inquiry inquiry : readAll) {

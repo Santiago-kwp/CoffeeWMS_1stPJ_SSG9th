@@ -2,6 +2,7 @@ package model.support.service.dao.daoImpl;
 
 import config.DBUtil;
 import domain.support.Faq;
+import domain.support.Category;
 import model.support.service.dao.FaqDAO;
 
 import java.sql.CallableStatement;
@@ -14,7 +15,7 @@ import java.util.List;
 public class FaqDaoImpl implements FaqDAO {
     private Connection conn;
     List<Faq> faqList = new ArrayList<>();
-    List<Faq> faqCategoryList = new ArrayList<>();
+    List<Category> faqCategoryList = new ArrayList<>();
 
     // FAQ 생성 -------------------------------------------------------------------------------------------------------
     public boolean createFaq(Faq faq) {
@@ -146,7 +147,7 @@ public class FaqDaoImpl implements FaqDAO {
         return false;
     }
     // FAQ 카테고리 항목 조회 -------------------------------------------------------------------------------------------------
-    public List<Faq> readFaqCategory() {
+    public List<Category> readFaqCategory() {
         faqCategoryList.clear();
 
         conn = DBUtil.getConnection();
@@ -157,10 +158,10 @@ public class FaqDaoImpl implements FaqDAO {
             ResultSet rs = cStmt.executeQuery();
             if (rs != null) {
                 while (rs.next()) {
-                    Faq faq = new Faq();
-                    faq.setFaqCategoryId(rs.getInt(1));
-                    faq.setFaqCategoryName(rs.getString(2));
-                    faqCategoryList.add(faq);
+                    Category faqCatagory = new Category();
+                    faqCatagory.setCategoryId(rs.getInt(1));
+                    faqCatagory.setCategoryName(rs.getString(2));
+                    faqCategoryList.add(faqCatagory);
                 }
             }
             return faqCategoryList;

@@ -1,6 +1,7 @@
 package model.support.service.dao.daoImpl;
 
 import config.DBUtil;
+import domain.support.Category;
 import domain.support.Inquiry;
 import model.support.service.dao.InquiryDAO;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public class InquiryDaoImpl implements InquiryDAO {
     private Connection conn;
     List<Inquiry> inquiryList = new ArrayList<>();
-    List<Inquiry> inquiryCategoryList = new ArrayList<>();
+    List<Category> inquiryCategoryList = new ArrayList<>();
 
 
     // 1:1문의 생성 -------------------------------------------------------------------------------------------------------
@@ -286,7 +287,7 @@ public class InquiryDaoImpl implements InquiryDAO {
         return false;
     }
     // 1:1 문의 카테고리 항목 조회 -------------------------------------------------------------------------------------------------
-    public List<Inquiry> readFaqCategory() {
+    public List<Category> readInquiryCategory() {
         inquiryCategoryList.clear();
 
         conn = DBUtil.getConnection();
@@ -297,10 +298,10 @@ public class InquiryDaoImpl implements InquiryDAO {
             ResultSet rs = cStmt.executeQuery();
             if (rs != null) {
                 while (rs.next()) {
-                    Inquiry inquiry = new Inquiry();
-                    inquiry.setInquiryCategoryId(rs.getInt(1));
-                    inquiry.setInquiryCategoryName(rs.getString(2));
-                    inquiryCategoryList.add(inquiry);
+                    Category inquiryCategory = new Category();
+                    inquiryCategory.setCategoryId(rs.getInt(1));
+                    inquiryCategory.setCategoryName(rs.getString(2));
+                    inquiryCategoryList.add(inquiryCategory);
                 }
             }
             return inquiryCategoryList;

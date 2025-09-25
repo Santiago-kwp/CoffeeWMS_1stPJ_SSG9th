@@ -52,8 +52,20 @@ public class InquiryMenu {
                     int readChoice = Integer.parseInt(input.readLine());
                     line();
                     System.out.println("[선택하신 문의]");
+                    String status = null;
                     Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "내용", oneInquiry.getInquiryContent());
+                    switch (oneInquiry.getInquiryStatus()){
+                        case PENDING -> {
+                            status = "답변 대기";
+                            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status);
+                        }
+                        case DONE -> {
+                            status = "답변 완료";
+                            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status, "답변날짜", oneInquiry.getReplyDate(), "답변", oneInquiry.getReplyContent());
+                        }
+                    }
                     managerInquiryDetailMenu(readChoice);
                     break;
                 case 2:
@@ -97,8 +109,20 @@ public class InquiryMenu {
                     int readChoice = Integer.parseInt(input.readLine());
                     line();
                     System.out.println("[선택하신 문의]");
+                    String status = null;
                     Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "내용", oneInquiry.getInquiryContent());
+                    switch (oneInquiry.getInquiryStatus()){
+                        case PENDING -> {
+                            status = "답변 대기";
+                            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status);
+                        }
+                        case DONE -> {
+                            status = "답변 완료";
+                            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                                    "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status, "답변날짜", oneInquiry.getReplyDate(), "답변", oneInquiry.getReplyContent());
+                        }
+                    }
                     memberInquiryDetailMenu(readChoice);
                     break;
                 case 3:
@@ -134,10 +158,6 @@ public class InquiryMenu {
                 }
                 break;
             case 2:
-                System.out.println("관리자 아이디");
-                System.out.print("> ");
-                String managerId = input.readLine();
-
                 boolean delete = inquiryDAO.deleteInquiryManager(readChoice);
                 if (delete) System.out.println("문의사항이 성공적으로 삭제되었습니다.");
                 else {

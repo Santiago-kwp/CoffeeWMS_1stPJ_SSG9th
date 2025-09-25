@@ -1,16 +1,20 @@
 package model.support.service.input.inputImpl;
 
 import domain.support.Faq;
+import domain.support.Category;
 import model.support.service.dao.daoImpl.FaqDaoImpl;
 import model.support.service.input.FaqInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FaqInputImpl implements FaqInput {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     FaqDaoImpl faqDAO = new FaqDaoImpl();
+    List<Category> faqCategoryList = new ArrayList<>();
 
     // FAQ 데이터 입력 -------------------------------------------------------------------------------------------------
     public Faq faqDataInput() throws IOException {
@@ -19,7 +23,11 @@ public class FaqInputImpl implements FaqInput {
         System.out.println("\n[FAQ 생성]");
         line();
         System.out.println("[FAQ 카테고리 목록]");
-        faqDAO.readFaqCategory();
+        System.out.printf("%-3s\t | %-10s\n","NO", "목록명");
+        faqCategoryList = faqDAO.readFaqCategory();
+        for (Category faqCategory : faqCategoryList) {
+            System.out.printf("%-3s\t | %-10s\n", faqCategory.getCategoryId(), faqCategory.getCategoryName());
+        }
         line();
         System.out.println("카테고리 번호를 선택해주세요.");
         System.out.print("> ");

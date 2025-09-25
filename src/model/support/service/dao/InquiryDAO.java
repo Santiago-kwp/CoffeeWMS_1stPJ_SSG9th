@@ -1,5 +1,7 @@
 package model.support.service.dao;
 
+import domain.support.Category;
+
 import java.util.List;
 
 public interface InquiryDAO {
@@ -22,5 +24,5 @@ public interface InquiryDAO {
 
     boolean deleteInquiryManager(Integer inquiryId);
 
-    List<domain.support.Inquiry> readFaqCategory();
+    List<Category> readInquiryCategory();
 }
