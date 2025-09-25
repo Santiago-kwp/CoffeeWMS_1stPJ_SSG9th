@@ -12,7 +12,7 @@ public class NoticeDaoImpl implements NoticeDAO {
     private Connection conn;
     List<Notice> noticeList = new ArrayList<>();
 
-    // 공지사항 생성 -------------------------------------------------------------------------------------------------------
+    // 공지사항 생성 (총관리자)-----------------------------------------------------------------------------------------------
     public boolean createNotice(Notice notice) {
         conn = DBUtil.getConnection();
 
@@ -46,7 +46,7 @@ public class NoticeDaoImpl implements NoticeDAO {
         }
     }
 
-    // 공지사항 조회 (메인화면) ----------------------------------------------------------------------------------------------
+    // 공지사항 조회 (메인화면)-----------------------------------------------------------------------------------------------
     public List<Notice> readNoticeMain() {
         noticeList.clear();
 
@@ -122,7 +122,7 @@ public class NoticeDaoImpl implements NoticeDAO {
         return null;
     }
 
-    // 공지사항 수정 -------------------------------------------------------------------------------------------------------
+    // 공지사항 수정 (총관리자)-----------------------------------------------------------------------------------------------
     public boolean updateNotice(Notice notice) {
 
         conn = DBUtil.getConnection();
@@ -146,7 +146,7 @@ public class NoticeDaoImpl implements NoticeDAO {
         return false;
     }
 
-    // 공지사항 삭제 -------------------------------------------------------------------------------------------------------
+    // 공지사항 삭제 (총관리자)-----------------------------------------------------------------------------------------------
     public boolean deleteNotice(Integer noticeId, String noticeManagerId) {
 
         conn = DBUtil.getConnection();
@@ -165,20 +165,4 @@ public class NoticeDaoImpl implements NoticeDAO {
         }
         return false;
     }
-
-//    // 공지사항 검사 -------------------------------------------------------------------------------------------------------
-//    public boolean noticeTest(Integer noticeId) {
-//        conn = DBUtil.getConnection();
-//        String sql = "CALL notice_test(?)";
-//        try (CallableStatement cStmt = conn.prepareCall(sql)) {
-//            cStmt.setInt(1, noticeId);
-//
-//            int pass = cStmt.executeUpdate();
-//
-//            if (pass > 0) return true;
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
 }

@@ -1,15 +1,15 @@
-package model.support.service.read.readImpl;
+package model.support.service.readService.readImpl;
 
 import domain.support.Faq;
 import model.support.service.dao.daoImpl.FaqDaoImpl;
-import model.support.service.read.FaqRead;
+import model.support.service.readService.FaqRead;
 
 import java.util.List;
 
 public class FaqReadImpl implements FaqRead {
     FaqDaoImpl faqDAO = new FaqDaoImpl();
 
-    // FAQ 전체 조회 ---------------------------------------------------------------------------------------------------
+    // FAQ 전체 조회 -----------------------------------------------------------------------------------------------------
     public void faqReadAll() {
         faqDAO = new FaqDaoImpl();
         System.out.println("\n-------------------------------<< FAQ 전체 목록 >>--------------------------------");

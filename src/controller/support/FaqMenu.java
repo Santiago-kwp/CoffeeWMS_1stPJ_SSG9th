@@ -3,10 +3,10 @@ package controller.support;
 import domain.support.Faq;
 import model.support.service.dao.FaqDAO;
 import model.support.service.dao.daoImpl.FaqDaoImpl;
-import model.support.service.input.FaqInput;
-import model.support.service.input.inputImpl.FaqInputImpl;
-import model.support.service.read.FaqRead;
-import model.support.service.read.readImpl.FaqReadImpl;
+import model.support.service.inputService.FaqInput;
+import model.support.service.inputService.inputImpl.FaqInputImpl;
+import model.support.service.readService.FaqRead;
+import model.support.service.readService.readImpl.FaqReadImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +46,6 @@ public class FaqMenu {
                     System.out.println("[선택하신 FAQ]");
                     Faq oneFaq = faqDAO.readFaqOne(readChoice);
                     System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneFaq.getFaqDate(), "카테고리", oneFaq.getFaqCategoryName(), "질문", oneFaq.getFaqQuestion(), "답변", oneFaq.getFaqReply());
-                    faqDetailMenu(readChoice);
                     break;
                 case 2:
                     System.out.println("[뒤로가기]");
@@ -56,7 +55,7 @@ public class FaqMenu {
     }
 
     // 총관리자 <FAQ> 메뉴 ------------------------------------------------------------------------------------------------------
-    public void managerFaqMenu() throws IOException {
+    public void managerFaqMenu(String managerId) throws IOException {
         KIKI:
         while (true) {
             faqRead.faqReadAll();
@@ -76,7 +75,7 @@ public class FaqMenu {
             }
             switch (choice) {
                 case 1:
-                    Faq faq = faqInput.faqDataInput();
+                    Faq faq = faqInput.faqDataInput(managerId);
                     boolean pass = faqDAO.createFaq(faq);
                     if (pass) System.out.println("FAQ 성공적으로 생성되었습니다.");
                     else {
@@ -91,7 +90,7 @@ public class FaqMenu {
                     System.out.println("[선택하신 FAQ]");
                     Faq oneFaq = faqDAO.readFaqOne(readChoice);
                     System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneFaq.getFaqDate(), "카테고리", oneFaq.getFaqCategoryName(), "질문", oneFaq.getFaqQuestion(), "답변", oneFaq.getFaqReply());
-                    faqDetailMenu(readChoice);
+                    faqDetailMenu(readChoice, managerId);
                     break;
                 case 3:
                     System.out.println("[뒤로가기]");
@@ -101,7 +100,7 @@ public class FaqMenu {
     }
 
     //  총관리자 <FAQ> 상세 메뉴 ---------------------------------------------------------------------------------------------------
-    public void faqDetailMenu(Integer readChoice) throws IOException {
+    public void faqDetailMenu(Integer readChoice, String managerId) throws IOException {
         System.out.println("\n------------------------------<< FAQ 상세 메뉴 >>------------------------------");
         System.out.println("FAQ 상세 메뉴: 1.수정 | 2.삭제 | 3.뒤로가기");
         System.out.print("메뉴 선택 > ");
@@ -118,7 +117,7 @@ public class FaqMenu {
         line();
         switch (choice) {
             case 1:
-                Faq faq = faqInput.faqDataUpdate(readChoice);
+                Faq faq = faqInput.faqDataUpdate(readChoice, managerId);
                 boolean update = faqDAO.updateFaq(faq);
                 if (update) System.out.println("FAQ가 성공적으로 수정되었습니다.");
                 else {
@@ -126,10 +125,6 @@ public class FaqMenu {
                 }
                 break;
             case 2:
-                System.out.println("관리자 아이디");
-                System.out.print("> ");
-                String managerId = input.readLine();
-
                 boolean delete = faqDAO.deleteFaq(readChoice, managerId);
                 if (delete) System.out.println("FAQ가 성공적으로 삭제되었습니다.");
                 else {

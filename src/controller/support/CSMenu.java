@@ -60,6 +60,8 @@ public class CSMenu {
 
     // 고객센터 ------------------------------------------------------------------------------------------------------
     public void csMenu() throws IOException {
+        String managerId = "manager1"; // -> String userId = User.getUserId()
+        String memberId = "member1"; // -> String userId = User.getUserId()
         TheEndCS:
         while (true) {
             System.out.println("\n---------------------------------<< 고객 센터 >>---------------------------------");
@@ -77,14 +79,16 @@ public class CSMenu {
             }
             switch (choice) {
                 case 1:
-                    noticeMenu.managerNoticeMenu();
+                    noticeMenu.memberNoticeMenu();
+//                    noticeMenu.managerNoticeMenu(managerId);
                     break;
                 case 2:
-//                    inquiryMenu.inquiryMenu(user);
-                    inquiryMenu.managerInquiryMenu();
+                    inquiryMenu.memberInquiryMenu(memberId);
+//                    inquiryMenu.managerInquiryMenu(managerId);
                     break;
                 case 3:
-                    faqMenu.managerFaqMenu();
+                    faqMenu.memberFaqMenu();
+//                    faqMenu.managerFaqMenu(managerId);
                     break;
                 case 4:
                     System.out.println("[뒤로가기]");

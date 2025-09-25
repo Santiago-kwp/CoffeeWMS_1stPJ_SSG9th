@@ -146,7 +146,8 @@ public class FaqDaoImpl implements FaqDAO {
         }
         return false;
     }
-    // FAQ 카테고리 항목 조회 -------------------------------------------------------------------------------------------------
+
+    // FAQ 카테고리 조회 ---------------------------------------------------------------------------------------------------
     public List<Category> readFaqCategory() {
         faqCategoryList.clear();
 

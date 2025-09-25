@@ -1,10 +1,10 @@
-package model.support.service.input.inputImpl;
+package model.support.service.inputService.inputImpl;
 
 import domain.support.Category;
 import domain.support.Inquiry;
 import model.support.service.dao.InquiryDAO;
 import model.support.service.dao.daoImpl.InquiryDaoImpl;
-import model.support.service.input.InquiryInput;
+import model.support.service.inputService.InquiryInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,8 +17,8 @@ public class InquiryInputImpl implements InquiryInput {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     List<Category> inquiryCategoryList = new ArrayList<>();
 
-    // 1:1 문의 데이터 입력 -------------------------------------------------------------------------------------------------
-    public Inquiry inquiryDataInput() throws IOException {
+    // 1:1 문의 데이터 입력 (회원)-------------------------------------------------------------------------------------------
+    public Inquiry inquiryDataInput(String memberId) throws IOException {
         Inquiry inquiry = new Inquiry();
         InquiryDaoImpl inquiryDAO = new InquiryDaoImpl();
 
@@ -41,18 +41,13 @@ public class InquiryInputImpl implements InquiryInput {
         String content = input.readLine();
         inquiry.setInquiryContent(content);
 
-        // 회원 아이디 가져오기 (임시)
-        System.out.println("회원 아이디");
-        System.out.print("> ");
-        String memberId = input.readLine();
-
         inquiry.setInquiryMemberId(memberId);
 
         return inquiry;
     }
 
-    // 회원 1:1 문의 데이터 수정 -------------------------------------------------------------------------------------------------
-    public Inquiry memberInquiryDataUpdate(Integer readChoice) throws IOException {
+    // 회원 1:1 문의 데이터 수정 (회원)-------------------------------------------------------------------------------------------------
+    public Inquiry memberInquiryDataUpdate(String memberId, Integer readChoice) throws IOException {
         Inquiry inquiry = new Inquiry();
 
         inquiry.setInquiryId(readChoice);
@@ -85,8 +80,8 @@ public class InquiryInputImpl implements InquiryInput {
         return inquiry;
     }
 
-    // 총관리자 1:1 문의 데이터 수정 -------------------------------------------------------------------------------------------------
-    public Inquiry managerInquiryDataUpdate(Integer readChoice) throws IOException {
+    // 총관리자 1:1 문의 데이터 수정 (총관리자)----------------------------------------------------------------------------------
+    public Inquiry managerInquiryDataUpdate(Integer readChoice, String managerId) throws IOException {
         Inquiry inquiry = new Inquiry();
 
         inquiry.setInquiryId(readChoice);
@@ -98,10 +93,6 @@ public class InquiryInputImpl implements InquiryInput {
         String content = input.readLine();
         inquiry.setReplyContent(content);
 
-        // 매니저 아이디 가져오기 (임시)
-        System.out.println("관리자 아이디");
-        System.out.print("> ");
-        String managerId = input.readLine();
         inquiry.setInquiryManagerId(managerId);
 
         return inquiry;

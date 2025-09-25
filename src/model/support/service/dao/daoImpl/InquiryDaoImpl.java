@@ -18,7 +18,7 @@ public class InquiryDaoImpl implements InquiryDAO {
     List<Category> inquiryCategoryList = new ArrayList<>();
 
 
-    // 1:1문의 생성 -------------------------------------------------------------------------------------------------------
+    // 1:1 문의 생성 (회원)-------------------------------------------------------------------------------------------------
     public boolean createInquiry(Inquiry inquiry) {
         conn = DBUtil.getConnection();
 
@@ -51,7 +51,7 @@ public class InquiryDaoImpl implements InquiryDAO {
         }
     }
 
-    // 1:1문의 회원 전체 조회 ----------------------------------------------------------------------------------------------
+    // 1:1 문의 전체 조회 (회원)---------------------------------------------------------------------------------------------
     public List<Inquiry> readInquiryMemberAll(String inquiryMemberId) {
         inquiryList.clear();
 
@@ -86,7 +86,7 @@ public class InquiryDaoImpl implements InquiryDAO {
         }
     }
 
-    // 1:1문의 총관리자 전체 조회 ----------------------------------------------------------------------------------------------
+    // 1:1 문의 전체 조회 (총관리자)------------------------------------------------------------------------------------------
     public List<Inquiry> readInquiryManagerAll() {
         inquiryList.clear();
 
@@ -120,7 +120,7 @@ public class InquiryDaoImpl implements InquiryDAO {
         }
     }
 
-    // 1:1문의 회원 상세 조회 ----------------------------------------------------------------------------------------------
+    // 1:1 문의 상세 조회 (회원)---------------------------------------------------------------------------------------------
     public Inquiry readInquiryMemberOne(String inquiryMemberId, Integer inquiryId) {
 
         conn = DBUtil.getConnection();
@@ -128,8 +128,8 @@ public class InquiryDaoImpl implements InquiryDAO {
         String sql = "CALL read_inquiry_member_one(?,?)";
 
         try (CallableStatement cStmt = conn.prepareCall(sql)) {
-            cStmt.setInt(1, inquiryId);
-            cStmt.setString(2, inquiryMemberId);
+            cStmt.setString(1, inquiryMemberId);
+            cStmt.setInt(2, inquiryId);
             ResultSet rs = cStmt.executeQuery();
             if (rs != null) {
                 if (rs.next()) {
@@ -155,7 +155,7 @@ public class InquiryDaoImpl implements InquiryDAO {
         }
     }
 
-    // 1:1문의 회원 상세 조회 ----------------------------------------------------------------------------------------------
+    // 1:1 문의 상세 조회 (총관리자)------------------------------------------------------------------------------------------
     public Inquiry readInquiryManagerOne(Integer inquiryId) {
 
         conn = DBUtil.getConnection();
@@ -189,7 +189,7 @@ public class InquiryDaoImpl implements InquiryDAO {
         }
     }
 
-    // 1:1문의 회원 수정 -------------------------------------------------------------------------------------------------------
+    // 1:1 문의 수정 (회원)-------------------------------------------------------------------------------------------------
     public boolean updateInquiryMember(Inquiry inquiry) {
 
         conn = DBUtil.getConnection();
@@ -215,7 +215,7 @@ public class InquiryDaoImpl implements InquiryDAO {
         return false;
     }
 
-    // 1:1문의 총관리자 수정(답변) -------------------------------------------------------------------------------------------------------
+    // 1:1 문의 수정 (총관리자)----------------------------------------------------------------------------------------------
     public boolean updateInquiryManager(Inquiry inquiry) {
 
         conn = DBUtil.getConnection();
@@ -229,18 +229,15 @@ public class InquiryDaoImpl implements InquiryDAO {
 
             int pass = cStmt.executeUpdate();
 
-            if (pass > 0) {
-                int index = inquiryList.indexOf(inquiry);
-                inquiryList.set(index, inquiry);
-                return true;
-            }
+            if (pass > 0) return true;
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    // 1:1문의 회원 삭제 -------------------------------------------------------------------------------------------------------
+    // 1:1 문의 삭제 (회원)-------------------------------------------------------------------------------------------------
     public boolean deleteInquiryMember(Integer inquiryId, String inquiryMemberId) {
 
         conn = DBUtil.getConnection();
@@ -264,7 +261,7 @@ public class InquiryDaoImpl implements InquiryDAO {
         return false;
     }
 
-    // 1:1문의 총관리자 삭제 -------------------------------------------------------------------------------------------------------
+    // 1:1 문의 삭제 (총관리자)----------------------------------------------------------------------------------------------
     public boolean deleteInquiryManager(Integer inquiryId) {
 
         conn = DBUtil.getConnection();
@@ -286,7 +283,8 @@ public class InquiryDaoImpl implements InquiryDAO {
         }
         return false;
     }
-    // 1:1 문의 카테고리 항목 조회 -------------------------------------------------------------------------------------------------
+
+    // 1:1 문의 카테고리 조회 -----------------------------------------------------------------------------------------------
     public List<Category> readInquiryCategory() {
         inquiryCategoryList.clear();
 

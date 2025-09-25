@@ -1,4 +1,4 @@
-package model.support.service.read;
+package model.support.service.readService;
 
 public interface FaqRead {
 

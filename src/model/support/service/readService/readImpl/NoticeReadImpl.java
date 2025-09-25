@@ -1,9 +1,9 @@
-package model.support.service.read.readImpl;
+package model.support.service.readService.readImpl;
 
 import domain.support.Notice;
 import model.support.service.dao.NoticeDAO;
 import model.support.service.dao.daoImpl.NoticeDaoImpl;
-import model.support.service.read.NoticeRead;
+import model.support.service.readService.NoticeRead;
 
 import java.util.List;
 

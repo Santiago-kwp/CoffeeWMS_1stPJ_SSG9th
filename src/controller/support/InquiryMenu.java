@@ -3,10 +3,10 @@ package controller.support;
 import domain.support.Inquiry;
 import model.support.service.dao.InquiryDAO;
 import model.support.service.dao.daoImpl.InquiryDaoImpl;
-import model.support.service.input.InquiryInput;
-import model.support.service.input.inputImpl.InquiryInputImpl;
-import model.support.service.read.InquiryRead;
-import model.support.service.read.readImpl.InquiryReadImpl;
+import model.support.service.inputService.InquiryInput;
+import model.support.service.inputService.inputImpl.InquiryInputImpl;
+import model.support.service.readService.InquiryRead;
+import model.support.service.readService.readImpl.InquiryReadImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,10 +27,10 @@ public class InquiryMenu {
 //    }
 
     // 총관리자 1:1문의 메뉴 -------------------------------------------------------------------------------------------------
-    public void managerInquiryMenu() throws IOException {
+    public void managerInquiryMenu(String managerId) throws IOException {
         KI:
         while (true) {
-            inquiryRead.inquiryReadAll();
+            inquiryRead.managerInquiryReadAll();
 
             System.out.println("\n-------------------------------<< 1:1 문의 메뉴 >>-------------------------------");
             System.out.println("문의 메뉴: 1.상세 조회 | 2.뒤로가기");
@@ -54,7 +54,7 @@ public class InquiryMenu {
                     System.out.println("[선택하신 문의]");
                     String status = null;
                     Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
-                    switch (oneInquiry.getInquiryStatus()){
+                    switch (oneInquiry.getInquiryStatus()) {
                         case PENDING -> {
                             status = "답변 대기";
                             System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
@@ -66,7 +66,7 @@ public class InquiryMenu {
                                     "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status, "답변날짜", oneInquiry.getReplyDate(), "답변", oneInquiry.getReplyContent());
                         }
                     }
-                    managerInquiryDetailMenu(readChoice);
+                    managerInquiryDetailMenu(readChoice, managerId);
                     break;
                 case 2:
                     System.out.println("[뒤로가기]");
@@ -76,10 +76,11 @@ public class InquiryMenu {
     }
 
     // 회원 1:1문의 메뉴 -------------------------------------------------------------------------------------------------
-    public void memberInquiryMenu() throws IOException {
+    public void memberInquiryMenu(String memberId) throws IOException {
         KI:
         while (true) {
-            inquiryRead.inquiryReadAll();
+
+            inquiryRead.memberInquiryReadAll(memberId);
 
             System.out.println("\n-------------------------------<< 1:1 문의 메뉴 >>-------------------------------");
             System.out.println("문의 메뉴: 1.문의 생성 | 2.상세 조회 | 3.뒤로가기");
@@ -96,7 +97,7 @@ public class InquiryMenu {
             }
             switch (choice) {
                 case 1:
-                    Inquiry inquiry = inquiryInput.inquiryDataInput();
+                    Inquiry inquiry = inquiryInput.inquiryDataInput(memberId);
                     boolean pass = inquiryDAO.createInquiry(inquiry);
                     if (pass) System.out.println("문의사항이 성공적으로 생성되었습니다.");
                     else {
@@ -110,8 +111,8 @@ public class InquiryMenu {
                     line();
                     System.out.println("[선택하신 문의]");
                     String status = null;
-                    Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
-                    switch (oneInquiry.getInquiryStatus()){
+                    Inquiry oneInquiry = inquiryDAO.readInquiryMemberOne(memberId, readChoice);
+                    switch (oneInquiry.getInquiryStatus()) {
                         case PENDING -> {
                             status = "답변 대기";
                             System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
@@ -123,7 +124,7 @@ public class InquiryMenu {
                                     "문의날짜", oneInquiry.getInquiryDate(), "카테고리", oneInquiry.getInquiryCategoryName(), "문의", oneInquiry.getInquiryContent(), "답변 상태", status, "답변날짜", oneInquiry.getReplyDate(), "답변", oneInquiry.getReplyContent());
                         }
                     }
-                    memberInquiryDetailMenu(readChoice);
+                    memberInquiryDetailMenu(memberId, readChoice);
                     break;
                 case 3:
                     System.out.println("[뒤로가기]");
@@ -133,7 +134,7 @@ public class InquiryMenu {
     }
 
     // 총관리자 공지사항 상세 메뉴 ---------------------------------------------------------------------------------------------------
-    public void managerInquiryDetailMenu(Integer readChoice) throws IOException {
+    public void managerInquiryDetailMenu(Integer readChoice, String managerId) throws IOException {
         System.out.println("\n------------------------------<< 1:1 문의 상세 메뉴 >>------------------------------");
         System.out.println("문의 상세 메뉴: 1.답변 | 2.삭제 | 3.뒤로가기");
         System.out.print("메뉴 선택 > ");
@@ -150,7 +151,7 @@ public class InquiryMenu {
         line();
         switch (choice) {
             case 1:
-                Inquiry inquiry = inquiryInput.managerInquiryDataUpdate(readChoice);
+                Inquiry inquiry = inquiryInput.managerInquiryDataUpdate(readChoice, managerId);
                 boolean update = inquiryDAO.updateInquiryManager(inquiry);
                 if (update) System.out.println("문의사항이 성공적으로 답변 완료되었습니다.");
                 else {
@@ -171,7 +172,7 @@ public class InquiryMenu {
     }
 
     // 회원 공지사항 상세 메뉴 ---------------------------------------------------------------------------------------------------
-    public void memberInquiryDetailMenu(Integer readChoice) throws IOException {
+    public void memberInquiryDetailMenu(String memberIdEx, Integer readChoice) throws IOException {
         System.out.println("\n------------------------------<< 1:1 문의 상세 메뉴 >>------------------------------");
         System.out.println("문의 상세 메뉴: 1.수정 | 2.삭제 | 3.뒤로가기");
         System.out.print("메뉴 선택 > ");
@@ -188,7 +189,7 @@ public class InquiryMenu {
         line();
         switch (choice) {
             case 1:
-                Inquiry inquiry = inquiryInput.memberInquiryDataUpdate(readChoice);
+                Inquiry inquiry = inquiryInput.memberInquiryDataUpdate(memberIdEx, readChoice);
                 boolean update = inquiryDAO.updateInquiryMember(inquiry);
                 if (update) System.out.println("문의사항이 성공적으로 수정 완료되었습니다.");
                 else {
@@ -196,11 +197,7 @@ public class InquiryMenu {
                 }
                 break;
             case 2:
-                System.out.println("회원 아이디");
-                System.out.print("> ");
-                String memberId = input.readLine();
-
-                boolean delete = inquiryDAO.deleteInquiryMember(readChoice, memberId);
+                boolean delete = inquiryDAO.deleteInquiryMember(readChoice, memberIdEx);
                 if (delete) System.out.println("문의사항이 성공적으로 삭제되었습니다.");
                 else {
                     System.out.println("삭제 실패, 다시 시도 부탁드립니다.");

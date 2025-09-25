@@ -1,9 +1,9 @@
-package model.support.service.input.inputImpl;
+package model.support.service.inputService.inputImpl;
 
 import domain.support.Faq;
 import domain.support.Category;
 import model.support.service.dao.daoImpl.FaqDaoImpl;
-import model.support.service.input.FaqInput;
+import model.support.service.inputService.FaqInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,8 +16,8 @@ public class FaqInputImpl implements FaqInput {
     FaqDaoImpl faqDAO = new FaqDaoImpl();
     List<Category> faqCategoryList = new ArrayList<>();
 
-    // FAQ 데이터 입력 -------------------------------------------------------------------------------------------------
-    public Faq faqDataInput() throws IOException {
+    // FAQ 데이터 입력 (총관리자)--------------------------------------------------------------------------------------------
+    public Faq faqDataInput(String managerId) throws IOException {
         Faq faq = new Faq();
         faqDAO = new FaqDaoImpl();
         System.out.println("\n[FAQ 생성]");
@@ -44,17 +44,13 @@ public class FaqInputImpl implements FaqInput {
         String reply = input.readLine();
         faq.setFaqReply(reply);
 
-        // 매니저 아이디 가져오기 (임시)
-        System.out.println("관리자 아이디");
-        System.out.print("> ");
-        String managerId = input.readLine();
         faq.setFaqManagerId(managerId);
 
         return faq;
     }
 
-    // FAQ 데이터 수정 -------------------------------------------------------------------------------------------------
-    public Faq faqDataUpdate(Integer readChoice) throws IOException {
+    // FAQ 데이터 수정 (총관리자)--------------------------------------------------------------------------------------------
+    public Faq faqDataUpdate(Integer readChoice, String managerId) throws IOException {
         Faq faq = new Faq();
 
         faq.setFaqId(readChoice);
@@ -79,10 +75,6 @@ public class FaqInputImpl implements FaqInput {
         String reply = input.readLine();
         faq.setFaqReply(reply);
 
-        // 매니저 아이디 가져오기 (임시)
-        System.out.println("관리자 아이디");
-        System.out.print("> ");
-        String managerId = input.readLine();
         faq.setFaqManagerId(managerId);
 
         return faq;
