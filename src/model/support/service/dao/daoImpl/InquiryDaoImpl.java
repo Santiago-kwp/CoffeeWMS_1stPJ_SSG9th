@@ -204,11 +204,7 @@ public class InquiryDaoImpl implements InquiryDAO {
 
             int pass = cStmt.executeUpdate();
 
-            if (pass > 0) {
-                int index = inquiryList.indexOf(inquiry);
-                inquiryList.set(index, inquiry);
-                return true;
-            }
+            if (pass > 0) return true;
         } catch (SQLException e) {
             e.printStackTrace();
         }

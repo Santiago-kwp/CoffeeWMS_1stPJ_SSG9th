@@ -1,5 +1,6 @@
 package model.support.service.inputService.inputImpl;
 
+import constant.support.CSMenuMessage;
 import domain.support.Faq;
 import domain.support.Category;
 import model.support.service.dao.daoImpl.FaqDaoImpl;
@@ -20,27 +21,29 @@ public class FaqInputImpl implements FaqInput {
     public Faq faqDataInput(String managerId) throws IOException {
         Faq faq = new Faq();
         faqDAO = new FaqDaoImpl();
-        System.out.println("\n[FAQ 생성]");
-        line();
-        System.out.println("[FAQ 카테고리 목록]");
+
+        System.out.println(CSMenuMessage.FAQ_CREATE.getMessage());
+
+        System.out.println(CSMenuMessage.LINE.getMessage());
+
+        System.out.println(CSMenuMessage.FAQ_CATEGORY.getMessage());
         System.out.printf("%-3s\t | %-10s\n","NO", "목록명");
         faqCategoryList = faqDAO.readFaqCategory();
         for (Category faqCategory : faqCategoryList) {
             System.out.printf("%-3s\t | %-10s\n", faqCategory.getCategoryId(), faqCategory.getCategoryName());
         }
-        line();
-        System.out.println("카테고리 번호를 선택해주세요.");
-        System.out.print("> ");
+
+        System.out.println(CSMenuMessage.LINE.getMessage());
+
+        System.out.print(CSMenuMessage.CATEGORY_CHOICE.getMessage());
         Integer categoryId = Integer.parseInt(input.readLine());
         faq.setFaqCategoryId(categoryId);
 
-        System.out.println("질문 입력");
-        System.out.print("> ");
+        System.out.print(CSMenuMessage.QUESTION.getMessage());
         String question = input.readLine();
         faq.setFaqQuestion(question);
 
-        System.out.println("답안 입력");
-        System.out.print("> ");
+        System.out.print(CSMenuMessage.REPLY.getMessage());
         String reply = input.readLine();
         faq.setFaqReply(reply);
 
@@ -55,32 +58,33 @@ public class FaqInputImpl implements FaqInput {
 
         faq.setFaqId(readChoice);
 
-        System.out.println("\n[FAQ 수정]");
-        line();
-        System.out.println("[FAQ 카테고리 목록]");
-        faqDAO.readFaqCategory();
-        line();
-        System.out.println("카테고리 번호를 선택해주세요.");
-        System.out.print("> ");
+        System.out.println(CSMenuMessage.FAQ_UPDATE.getMessage());
+
+        System.out.println(CSMenuMessage.LINE.getMessage());
+
+        System.out.println(CSMenuMessage.FAQ_CATEGORY.getMessage());
+        System.out.printf("%-3s\t | %-10s\n","NO", "목록명");
+        faqCategoryList = faqDAO.readFaqCategory();
+        for (Category faqCategory : faqCategoryList) {
+            System.out.printf("%-3s\t | %-10s\n", faqCategory.getCategoryId(), faqCategory.getCategoryName());
+        }
+
+        System.out.println(CSMenuMessage.LINE.getMessage());
+
+        System.out.print(CSMenuMessage.CATEGORY_CHOICE.getMessage());
         Integer categoryId = Integer.parseInt(input.readLine());
         faq.setFaqCategoryId(categoryId);
 
-        System.out.println("질문 입력");
-        System.out.print("> ");
+        System.out.print(CSMenuMessage.QUESTION.getMessage());
         String question = input.readLine();
         faq.setFaqQuestion(question);
 
-        System.out.println("답안 입력");
-        System.out.print("> ");
+        System.out.print(CSMenuMessage.REPLY.getMessage());
         String reply = input.readLine();
         faq.setFaqReply(reply);
 
         faq.setFaqManagerId(managerId);
 
         return faq;
-    }
-
-    public void line() {
-        System.out.println("--------------------------------------------------------------------------------");
     }
 }

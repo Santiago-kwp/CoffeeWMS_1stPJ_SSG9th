@@ -1,5 +1,6 @@
 package model.support.service.readService.readImpl;
 
+import constant.support.CSMenuMessage;
 import domain.support.Faq;
 import model.support.service.dao.daoImpl.FaqDaoImpl;
 import model.support.service.readService.FaqRead;
@@ -12,9 +13,12 @@ public class FaqReadImpl implements FaqRead {
     // FAQ 전체 조회 -----------------------------------------------------------------------------------------------------
     public void faqReadAll() {
         faqDAO = new FaqDaoImpl();
-        System.out.println("\n-------------------------------<< FAQ 전체 목록 >>--------------------------------");
+        System.out.println(CSMenuMessage.FAQ_READ_ALL.getMessage());
+
         System.out.printf("%-5S\t | %-10S\t | %-13S\t | %-18S\t | %-15S\t\n", "NO", "날짜", "카테고리", "질문", "답변");
-        line();
+
+        System.out.println(CSMenuMessage.LINE.getMessage());
+
         List<Faq> readAll = faqDAO.readFaqAll();
         for (Faq faq : readAll) {
 
@@ -28,10 +32,5 @@ public class FaqReadImpl implements FaqRead {
             System.out.printf("%-5S\t | %-10S\t | %-13S\t | %-15S\t | %-15S\t", faq.getFaqId(), faq.getFaqDate(), faq.getFaqCategoryName(), q, r);
             System.out.println();
         }
-    }
-
-    // 라인 -------------------------------------------------------------------------------------------------------------
-    public void line() {
-        System.out.println("--------------------------------------------------------------------------------");
     }
 }

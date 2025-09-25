@@ -1,5 +1,6 @@
 package controller.support;
 
+import constant.support.CSMenuMessage;
 import domain.support.Notice;
 import model.support.service.dao.NoticeDAO;
 import model.support.service.dao.daoImpl.NoticeDaoImpl;
@@ -25,9 +26,8 @@ public class NoticeMenu {
         while (true) {
             noticeRead.noticeReadAll();
 
-            System.out.println("\n-------------------------------<< 공지사항 메뉴 >>-------------------------------");
-            System.out.println("공지사항 메인 메뉴: 1.상세 조회 | 2.뒤로가기");
-            System.out.print("메뉴 선택 > ");
+            System.out.print(CSMenuMessage.NOTICE_MENU_SIMPLE.getMessage());
+
             int choice = 0;
             try {
                 choice = Integer.parseInt(input.readLine());
@@ -38,18 +38,25 @@ public class NoticeMenu {
             } catch (Exception e2) {
                 System.out.println("에러 발생");
             }
+
             switch (choice) {
                 case 1:
-                    System.out.println("공지 번호를 입력해주세요.");
-                    System.out.print("> ");
+                    System.out.print(CSMenuMessage.NOTICE_INSERT_ID.getMessage());
+
                     int readChoice = Integer.parseInt(input.readLine());
-                    line();
-                    System.out.println("[선택하신 공지]");
+
+                    System.out.println(CSMenuMessage.LINE.getMessage());
+
+                    System.out.println(CSMenuMessage.NOTICE_CHOICE.getMessage());
+
                     Notice oneNotice = noticeDAO.readNoticeOne(readChoice);
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneNotice.getNoticeDate(), "제목", oneNotice.getNoticeTitle(), "내용", oneNotice.getNoticeContent());
+
+                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일",
+                            oneNotice.getNoticeDate(), "제목", oneNotice.getNoticeTitle(), "내용", oneNotice.getNoticeContent());
                     break;
+
                 case 2:
-                    System.out.println("[뒤로가기]");
+                    System.out.println(CSMenuMessage.BACK.getMessage());
                     break KI;
             }
         }
@@ -61,9 +68,8 @@ public class NoticeMenu {
         while (true) {
             noticeRead.noticeReadAll();
 
-            System.out.println("\n------------------------------<< 공지사항 메뉴 >>------------------------------");
-            System.out.println("공지사항 메뉴: 1.공지 생성 | 2.상세 조회 | 3.뒤로가기");
-            System.out.print("메뉴 선택 > ");
+            System.out.print(CSMenuMessage.NOTICE_MENU.getMessage());
+
             int choice = 0;
             try {
                 choice = Integer.parseInt(input.readLine());
@@ -77,24 +83,31 @@ public class NoticeMenu {
             switch (choice) {
                 case 1:
                     Notice notice = noticeInput.noticeDataInput(managerId);
+
                     boolean pass = noticeDAO.createNotice(notice);
-                    if (pass) System.out.println("공지사항이 성공적으로 생성되었습니다.");
+
+                    if (pass) System.out.println(CSMenuMessage.NOTICE_CREATE_SUCCESS.getMessage());
                     else {
-                        System.out.println("생성 실패, 다시 시도 부탁드립니다. ");
+                        System.out.println(CSMenuMessage.NOTICE_CREATE_FAILURE.getMessage());
                     }
                     break;
+
                 case 2:
-                    System.out.println("공지 번호를 입력해주세요.");
-                    System.out.print("> ");
+                    System.out.print(CSMenuMessage.NOTICE_INSERT_ID);
+
                     int readChoice = Integer.parseInt(input.readLine());
-                    line();
-                    System.out.println("[선택하신 공지]");
+
+                    System.out.println(CSMenuMessage.LINE.getMessage());
+
+                    System.out.println(CSMenuMessage.NOTICE_CHOICE.getMessage());
+
                     Notice oneNotice = noticeDAO.readNoticeOne(readChoice);
                     System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneNotice.getNoticeDate(), "제목", oneNotice.getNoticeTitle(), "내용", oneNotice.getNoticeContent());
                     noticeDetailMenu(readChoice, managerId);
                     break;
+
                 case 3:
-                    System.out.println("[뒤로가기]");
+                    System.out.println(CSMenuMessage.BACK.getMessage());
                     break KIKI;
             }
         }
@@ -102,9 +115,8 @@ public class NoticeMenu {
 
     // 총관리자 공지사항 상세 메뉴 --------------------------------------------------------------------------------------------
     public void noticeDetailMenu(Integer readChoice,String managerId) throws IOException {
-        System.out.println("\n------------------------------<< 공지사항 상세 메뉴 >>------------------------------");
-        System.out.println("공지사항 상세 메뉴: 1.수정 | 2.삭제 | 3.뒤로가기");
-        System.out.print("메뉴 선택 > ");
+        System.out.print(CSMenuMessage.NOTICE_DETAIL_MENU.getMessage());
+
         int choice = 0;
         try {
             choice = Integer.parseInt(input.readLine());
@@ -115,31 +127,29 @@ public class NoticeMenu {
         } catch (Exception e2) {
             System.out.println("에러 발생");
         }
-        line();
+
+        System.out.println(CSMenuMessage.LINE.getMessage());
+
         switch (choice) {
             case 1:
                 Notice notice = noticeInput.noticeDataUpdate(readChoice, managerId);
+
                 boolean update = noticeDAO.updateNotice(notice);
-                if (update) System.out.println("공지사항이 성공적으로 수정되었습니다.");
-                else {
-                    System.out.println("수정 실패, 다시 시도 부탁드립니다. ");
-                }
+
+                if (update) System.out.println(CSMenuMessage.NOTICE_UPDATE_SUCCESS.getMessage());
+                else System.out.println(CSMenuMessage.NOTICE_UPDATE_FAILURE.getMessage());
                 break;
+
             case 2:
                 boolean delete = noticeDAO.deleteNotice(readChoice, managerId);
-                if (delete) System.out.println("공지사항이 성공적으로 삭제되었습니다.");
-                else {
-                    System.out.println("삭제 실패, 다시 시도 부탁드립니다.");
-                }
+
+                if (delete) System.out.println(CSMenuMessage.NOTICE_DELETE_SUCCESS.getMessage());
+                else System.out.println(CSMenuMessage.NOTICE_DELETE_FAILURE.getMessage());
                 break;
+
             case 3:
-                System.out.println("[뒤로가기]");
+                System.out.println(CSMenuMessage.BACK.getMessage());
                 break;
         }
-    }
-
-    // 라인 -------------------------------------------------------------------------------------------------------------
-    public void line() {
-        System.out.println("--------------------------------------------------------------------------------");
     }
 }

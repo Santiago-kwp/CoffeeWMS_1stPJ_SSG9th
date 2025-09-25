@@ -1,5 +1,6 @@
 package controller.support;
 
+import constant.support.CSMenuMessage;
 import domain.support.Faq;
 import model.support.service.dao.FaqDAO;
 import model.support.service.dao.daoImpl.FaqDaoImpl;
@@ -24,9 +25,8 @@ public class FaqMenu {
         while (true) {
             faqRead.faqReadAll();
 
-            System.out.println("\n------------------------------<< FAQ 메뉴 >>------------------------------");
-            System.out.println("FAQ 메뉴: 1.상세 조회 | 2.뒤로가기");
-            System.out.print("메뉴 선택 > ");
+            System.out.print(CSMenuMessage.FAQ_MENU_SIMPLE.getMessage());
+
             int choice = 0;
             try {
                 choice = Integer.parseInt(input.readLine());
@@ -37,18 +37,24 @@ public class FaqMenu {
             } catch (Exception e2) {
                 System.out.println("에러 발생");
             }
+
             switch (choice) {
                 case 1:
-                    System.out.println("FAQ 번호를 입력해주세요.");
-                    System.out.print("> ");
+                    System.out.print(CSMenuMessage.FAQ_INSERT_ID.getMessage());
+
                     int readChoice = Integer.parseInt(input.readLine());
-                    line();
-                    System.out.println("[선택하신 FAQ]");
+
+                    System.out.println(CSMenuMessage.LINE.getMessage());
+
+                    System.out.println(CSMenuMessage.FAQ_CHOICE.getMessage());
+
                     Faq oneFaq = faqDAO.readFaqOne(readChoice);
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneFaq.getFaqDate(), "카테고리", oneFaq.getFaqCategoryName(), "질문", oneFaq.getFaqQuestion(), "답변", oneFaq.getFaqReply());
+                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                            "작성일", oneFaq.getFaqDate(), "카테고리", oneFaq.getFaqCategoryName(), "질문", oneFaq.getFaqQuestion(), "답변", oneFaq.getFaqReply());
                     break;
+
                 case 2:
-                    System.out.println("[뒤로가기]");
+                    System.out.println(CSMenuMessage.BACK.getMessage());
                     break KIKI;
             }
         }
@@ -60,9 +66,8 @@ public class FaqMenu {
         while (true) {
             faqRead.faqReadAll();
 
-            System.out.println("\n------------------------------<< FAQ 메뉴 >>------------------------------");
-            System.out.println("FAQ 메뉴: 1.FAQ 생성 | 2.상세 조회 | 3.뒤로가기");
-            System.out.print("메뉴 선택 > ");
+            System.out.print(CSMenuMessage.FAQ_MENU.getMessage());
+
             int choice = 0;
             try {
                 choice = Integer.parseInt(input.readLine());
@@ -73,27 +78,33 @@ public class FaqMenu {
             } catch (Exception e2) {
                 System.out.println("에러 발생");
             }
+
             switch (choice) {
                 case 1:
                     Faq faq = faqInput.faqDataInput(managerId);
+
                     boolean pass = faqDAO.createFaq(faq);
-                    if (pass) System.out.println("FAQ 성공적으로 생성되었습니다.");
-                    else {
-                        System.out.println("생성 실패, 다시 시도 부탁드립니다. ");
-                    }
+
+                    if (pass) System.out.println(CSMenuMessage.FAQ_CREATE_SUCCESS.getMessage());
+                    else System.out.println(CSMenuMessage.FAQ_CREATE_FAILURE.getMessage());
                     break;
+
                 case 2:
-                    System.out.println("FAQ 번호를 입력해주세요.");
-                    System.out.print("> ");
+                    System.out.print(CSMenuMessage.FAQ_INSERT_ID.getMessage());
+
                     int readChoice = Integer.parseInt(input.readLine());
-                    line();
-                    System.out.println("[선택하신 FAQ]");
+
+                    System.out.println(CSMenuMessage.LINE.getMessage());
+
+                    System.out.println(CSMenuMessage.FAQ_CHOICE.getMessage());
+
                     Faq oneFaq = faqDAO.readFaqOne(readChoice);
                     System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n", "작성일", oneFaq.getFaqDate(), "카테고리", oneFaq.getFaqCategoryName(), "질문", oneFaq.getFaqQuestion(), "답변", oneFaq.getFaqReply());
                     faqDetailMenu(readChoice, managerId);
                     break;
+
                 case 3:
-                    System.out.println("[뒤로가기]");
+                    System.out.println(CSMenuMessage.BACK.getMessage());
                     break KIKI;
             }
         }
@@ -101,9 +112,8 @@ public class FaqMenu {
 
     //  총관리자 <FAQ> 상세 메뉴 ---------------------------------------------------------------------------------------------------
     public void faqDetailMenu(Integer readChoice, String managerId) throws IOException {
-        System.out.println("\n------------------------------<< FAQ 상세 메뉴 >>------------------------------");
-        System.out.println("FAQ 상세 메뉴: 1.수정 | 2.삭제 | 3.뒤로가기");
-        System.out.print("메뉴 선택 > ");
+        System.out.print(CSMenuMessage.FAQ_DETAIL_MENU.getMessage());
+
         int choice = 0;
         try {
             choice = Integer.parseInt(input.readLine());
@@ -114,31 +124,29 @@ public class FaqMenu {
         } catch (Exception e2) {
             System.out.println("에러 발생");
         }
-        line();
+
+        System.out.println(CSMenuMessage.LINE.getMessage());
+
         switch (choice) {
             case 1:
                 Faq faq = faqInput.faqDataUpdate(readChoice, managerId);
+
                 boolean update = faqDAO.updateFaq(faq);
-                if (update) System.out.println("FAQ가 성공적으로 수정되었습니다.");
-                else {
-                    System.out.println("수정 실패, 다시 시도 부탁드립니다. ");
-                }
+
+                if (update) System.out.println(CSMenuMessage.FAQ_UPDATE_SUCCESS.getMessage());
+                else System.out.println(CSMenuMessage.FAQ_UPDATE_FAILURE.getMessage());
                 break;
+
             case 2:
                 boolean delete = faqDAO.deleteFaq(readChoice, managerId);
-                if (delete) System.out.println("FAQ가 성공적으로 삭제되었습니다.");
-                else {
-                    System.out.println("삭제 실패, 다시 시도 부탁드립니다.");
-                }
+
+                if (delete) System.out.println(CSMenuMessage.FAQ_DELETE_SUCCESS.getMessage());
+                else System.out.println(CSMenuMessage.FAQ_DELETE_FAILURE.getMessage());
                 break;
+
             case 3:
-                System.out.println("[뒤로가기]");
+                System.out.println(CSMenuMessage.BACK.getMessage());
                 break;
         }
-    }
-
-    // 라인 -------------------------------------------------------------------------------------------------------------
-    public void line() {
-        System.out.println("--------------------------------------------------------------------------------");
     }
 }

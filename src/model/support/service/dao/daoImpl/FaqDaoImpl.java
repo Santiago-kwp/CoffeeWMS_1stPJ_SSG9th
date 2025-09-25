@@ -159,10 +159,10 @@ public class FaqDaoImpl implements FaqDAO {
             ResultSet rs = cStmt.executeQuery();
             if (rs != null) {
                 while (rs.next()) {
-                    Category faqCatagory = new Category();
-                    faqCatagory.setCategoryId(rs.getInt(1));
-                    faqCatagory.setCategoryName(rs.getString(2));
-                    faqCategoryList.add(faqCatagory);
+                    Category faqCategory = new Category();
+                    faqCategory.setCategoryId(rs.getInt(1));
+                    faqCategory.setCategoryName(rs.getString(2));
+                    faqCategoryList.add(faqCategory);
                 }
             }
             return faqCategoryList;

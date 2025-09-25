@@ -1,5 +1,6 @@
 package controller.support;
 
+import constant.support.CSMenuMessage;
 import domain.support.Inquiry;
 import model.support.service.dao.InquiryDAO;
 import model.support.service.dao.daoImpl.InquiryDaoImpl;
@@ -32,9 +33,8 @@ public class InquiryMenu {
         while (true) {
             inquiryRead.managerInquiryReadAll();
 
-            System.out.println("\n-------------------------------<< 1:1 문의 메뉴 >>-------------------------------");
-            System.out.println("문의 메뉴: 1.상세 조회 | 2.뒤로가기");
-            System.out.print("메뉴 선택 > ");
+            System.out.print(CSMenuMessage.INQUIRY_MENU_SIMPLE.getMessage());
+
             int choice = 0;
             try {
                 choice = Integer.parseInt(input.readLine());
@@ -45,13 +45,17 @@ public class InquiryMenu {
             } catch (Exception e2) {
                 System.out.println("에러 발생");
             }
+
             switch (choice) {
                 case 1:
-                    System.out.println("문의 번호를 입력해주세요.");
-                    System.out.print("> ");
+                    System.out.print(CSMenuMessage.INQUIRY_INSERT_ID.getMessage());
+
                     int readChoice = Integer.parseInt(input.readLine());
-                    line();
-                    System.out.println("[선택하신 문의]");
+
+                    System.out.println(CSMenuMessage.LINE.getMessage());
+
+                    System.out.println(CSMenuMessage.INQUIRY_CHOICE.getMessage());
+
                     String status = null;
                     Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
                     switch (oneInquiry.getInquiryStatus()) {
@@ -68,8 +72,9 @@ public class InquiryMenu {
                     }
                     managerInquiryDetailMenu(readChoice, managerId);
                     break;
+
                 case 2:
-                    System.out.println("[뒤로가기]");
+                    System.out.println(CSMenuMessage.BACK.getMessage());
                     break KI;
             }
         }
@@ -82,9 +87,8 @@ public class InquiryMenu {
 
             inquiryRead.memberInquiryReadAll(memberId);
 
-            System.out.println("\n-------------------------------<< 1:1 문의 메뉴 >>-------------------------------");
-            System.out.println("문의 메뉴: 1.문의 생성 | 2.상세 조회 | 3.뒤로가기");
-            System.out.print("메뉴 선택 > ");
+            System.out.print(CSMenuMessage.INQUIRY_MENU.getMessage());
+
             int choice = 0;
             try {
                 choice = Integer.parseInt(input.readLine());
@@ -95,21 +99,26 @@ public class InquiryMenu {
             } catch (Exception e2) {
                 System.out.println("에러 발생");
             }
+
             switch (choice) {
                 case 1:
                     Inquiry inquiry = inquiryInput.inquiryDataInput(memberId);
+
                     boolean pass = inquiryDAO.createInquiry(inquiry);
-                    if (pass) System.out.println("문의사항이 성공적으로 생성되었습니다.");
-                    else {
-                        System.out.println("생성 실패, 다시 시도 부탁드립니다. ");
-                    }
+
+                    if (pass) System.out.println(CSMenuMessage.INQUIRY_CREATE_SUCCESS.getMessage());
+                    else System.out.println(CSMenuMessage.INQUIRY_CREATE_FAILURE.getMessage());
                     break;
+
                 case 2:
-                    System.out.println("문의 번호를 입력해주세요.");
-                    System.out.print("> ");
+                    System.out.print(CSMenuMessage.INQUIRY_INSERT_ID.getMessage());
+
                     int readChoice = Integer.parseInt(input.readLine());
-                    line();
-                    System.out.println("[선택하신 문의]");
+
+                    System.out.println(CSMenuMessage.LINE.getMessage());
+
+                    System.out.println(CSMenuMessage.INQUIRY_CHOICE.getMessage());
+
                     String status = null;
                     Inquiry oneInquiry = inquiryDAO.readInquiryMemberOne(memberId, readChoice);
                     switch (oneInquiry.getInquiryStatus()) {
@@ -126,8 +135,9 @@ public class InquiryMenu {
                     }
                     memberInquiryDetailMenu(memberId, readChoice);
                     break;
+
                 case 3:
-                    System.out.println("[뒤로가기]");
+                    System.out.println(CSMenuMessage.BACK.getMessage());
                     break KI;
             }
         }
@@ -135,9 +145,8 @@ public class InquiryMenu {
 
     // 총관리자 공지사항 상세 메뉴 ---------------------------------------------------------------------------------------------------
     public void managerInquiryDetailMenu(Integer readChoice, String managerId) throws IOException {
-        System.out.println("\n------------------------------<< 1:1 문의 상세 메뉴 >>------------------------------");
-        System.out.println("문의 상세 메뉴: 1.답변 | 2.삭제 | 3.뒤로가기");
-        System.out.print("메뉴 선택 > ");
+        System.out.print(CSMenuMessage.INQUIRY_DETAIL_MENU_MANAGER.getMessage());
+
         int choice = 0;
         try {
             choice = Integer.parseInt(input.readLine());
@@ -148,34 +157,36 @@ public class InquiryMenu {
         } catch (Exception e2) {
             System.out.println("에러 발생");
         }
-        line();
+
+        System.out.println(CSMenuMessage.LINE.getMessage());
+
         switch (choice) {
             case 1:
                 Inquiry inquiry = inquiryInput.managerInquiryDataUpdate(readChoice, managerId);
+
                 boolean update = inquiryDAO.updateInquiryManager(inquiry);
-                if (update) System.out.println("문의사항이 성공적으로 답변 완료되었습니다.");
-                else {
-                    System.out.println("답변 작성 실패, 다시 시도 부탁드립니다. ");
-                }
+
+                if (update) System.out.println(CSMenuMessage.INQUIRY_REPLY_SUCCESS.getMessage());
+                else System.out.println(CSMenuMessage.INQUIRY_REPLY_FAILURE.getMessage());
                 break;
+
             case 2:
                 boolean delete = inquiryDAO.deleteInquiryManager(readChoice);
-                if (delete) System.out.println("문의사항이 성공적으로 삭제되었습니다.");
-                else {
-                    System.out.println("삭제 실패, 다시 시도 부탁드립니다.");
-                }
+
+                if (delete) System.out.println(CSMenuMessage.INQUIRY_DELETE_SUCCESS.getMessage());
+                else System.out.println(CSMenuMessage.INQUIRY_DELETE_FAILURE.getMessage());
                 break;
+
             case 3:
-                System.out.println("[뒤로가기]");
+                System.out.println(CSMenuMessage.BACK.getMessage());
                 break;
         }
     }
 
     // 회원 공지사항 상세 메뉴 ---------------------------------------------------------------------------------------------------
     public void memberInquiryDetailMenu(String memberIdEx, Integer readChoice) throws IOException {
-        System.out.println("\n------------------------------<< 1:1 문의 상세 메뉴 >>------------------------------");
-        System.out.println("문의 상세 메뉴: 1.수정 | 2.삭제 | 3.뒤로가기");
-        System.out.print("메뉴 선택 > ");
+        System.out.print(CSMenuMessage.INQUIRY_DETAIL_MENU_MEMBER.getMessage());
+
         int choice = 0;
         try {
             choice = Integer.parseInt(input.readLine());
@@ -186,31 +197,29 @@ public class InquiryMenu {
         } catch (Exception e2) {
             System.out.println("에러 발생");
         }
-        line();
+
+        System.out.println(CSMenuMessage.LINE.getMessage());
+
         switch (choice) {
             case 1:
                 Inquiry inquiry = inquiryInput.memberInquiryDataUpdate(memberIdEx, readChoice);
+
                 boolean update = inquiryDAO.updateInquiryMember(inquiry);
-                if (update) System.out.println("문의사항이 성공적으로 수정 완료되었습니다.");
-                else {
-                    System.out.println("수정 실패, 다시 시도 부탁드립니다. ");
-                }
+
+                if (update) System.out.println(CSMenuMessage.INQUIRY_UPDATE_SUCCESS.getMessage());
+                else System.out.println(CSMenuMessage.INQUIRY_UPDATE_FAILURE.getMessage());
                 break;
+
             case 2:
                 boolean delete = inquiryDAO.deleteInquiryMember(readChoice, memberIdEx);
-                if (delete) System.out.println("문의사항이 성공적으로 삭제되었습니다.");
-                else {
-                    System.out.println("삭제 실패, 다시 시도 부탁드립니다.");
-                }
+
+                if (delete) System.out.println(CSMenuMessage.INQUIRY_DELETE_SUCCESS.getMessage());
+                else System.out.println(CSMenuMessage.INQUIRY_DELETE_FAILURE.getMessage());
                 break;
+
             case 3:
-                System.out.println("[뒤로가기]");
+                System.out.println(CSMenuMessage.BACK.getMessage());
                 break;
         }
-    }
-
-    // 라인 -------------------------------------------------------------------------------------------------------------
-    public void line() {
-        System.out.println("--------------------------------------------------------------------------------");
     }
 }
