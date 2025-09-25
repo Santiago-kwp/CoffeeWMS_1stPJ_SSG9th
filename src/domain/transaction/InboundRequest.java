@@ -15,6 +15,26 @@ public class InboundRequest {
   private String requestItemsJson;
   private Date inboundRequestDate;
 
+  public String getInboundRequestId() {
+    return inboundRequestId;
+  }
+
+  public String getMemberId() {
+    return memberId;
+  }
+
+  public String getManagerId() {
+    return managerId;
+  }
+
+  public String getRequestItemsJson() {
+    return requestItemsJson;
+  }
+
+  public Date getInboundRequestDate() {
+    return inboundRequestDate;
+  }
+
   public void setInboundRequestId(String inboundRequestId) {
     this.inboundRequestId = inboundRequestId;
   }

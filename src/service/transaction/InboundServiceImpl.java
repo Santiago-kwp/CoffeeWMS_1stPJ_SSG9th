@@ -66,4 +66,9 @@ public class InboundServiceImpl implements InboundService {
     return inboundDao.getApprovedRequestsByMember(memberId);
   }
 
+  @Override
+  public List<Map<String, Integer>> getMemberUnapprovedInboundRequests() {
+    return inboundDao.getAllMemberHasUnapprovedInboundRequest();
+  }
+
 }

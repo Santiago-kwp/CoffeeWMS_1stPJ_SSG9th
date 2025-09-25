@@ -165,7 +165,7 @@ SET @update_member_id = (SELECT member_id FROM inbound_request_items WHERE inbou
 SET @update_manager_id = (SELECT manager_id FROM inbound_request_items WHERE inbound_request_item_id = @update_item_id);
 
 -- 업데이트할 새로운 커피 ID와 수량을 랜덤하게 선택하여 변수에 저장합니다.
-SET @new_coffee_id = (SELECT coffee_id FROM coffees WHERE coffee_id != @coffee_id_test ORDER BY RAND() LIMIT 1);
+SET @new_coffee_id = (SELECT coffee_id FROM coffees ORDER BY RAND() LIMIT 1);
 SET @new_quantity = 120;
 SET @update_date = CURDATE();
 
@@ -384,6 +384,7 @@ CALL show_one_inbound_request_items(@member_id_one_item, @inbound_request_id_one
 ### 입고 고지서를 입력하는 프로시저
 
 drop procedure create_inbound_receipt;
+
 delimiter @@
 create procedure create_inbound_receipt(IN c_inbound_request_id char(12), IN c_member_id varchar(15), IN c_inbound_receipt TEXT)
 begin
@@ -438,6 +439,8 @@ CALL show_inbound_period(@member_id_period, @start_date, @end_date);
 
 -- 월별 입고현황 조회
 drop procedure show_inbound_month;
+
+
 delimiter @@
 create procedure show_inbound_month(IN c_member_id varchar(15), IN mon int)
 begin

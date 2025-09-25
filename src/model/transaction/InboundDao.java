@@ -23,6 +23,27 @@ public class InboundDao {
   }
 
   /**
+   * 관리자가 회원의 미승인된 요청 건수를 확인합니다.
+   * @return 멤버ID, 해당 맴버의 미승인 입고 요청 건수
+   */
+  public List<Map<String, Integer>> getAllMemberHasUnapprovedInboundRequest() {
+    List<Map<String, Integer>> memberHasUnapprovedInboundRequest = new ArrayList<>();
+    String sql = "{CALL get_all_member_has_unapproved_inbound_request()}";
+    try (CallableStatement callableStatement = connection.prepareCall(sql);
+         ResultSet rs = callableStatement.executeQuery()) {
+
+      while (rs.next()) {
+        Map<String, Integer> map = new HashMap<>();
+        map.put(rs.getString("member_id"), rs.getInt("unapproved_request_num"));
+        memberHasUnapprovedInboundRequest.add(map);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return memberHasUnapprovedInboundRequest;
+  }
+
+  /**
    * `coffees` 테이블에서 모든 커피 목록을 조회합니다.
    * @return 커피 DTO 리스트
    */

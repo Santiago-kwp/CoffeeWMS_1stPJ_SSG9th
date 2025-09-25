@@ -3,6 +3,7 @@ package controller.transaction;
 import command.Command;
 import command.transaction.CreateInboundRequestCommand;
 import command.transaction.ShowApprovedRequestsCommand;
+import command.transaction.ShowMemberUnapprovedCommand;
 import command.transaction.ShowUnapprovedRequestsCommand;
 import config.transaction.DBUtil;
 import constant.transaction.TransactionText;
@@ -55,7 +56,7 @@ public class InboundController {
   /**
    * 애플리케이션의 메인 루프를 실행하여 회원 사용자와 상호작용하는 메소드
    */
-  public void runMember() {
+  public void runMember(String memberId) {
     boolean running = true;
     while (running) {
       inboundView.displayMemberInboundMenu();
@@ -66,10 +67,10 @@ public class InboundController {
           submitNewInboundRequest();
           break;
         case 2:
-          showUnapprovedRequests();
+          showUnapprovedRequests(memberId);
           break;
         case 3:
-          showApprovedInboundStatus();
+          showApprovedInboundStatus(memberId);
           break;
         case 4:
           // 합치면 뒤로 가기로 로그인 메인 페이지로 가도록!
@@ -114,16 +115,16 @@ public class InboundController {
    * 2번 메뉴: 입고 요청 내역 조회
    * 아직 승인되지 않은 입고 요청 목록을 조회합니다.
    */
-  public void showUnapprovedRequests() {
+  public void showUnapprovedRequests(String memberId) {
     inboundView.displayMessage("미승인된 입고 요청 내역을 조회합니다.");
-    String memberId = "member12346"; // 병합시 받아서 넣어야 함.
+    memberId = "member12346"; // 병합시 받아서 넣어야 함.
 
-    // 커맨드 객체 생성 및 실행
-    ShowUnapprovedRequestsCommand command = new ShowUnapprovedRequestsCommand(inboundService, memberId);
-    command.execute();
+    // 커맨드 생성 및 실행
+    ShowUnapprovedRequestsCommand showCommand = new ShowUnapprovedRequestsCommand(inboundService, memberId);
+    executeCommand(showCommand);
 
     // 실행 결과 가져오기
-    List<Map<String, Object>> requests = command.getResult();
+    List<Map<String, Object>> requests = showCommand.getResult();
 
     // 뷰에 결과 표시
     inboundView.displayUnapprovedRequests(requests);
@@ -134,9 +135,9 @@ public class InboundController {
    * 3번 메뉴: 입고 완료 현황 조회
    * 승인된 입고 요청의 현황을 조회합니다.
    */
-  private void showApprovedInboundStatus() {
+  private void showApprovedInboundStatus(String memberId) {
     inboundView.displayMessage("승인된 입고 완료 현황을 조회합니다.");
-    String memberId = "member12347"; // 병합시 받아서 넣어야 함.
+    memberId = "member12347"; // 병합시 받아서 넣어야 함.
 
     // 커맨드 객체 생성 및 실행
     ShowApprovedRequestsCommand command = new ShowApprovedRequestsCommand(inboundService,memberId);
@@ -164,13 +165,13 @@ public class InboundController {
 
       switch (choice) {
         case 1:
-          submitNewInboundRequest();
+
           break;
         case 2:
-          showUnapprovedRequests();
+
           break;
         case 3:
-          showApprovedInboundStatus();
+
           break;
         case 4:
           // 합치면 뒤로 가기로 로그인 메인 페이지로 가도록!
@@ -181,6 +182,19 @@ public class InboundController {
           inboundView.displayMessage("잘못된 입력입니다. 다시 시도하세요.");
       }
     }
+  }
+
+  // 1 번 메뉴 : 미 승인된 회원 아이디 및 미승인 건수 조회 -> 회원 아이디 입력 시 기존의 미승인된 회원의 입고 요청 내역 표시
+  public void showMemberUnapprovedInboundRequest() {
+    // 커맨드 객체 생성 및 실행
+    ShowMemberUnapprovedCommand showCommand = new ShowMemberUnapprovedCommand(inboundService);
+    executeCommand(showCommand);
+
+    // 실행 결과 가져오기
+    List<Map<String, Integer>> requests = showCommand.getResult();
+    // 뷰에 결과 표시
+//    inboundView.displayApprovedRequests(requests);
+
   }
 
 
