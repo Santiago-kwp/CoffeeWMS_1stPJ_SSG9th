@@ -28,7 +28,7 @@ public class ManagerManageMenu implements UserManageMenu {
     public void read() throws IOException {
         boolean quitRead = false;
         while (!quitRead) {
-            System.out.println(UserPage.MANAGER_SELECT_TITLE);
+            System.out.print(UserPage.MANAGER_SELECT_TITLE);
             String menuNum = input.readLine();
             switch (menuNum) {
                 case "1":
@@ -50,7 +50,7 @@ public class ManagerManageMenu implements UserManageMenu {
     public void readOneUserDetail() throws IOException {
         boolean quitRead = false;
         while (!quitRead) {
-            System.out.println(UserPage.MANAGER_DETAIL_INFO_TITLE);
+            System.out.print(UserPage.MANAGER_DETAIL_INFO_TITLE);
             String menuNum = input.readLine();
             switch (menuNum) {
                 case "1":
@@ -97,19 +97,19 @@ public class ManagerManageMenu implements UserManageMenu {
 
     // 권한에 관계없이 전체 회원 조회(승인된 회원의 공통 정보만 조회)
     public void readAllUser() {
-        System.out.println(UserPage.MANAGER_SEARCH_ALL);
+        System.out.print(UserPage.MANAGER_SEARCH_ALL);
     }
 
     //
     public void readUserByRole() {
-        System.out.println(UserPage.MANAGER_SEARCH_BY_ROLE);
+        System.out.print(UserPage.MANAGER_SEARCH_BY_ROLE);
     }
 
     @Override
     public void update() throws IOException {
         boolean quitUpdate = false;
         while (!quitUpdate) {
-            System.out.println(UserPage.MANAGER_UPDATE_TITLE);
+            System.out.print(UserPage.MANAGER_UPDATE_TITLE);
             String menuNum = input.readLine();
             switch (menuNum) {
                 case "1":

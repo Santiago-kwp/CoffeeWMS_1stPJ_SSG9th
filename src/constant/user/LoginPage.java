@@ -40,7 +40,8 @@ public enum LoginPage {
     FOUND_ID("찾으시는 회원의 아이디는 %s입니다.\n"),
     NOT_FOUND_ID("입력한 이메일에 해당하는 아이디가 없습니다.\n"),
 
-    ID_NOT_EXIST("입력한 아이디에 해당하는 회원을 찾을 수 없습니다.\n"),
+    CANNOT_LOGIN("현재 로그인 중이거나 존재하지 않는 계정입니다."),
+    USER_NOT_EXIST("입력한 정보에 해당하는 회원을 찾을 수 없습니다.\n"),
     NEW_PASSWORD("새로운 비밀번호를 입력해주세요."),
     UPDATE_PASSWORD("비밀번호 재설정이 완료되었습니다.\n"),
     NOT_UPDATE_PASSWORD("비밀번호 변경에 실패했습니다."),

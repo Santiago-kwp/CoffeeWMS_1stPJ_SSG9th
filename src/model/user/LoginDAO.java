@@ -2,10 +2,13 @@ package model.user;
 
 
 import config.DBUtil;
+import constant.user.LoginPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
 
+import exception.user.LoginException;
+import exception.user.NotRegisteredUserException;
 import java.sql.*;
 
 public class LoginDAO {
@@ -28,11 +31,13 @@ public class LoginDAO {
     public User login(String userID, String userPwd) {
         try {
             String userType = getUserType(userID, userPwd);
+            if (userType == null) {
+                throw new NotRegisteredUserException(LoginPage.USER_NOT_EXIST.toString());
+            }
             if (userType.contains("관리자")) {
                 return loginManager(userID, userPwd, userType);
-            } else {
-                return loginMember(userID, userPwd, userType);
             }
+            return loginMember(userID, userPwd, userType);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
