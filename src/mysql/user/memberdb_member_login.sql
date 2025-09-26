@@ -308,7 +308,7 @@ END $$
 DELIMITER ;
 
 call login_manager('wmscargoman', 'wms123456', '창고관리자');
-call logout('wmscargoman', @result);
+call logout('manager2', @result);
 call logout('wmsAdmin', @result);
 call logout('member12350', @result);
 select @result;

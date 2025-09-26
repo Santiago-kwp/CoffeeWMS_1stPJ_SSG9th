@@ -5,10 +5,10 @@ import constant.user.UserPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
+import exception.user.NotHavePermissionException;
 import model.user.ManagerDAO;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -31,26 +31,30 @@ public class ManagerManageMenu implements UserManageMenu {
     public void read() throws IOException {
         boolean quitRead = false;
         while (!quitRead) {
-            System.out.print(UserPage.MANAGER_SELECT_TITLE);
-            String menuNum = input.readLine();
-            switch (menuNum) {
-                case "1":
-                    readOneUserDetail();
-                    break;
-                case "2":
-                    readAllUser();
-                    break;
-                case "3":
-                    readUsersByRole();
-                    break;
-                case "4":
-                    quitRead = quit();
-                    break;
+            try {
+                System.out.print(UserPage.MANAGER_SELECT_TITLE);
+                String menuNum = input.readLine();
+                switch (menuNum) {
+                    case "1":
+                        readOneUserDetail();
+                        break;
+                    case "2":
+                        readAllUser();
+                        break;
+                    case "3":
+                        readUsersByRole();
+                        break;
+                    case "4":
+                        quitRead = quit();
+                        break;
+                }
+            } catch (NotHavePermissionException e) {
+                System.out.println(e.getMessage());
             }
         }
     }
 
-    public void readOneUserDetail() throws IOException {
+    public void readOneUserDetail() throws IOException, NotHavePermissionException {
         boolean quitRead = false;
         while (!quitRead) {
             System.out.print(UserPage.MANAGER_DETAIL_INFO_TITLE);
@@ -76,7 +80,7 @@ public class ManagerManageMenu implements UserManageMenu {
     }
 
     private void readOtherUser() throws IOException {
-        System.out.println(UserPage.INPUT_ID_FOR_SEARCH);
+        System.out.print(UserPage.INPUT_ID_FOR_SEARCH);
         String targetID = input.readLine();
 
         String userType = dao.searchUserTypeBy(targetID);
@@ -88,8 +92,8 @@ public class ManagerManageMenu implements UserManageMenu {
         switch (currentManager.getPosition()) {
             case "창고관리자":
                 if (found instanceof Manager) {
-                    System.out.println(UserPage.NOT_HAVE_PERMISSION);
-                    return;
+                    // 창고관리자는 다른 창고관리자의 인적사항을 열람할 수 없다.
+                    throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
                 }
                 UserPage.memberDetails((Member)found);
                 break;
@@ -107,7 +111,7 @@ public class ManagerManageMenu implements UserManageMenu {
     public void readAllUser() {
         System.out.print(UserPage.MANAGER_SEARCH_ALL);
         if (!currentManager.getPosition().equals("총관리자")) {
-            throw new RuntimeException(UserPage.NOT_HAVE_PERMISSION.toString());
+            throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
         }
         List<User> allApprovedUser = dao.searchAllUser();
 
@@ -119,7 +123,7 @@ public class ManagerManageMenu implements UserManageMenu {
 
     //
     public void readUsersByRole() throws IOException {
-        System.out.print(UserPage.MANAGER_SEARCH_BY_ROLE);
+        System.out.print(UserPage.MANAGER_SEARCH_BY_ROLE_TITLE);
         String menuNum = input.readLine();
 
         switch (menuNum) {
@@ -133,13 +137,21 @@ public class ManagerManageMenu implements UserManageMenu {
     }
 
     public void readMemberList() {
-        List<Member> memberList = new ArrayList<>();
+        List<User> searchResult = dao.searchByRole("members");
+        searchResult.stream()
+                .map(user -> (Member)user)
+                .forEach(member -> System.out.println(member));
     }
 
     public void readManagerList(String position) {
         if (!position.equals("총관리자")) {
-            throw new RuntimeException(UserPage.NOT_HAVE_PERMISSION.toString());
+            throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
         }
+        List<User> searchResult = dao.searchByRole("managers");
+        searchResult.stream()
+                .map(user -> (Manager)user)
+                .sorted(Comparator.comparing(Manager::getPosition).reversed().thenComparing(Manager::getId))
+                .forEach(manager -> System.out.println(manager));
     }
 
     @Override

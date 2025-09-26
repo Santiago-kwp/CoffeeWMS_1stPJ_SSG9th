@@ -12,9 +12,9 @@ public interface UserManageMenu {
 
     default boolean run() {
         boolean quitMenu = false;
-        boolean isUserDeleted = false;
+        boolean hasLogout = false;
 
-        while (!quitMenu && !isUserDeleted) {
+        while (!quitMenu && !hasLogout) {
             try {
                 printMenu();
                 String menuNum = input.readLine();
@@ -26,7 +26,7 @@ public interface UserManageMenu {
                         update();
                         break;
                     case "3":
-                        isUserDeleted = delete();
+                        hasLogout = delete();
                         break;
                     case "4":
                         quitMenu = exitMenu();
@@ -36,7 +36,7 @@ public interface UserManageMenu {
                 System.out.println(e.getMessage());
             }
         }
-        return isUserDeleted;
+        return hasLogout;
     }
 
     default boolean exitMenu() {

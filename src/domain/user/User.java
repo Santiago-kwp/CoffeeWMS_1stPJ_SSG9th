@@ -19,11 +19,7 @@ public class User {
     protected String type;
 
     public User(String id, String pwd, String name, String phone, String email) {
-        this.id = id;
-        this.pwd = pwd;
-        this.name = name;
-        this.phone = phone;
-        this.email = email;
+        this(id, pwd, name, phone, email, null);
     }
     public User(String id, String pwd, String name, String phone, String email, String type) {
         this.id = id;

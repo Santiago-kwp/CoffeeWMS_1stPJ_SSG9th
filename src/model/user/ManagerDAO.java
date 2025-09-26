@@ -163,4 +163,31 @@ public class ManagerDAO implements UserDAO {
         }
         return allUsers;
     }
+
+    public List<User> searchByRole(String groupName) {
+        String sql = "{call search_by_role(?)}";
+
+        List<User> searchResult = new ArrayList<>();
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, groupName);
+            call.execute();
+
+            try (ResultSet rs = call.executeQuery()) {
+                while (rs.next()) {
+                    switch (groupName) {
+                        case "members":
+                            searchResult.add(getMember(rs));
+                            break;
+                        case "managers":
+                            searchResult.add(getManager(rs));
+                            break;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return searchResult;
+    }
 }
