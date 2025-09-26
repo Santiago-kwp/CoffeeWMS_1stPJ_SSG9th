@@ -2,7 +2,7 @@ package model.inventory;
 
 
 
-import config.inventory.DBUtil;
+import config.DBUtil;
 import domain.inventory.InventoryVO;
 
 import domain.inventory.UserVO;

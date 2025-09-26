@@ -5,7 +5,7 @@ import constant.inventory.Role;
 import domain.inventory.InventoryVO;
 import domain.inventory.UserVO;
 import java.util.List;
-import service.InventoryService;
+import service.inventory.InventoryService;
 import view.inventory.InventoryView;
 
 public class InventoryController {

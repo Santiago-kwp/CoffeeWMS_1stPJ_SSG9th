@@ -4,9 +4,12 @@ import constant.inventory.InventoryMessage;
 import constant.inventory.Role;
 import domain.inventory.DueDiligenceVO;
 import domain.inventory.UserVO;
+import exception.inventory.DataNotFoundException;
+import exception.inventory.DuplicateKeyException;
 import java.util.List;
-import service.DueDiligenceService;
+import service.inventory.DueDiligenceService;
 import view.inventory.DueDiligenceView;
+import view.inventory.InventoryView;
 
 
 public class DueDiligenceController {
@@ -96,63 +99,86 @@ public class DueDiligenceController {
   }
 
   private void createDiligence(UserVO user) {
-    DueDiligenceVO vo = diligenceView.inputCreateDiligence();
-    int result = diligenceService.create(user, vo);
-    if (result > 0)
+    try {
+      DueDiligenceVO vo = diligenceView.inputCreateDiligence();
+      diligenceService.create(user, vo);
       diligenceView.printMessage(InventoryMessage.PROCESS_SUCCESS, "실사 등록");
-    else
-      diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "실사 등록");
+
+    } catch (DuplicateKeyException | DataNotFoundException e) {
+      // ID가 중복되거나, 존재하지 않는 재고 ID를 입력한 경우를 모두 잡습니다.
+      new InventoryView().printErrorMessage(e.getMessage());
+
+    } catch (RuntimeException e) {
+      new InventoryView().printErrorMessage(InventoryMessage.SYSTEM_ERROR.toString());
+      e.printStackTrace();
+    }
   }
 
   private void updateDiligence(UserVO user) {
-    // 1. [수정] '수정 가능한' (승인요청, 승인반려 상태) 실사 목록만 조회합니다.
     List<DueDiligenceVO> updatableList = diligenceService.getList(user, null, "UPDATABLE", 1, false);
     diligenceView.printDiligenceList(updatableList);
 
-    // [추가] 수정할 항목이 없는 경우, 사용자에게 알리고 메소드를 종료합니다.
     if (updatableList == null || updatableList.isEmpty()) {
       System.out.println("\n>> 수정할 수 있는 실사 항목이 없습니다.");
       return;
     }
 
-    // 2. 수정할 실사 ID를 입력받습니다.
-    String id = diligenceView.inputDiligenceId("수정");
-    if (id == null) {
-      diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "실사 수정 취소");
-      return;
-    }
+    try {
+      // --- try 블록 시작 ---
+      String id = diligenceView.inputDiligenceId("수정");
+      if (id == null) {
+        diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "실사 수정 취소");
+        return;
+      }
 
-    // 3. 새로운 실사 내용을 입력받습니다.
-    DueDiligenceVO vo = diligenceView.inputUpdateDiligence(id);
+      DueDiligenceVO vo = diligenceView.inputUpdateDiligence(id);
 
-    // 4. 서비스를 통해 수정을 요청합니다.
-    int result = diligenceService.update(user, vo);
-    if (result > 0) {
+      // 서비스를 통해 수정 요청 (성공하면 다음 줄로, 실패하면 catch로 이동)
+      diligenceService.update(user, vo);
+
+      // try 블록이 끝까지 실행되었다면 성공한 것
       diligenceView.printMessage(InventoryMessage.PROCESS_SUCCESS, "실사 수정");
-    } else {
-      // 이제 이 메시지는 거의 볼 일이 없지만, 혹시 모를 동시성 문제 등을 위해 남겨둡니다.
-      diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "실사 수정 (ID를 잘못 입력했거나 권한이 없습니다)");
+
+    } catch (DataNotFoundException e) {
+      // DAO에서 던진 "해당 실사 ID를 찾을 수 없다"는 예외를 여기서 잡습니다.
+      // e.getMessage()에는 "해당 실사 ID를 찾을 수 없거나..." 메시지가 담겨 있습니다.
+      new InventoryView().printErrorMessage(e.getMessage());
+
+    } catch (RuntimeException e) {
+      // 그 외 예측하지 못한 다른 런타임 예외들을 처리하는 안전망입니다.
+      new InventoryView().printErrorMessage(InventoryMessage.SYSTEM_ERROR.toString());
+      e.printStackTrace(); // 개발 확인용 오류 로그
     }
+    // --- try-catch 블록 끝 ---
+    // catch 블록이 실행되더라도 메소드는 정상적으로 종료되고, 메뉴를 보여주는 while 루프로 돌아갑니다.
   }
 
   private void deleteDiligence(UserVO user) {
-    // 1. 삭제 가능한 전체 실사 목록을 먼저 보여줍니다.
     List<DueDiligenceVO> list = diligenceService.getList(user, null, null, 1, false);
     diligenceView.printDiligenceList(list);
 
-    // 2. 삭제할 실사 ID를 입력받습니다.
-    String id = diligenceView.inputDiligenceId("삭제");
-    if (id == null) {
-      diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "실사 삭제 취소");
+    // 수정할 항목이 없을 때 사용자에게 메시지를 보여주는 로직 추가 (선택 사항이지만 권장)
+    if (list == null || list.isEmpty()) {
+      System.out.println("\n>> 삭제할 수 있는 실사 항목이 없습니다.");
       return;
     }
 
-    // 3. 서비스를 통해 삭제를 요청합니다.
-    int result = diligenceService.delete(user, id);
-    if (result > 0) {
+    try {
+      String id = diligenceView.inputDiligenceId("삭제");
+      if (id == null) {
+        diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "실사 삭제 취소");
+        return;
+      }
+
+      diligenceService.delete(user, id);
       diligenceView.printMessage(InventoryMessage.PROCESS_SUCCESS, "실사 삭제");
-    } else {
-      diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "실사 삭제 (삭제 권한이 없습니다)");
+
+    } catch (DataNotFoundException e) {
+      new InventoryView().printErrorMessage(e.getMessage());
+
+    } catch (RuntimeException e) {
+      new InventoryView().printErrorMessage(InventoryMessage.SYSTEM_ERROR.toString());
+      e.printStackTrace();
     }
   }
 
@@ -166,35 +192,36 @@ public class DueDiligenceController {
     }
 
     // 2. 처리할 실사 ID를 입력받습니다.
-    String id = diligenceView.inputDiligenceId("처리");
-    if (id == null) {
-      diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "승인/반려 처리 취소");
-      return;
-    }
+    try {
+      // ... (ID 입력받는 부분부터 try 블록 안에 넣기) ...
+      String id = diligenceView.inputDiligenceId("처리");
+      if (id == null) {
+        diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "승인/반려 처리 취소");
+        return;
+      }
 
-    // 3. '승인' 또는 '반려'를 선택받습니다.
-    int choice = diligenceView.inputApprovalAction();
-    int result = 0;
-    String action = "";
+      int choice = diligenceView.inputApprovalAction();
+      String action = "";
 
-    if (choice == 1) {
-      // 4-1. 승인 처리
-      result = diligenceService.approve(user, id);
-      action = "승인";
-    } else if (choice == 2) {
-      // 4-2. 반려 처리
-      result = diligenceService.reject(user, id);
-      action = "반려";
-    } else {
-      diligenceView.printMessage(InventoryMessage.INVALID_MENU_CHOICE);
-      return;
-    }
+      if (choice == 1) {
+        diligenceService.approve(user, id); // 여기서 예외 발생 가능
+        action = "승인";
+      } else if (choice == 2) {
+        diligenceService.reject(user, id); // 여기서 예외 발생 가능
+        action = "반려";
+      } else {
+        diligenceView.printMessage(InventoryMessage.INVALID_MENU_CHOICE);
+        return;
+      }
 
-    // 5. 결과 출력
-    if (result > 0) {
       diligenceView.printMessage(InventoryMessage.PROCESS_SUCCESS, "실사 " + action);
-    } else {
-      diligenceView.printMessage(InventoryMessage.PROCESS_FAILURE, "실사 " + action);
+
+    } catch (DataNotFoundException e) {
+      // DAO에서 던진 "해당 실사 ID를 찾을 수 없다"는 예외를 잡아서 처리
+      new InventoryView().printErrorMessage(e.getMessage());
+    } catch (RuntimeException e) {
+      new InventoryView().printErrorMessage(InventoryMessage.SYSTEM_ERROR.toString());
+      e.printStackTrace();
     }
   }
 }

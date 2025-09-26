@@ -4,7 +4,7 @@ package view.inventory;
 import controller.inventory.InventoryController;
 import domain.inventory.UserVO;
 import java.util.Scanner;
-import service.UserService;
+import service.inventory.UserService;
 
 public class Main {
 

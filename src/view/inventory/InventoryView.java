@@ -72,21 +72,21 @@ public class InventoryView {
    */
   public String inputCargoName(UserVO user) {
     if (user.getRole() == Role.총관리자 || user.getRole() == Role.일반회원) {
-      System.out.print(InventoryMessage.INPUT_WAREHOUSE_CHOICE);
-      String input = sc.nextLine();
-      // 사용자가 입력한 번호에 따라 실제 문자열 값으로 변환
-      switch (input) {
-        case "1":
-          return "부산신항창고";
-        case "2":
-          return "곤지암 창고";
-        case "3":
-          return "대덕창고";
-        default:
-          return null; // 번호를 입력하지 않거나 잘못된 번호를 입력하면 전체 조회(null)
+      while (true) {
+        System.out.print(InventoryMessage.INPUT_WAREHOUSE_CHOICE);
+        String input = sc.nextLine();
+        if (input.isEmpty()) return null; // 미입력 시 null 반환
+        switch (input) {
+          case "1": return "부산신항창고";
+          case "2": return "곤지암창고";
+          case "3": return "대덕창고";
+          default:
+            // 1,2,3,미입력이 아니면 오류 메시지 출력 후 다시 질문
+            ErrorMessageView.printError(ErrorMessage.INVALID_GENERAL_CHOICE);
+        }
       }
     }
-    return null; // 창고관리자는 이 기능이 없으므로 null을 반환
+    return null;
   }
 
   /**
@@ -96,12 +96,16 @@ public class InventoryView {
    */
   public String inputCompanyName(UserVO user) {
     if (user.getRole() == Role.총관리자 || user.getRole() == Role.창고관리자) {
-      System.out.print(InventoryMessage.INPUT_MEMBER_CHOICE);
-      String input = sc.nextLine();
-      switch (input) {
-        case "1": return "스타벅스";
-        case "2": return "투썸플레이스";
-        default: return null;
+      while (true) {
+        System.out.print(InventoryMessage.INPUT_MEMBER_CHOICE);
+        String input = sc.nextLine();
+        if (input.isEmpty()) return null;
+        switch (input) {
+          case "1": return "스타벅스";
+          case "2": return "투썸플레이스";
+          default:
+            ErrorMessageView.printError(ErrorMessage.INVALID_GENERAL_CHOICE);
+        }
       }
     }
     return null;
@@ -113,22 +117,30 @@ public class InventoryView {
   }
 
   public String inputBeanType() {
-    System.out.print(InventoryMessage.INPUT_BEAN_TYPE);
-    String input = sc.nextLine();
-    switch (input) {
-      case "1": return "원두";
-      case "2": return "생두";
-      default: return null;
+    while (true) {
+      System.out.print(InventoryMessage.INPUT_BEAN_TYPE);
+      String input = sc.nextLine();
+      if (input.isEmpty()) return null;
+      switch (input) {
+        case "1": return "원두";
+        case "2": return "생두";
+        default:
+          ErrorMessageView.printError(ErrorMessage.INVALID_GENERAL_CHOICE);
+      }
     }
   }
 
   public String inputIsDecaf() {
-    System.out.print(InventoryMessage.INPUT_IS_DECAF);
-    String input = sc.nextLine();
-    switch (input) {
-      case "1": return "Y";
-      case "2": return "N";
-      default: return null;
+    while (true) {
+      System.out.print(InventoryMessage.INPUT_IS_DECAF);
+      String input = sc.nextLine();
+      if (input.isEmpty()) return null;
+      switch (input) {
+        case "1": return "Y";
+        case "2": return "N";
+        default:
+          ErrorMessageView.printError(ErrorMessage.INVALID_GENERAL_CHOICE);
+      }
     }
   }
 

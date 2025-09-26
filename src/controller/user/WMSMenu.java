@@ -1,7 +1,9 @@
 package controller.user;
 
 import constant.user.WMSPage;
+import controller.inventory.InventoryController;
 import controller.support.CSMenu;
+import domain.inventory.UserVO;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
@@ -10,6 +12,7 @@ import model.user.LoginDAO;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import service.inventory.UserService;
 
 public class WMSMenu {
 
@@ -51,6 +54,9 @@ public class WMSMenu {
                 csMenu.csMenu();
                 break;
             case "3":   // 재고관리
+                UserService userService = new UserService();
+                UserVO loggedInUser = userService.login(member.getId());
+                InventoryController.getInstance().inventoryMainMenu(loggedInUser);
                 break;
             case "4":   // 입고
                 break;
@@ -76,6 +82,9 @@ public class WMSMenu {
             case "3":   // 창고관리
                 break;
             case "4":   // 재고관리
+                UserService userService = new UserService();
+                UserVO loggedInUser = userService.login(manager.getId());
+                InventoryController.getInstance().inventoryMainMenu(loggedInUser);
                 break;
             case "5":   // 입고
                 break;

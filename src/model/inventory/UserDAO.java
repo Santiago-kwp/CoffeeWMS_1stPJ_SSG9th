@@ -1,6 +1,6 @@
 package model.inventory;
 
-import config.inventory.DBUtil;
+import config.DBUtil;
 import constant.inventory.Role;
 import domain.inventory.UserVO;
 import java.sql.Connection;
