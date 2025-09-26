@@ -1,13 +1,14 @@
 package model.support.service.inputService.inputImpl;
 
-import constant.support.CSExceptionMessage;
-import constant.support.CSMenuMessage;
+import constant.support.BoardErrorCode;
+import constant.support.BoardText;
+import constant.support.ValidCheck;
 import domain.support.Faq;
 import domain.support.Category;
 import exception.support.InputException;
-import exception.support.NotFoundException;
 import model.support.service.dao.daoImpl.FaqDaoImpl;
 import model.support.service.inputService.FaqInput;
+import org.w3c.dom.ls.LSOutput;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FaqInputImpl implements FaqInput {
+    ValidCheck validCheck = new ValidCheck();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     FaqDaoImpl faqDAO = new FaqDaoImpl();
     List<Category> faqCategoryList = new ArrayList<>();
@@ -25,48 +27,49 @@ public class FaqInputImpl implements FaqInput {
         Faq faq = new Faq();
         faqDAO = new FaqDaoImpl();
 
-        System.out.println(CSMenuMessage.FAQ_CREATE.getMessage());
+        System.out.println(BoardText.FAQ_CREATE.getMessage());
 
         boolean check = true;
-        Integer categoryId = null;
+        String categoryId = null;
         while (check) {
-            System.out.println(CSMenuMessage.LINE.getMessage());
+            System.out.println(BoardText.LINE.getMessage());
 
-            System.out.println(CSMenuMessage.FAQ_CATEGORY.getMessage());
+            System.out.println(BoardText.FAQ_CATEGORY.getMessage());
             System.out.printf("%-3s\t | %-10s\n", "NO", "목록명");
             faqCategoryList = faqDAO.readFaqCategory();
+            int boardNumber = faqCategoryList.size();
             for (Category faqCategory : faqCategoryList) {
                 System.out.printf("%-3s\t | %-10s\n", faqCategory.getCategoryId(), faqCategory.getCategoryName());
             }
 
-            System.out.println(CSMenuMessage.LINE.getMessage());
+            System.out.println(BoardText.LINE.getMessage());
 
-            System.out.print(CSMenuMessage.CATEGORY_CHOICE.getMessage());
+            System.out.print(BoardText.CATEGORY_CHOICE.getMessage());
 
             try {
-                categoryId = Integer.parseInt(input.readLine());
-                if (categoryId <= 0 || categoryId > faqCategoryList.size()) {
-                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
-                } else check = false;
-            } catch (NumberFormatException e1) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
-            } catch (Exception e2) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
+                categoryId = input.readLine();
+                validCheck.isValidBoardNumber(categoryId, boardNumber);
+                check = false;
+            } catch (InputException e) {
+                System.out.println(e.getMessage());
+            } catch (IOException e) {
+                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
+            } catch (NumberFormatException e) {
+                System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
             }
         }
-
-        faq.setFaqCategoryId(categoryId);
+        faq.setFaqCategoryId(Integer.parseInt(categoryId));
 
         try {
-            System.out.print(CSMenuMessage.QUESTION.getMessage());
+            System.out.print(BoardText.QUESTION.getMessage());
             String question = input.readLine();
             faq.setFaqQuestion(question);
 
-            System.out.print(CSMenuMessage.REPLY.getMessage());
+            System.out.print(BoardText.REPLY.getMessage());
             String reply = input.readLine();
             faq.setFaqReply(reply);
         } catch (IOException e) {
-            throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+            System.out.println(e.getMessage());
         }
 
         faq.setFaqManagerId(managerId);
@@ -80,48 +83,49 @@ public class FaqInputImpl implements FaqInput {
 
         faq.setFaqId(readChoice);
 
-        System.out.println(CSMenuMessage.FAQ_UPDATE.getMessage());
+        System.out.println(BoardText.FAQ_UPDATE.getMessage());
 
         boolean check = true;
-        Integer categoryId = null;
+        String categoryId = null;
         while (check) {
-            System.out.println(CSMenuMessage.LINE.getMessage());
+            System.out.println(BoardText.LINE.getMessage());
 
-            System.out.println(CSMenuMessage.FAQ_CATEGORY.getMessage());
+            System.out.println(BoardText.FAQ_CATEGORY.getMessage());
             System.out.printf("%-3s\t | %-10s\n", "NO", "목록명");
             faqCategoryList = faqDAO.readFaqCategory();
+            int boardNumber = faqCategoryList.size();
             for (Category faqCategory : faqCategoryList) {
                 System.out.printf("%-3s\t | %-10s\n", faqCategory.getCategoryId(), faqCategory.getCategoryName());
             }
 
-            System.out.println(CSMenuMessage.LINE.getMessage());
+            System.out.println(BoardText.LINE.getMessage());
 
-            System.out.print(CSMenuMessage.CATEGORY_CHOICE.getMessage());
+            System.out.print(BoardText.CATEGORY_CHOICE.getMessage());
 
             try {
-                categoryId = Integer.parseInt(input.readLine());
-                if (categoryId <= 0 || categoryId > faqCategoryList.size()) {
-                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
-                } else check = false;
-            } catch (NumberFormatException e1) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
-            } catch (Exception e2) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
+                categoryId = input.readLine();
+                validCheck.isValidBoardNumber(categoryId, boardNumber);
+                check = false;
+            } catch (InputException e) {
+                System.out.println(e.getMessage());
+            } catch (IOException e) {
+                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
+            } catch (NumberFormatException e) {
+                System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
             }
         }
-
-        faq.setFaqCategoryId(categoryId);
+        faq.setFaqCategoryId(Integer.parseInt(categoryId));
 
         try {
-            System.out.print(CSMenuMessage.QUESTION.getMessage());
+            System.out.print(BoardText.QUESTION.getMessage());
             String question = input.readLine();
             faq.setFaqQuestion(question);
 
-            System.out.print(CSMenuMessage.REPLY.getMessage());
+            System.out.print(BoardText.REPLY.getMessage());
             String reply = input.readLine();
             faq.setFaqReply(reply);
         } catch (IOException e) {
-            throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+            System.out.println(e.getMessage());
         }
 
         faq.setFaqManagerId(managerId);

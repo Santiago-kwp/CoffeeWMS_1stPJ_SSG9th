@@ -1,6 +1,6 @@
 package constant.support;
 
-public enum CSMenuMessage {
+public enum BoardText {
     // 고객센터 메인 메뉴
     CS_MENU("""
             ---------------------------------<< 고객 센터 >>----------------------------------
@@ -34,14 +34,14 @@ public enum CSMenuMessage {
     NOTICE_CHOICE("[선택하신 공지]"),
 
 
-    NOTICE_CREATE_SUCCESS("[공지사항이 성공적으로 생성되었습니다.]"),
-    NOTICE_CREATE_FAILURE("[공지사항 생성을 실패했습니다. 다시 시도해주세요.]"),
+    NOTICE_CREATE_SUCCESS("[공지사항이 성공적으로 생성되었습니다]"),
+    NOTICE_CREATE_FAILURE("[공지사항 생성을 실패했습니다]"),
 
     NOTICE_UPDATE_SUCCESS("[공지사항이 성공적으로 수정되었습니다.]"),
-    NOTICE_UPDATE_FAILURE("[공지사항 수정을 실패했습니다. 다시 시도해주세요.]"),
+    NOTICE_UPDATE_FAILURE("[공지사항 수정을 실패했습니다]"),
 
     NOTICE_DELETE_SUCCESS("[공지사항이 성공적으로 삭제되었습니다.]"),
-    NOTICE_DELETE_FAILURE("[공지사항 삭제를 실패했습니다. 다시 시도해주세요.]"),
+    NOTICE_DELETE_FAILURE("[공지사항 삭제를 실패했습니다]"),
 
     // 1:1 문의----------------------------------------------------------------------------------------------------------
     INQUIRY_MENU("""
@@ -71,17 +71,17 @@ public enum CSMenuMessage {
     INQUIRY_CHOICE("[선택하신 문의]"),
 
 
-    INQUIRY_CREATE_SUCCESS("[문의가 성공적으로 생성되었습니다.]"),
-    INQUIRY_CREATE_FAILURE("[문의 생성을 실패했습니다. 다시 시도해주세요.]"),
+    INQUIRY_CREATE_SUCCESS("[문의가 성공적으로 생성되었습니다]"),
+    INQUIRY_CREATE_FAILURE("[문의 생성을 실패했습니다]"),
 
     INQUIRY_UPDATE_SUCCESS("[문의가 성공적으로 수정되었습니다.]"),
-    INQUIRY_UPDATE_FAILURE("[문의 수정을 실패했습니다. 다시 시도해주세요.]"),
+    INQUIRY_UPDATE_FAILURE("[문의 수정을 실패했습니다]"),
 
     INQUIRY_REPLY_SUCCESS("[문의가 성공적으로 답변되었습니다.]"),
-    INQUIRY_REPLY_FAILURE("[문의 답변을 실패했습니다. 다시 시도해주세요.]"),
+    INQUIRY_REPLY_FAILURE("[문의 답변을 실패했습니다]"),
 
     INQUIRY_DELETE_SUCCESS("[문의가 성공적으로 삭제되었습니다.]"),
-    INQUIRY_DELETE_FAILURE("[문의 삭제를 실패했습니다. 다시 시도해주세요.]"),
+    INQUIRY_DELETE_FAILURE("[문의 삭제를 실패했습니다]"),
 
     // FAQ--------------------------------------------------------------------------------------------------------------
     FAQ_MENU("""
@@ -106,14 +106,14 @@ public enum CSMenuMessage {
     FAQ_CHOICE("[선택하신 FAQ]"),
 
 
-    FAQ_CREATE_SUCCESS("[FAQ가 성공적으로 생성되었습니다.]"),
-    FAQ_CREATE_FAILURE("[FAQ 생성을 실패했습니다. 다시 시도해주세요.]"),
+    FAQ_CREATE_SUCCESS("[FAQ가 성공적으로 생성되었습니다]"),
+    FAQ_CREATE_FAILURE("[FAQ 생성을 실패했습니다]"),
 
     FAQ_UPDATE_SUCCESS("[FAQ가 성공적으로 수정되었습니다.]"),
-    FAQ_UPDATE_FAILURE("[FAQ 수정을 실패했습니다. 다시 시도해주세요.]"),
+    FAQ_UPDATE_FAILURE("[FAQ 수정을 실패했습니다]"),
 
     FAQ_DELETE_SUCCESS("[FAQ가 성공적으로 삭제되었습니다.]"),
-    FAQ_DELETE_FAILURE("[FAQ 삭제를 실패했습니다. 다시 시도해주세요.]"),
+    FAQ_DELETE_FAILURE("[FAQ 삭제를 실패했습니다]"),
 
     //##################################################################################################################
     TITLE("""
@@ -156,10 +156,24 @@ public enum CSMenuMessage {
     NOTICE_READ_ALL("------------------------------<< 공지사항 전체 목록 >>------------------------------"),
     INQUIRY_READ_ALL("------------------------------<< 1:1 문의 전체 목록 >>-----------------------------"),
     FAQ_READ_ALL("-------------------------------<< FAQ 전체 목록 >>--------------------------------"),
+
+    CREATE_DATE("문의일"),
+    REPLY_DATE("답변일"),
+    CATEGORY("카테고리"),
+
+    QUEST("문의"),
+    ANSWER("답변"),
+    NUMBER("NO"),
+    LIST_NAME("목록명"),
+    REPLY_STATUS("답변상태"),
+    REPLY_PENDING("[대기]"),
+    REPLY_DONE("[완료]]"),
+
+
     ;
     private final String message;
 
-    CSMenuMessage(String message) {
+    BoardText(String message) {
         this.message = message;
     }
 

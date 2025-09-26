@@ -1,8 +1,9 @@
 package controller.support;
 
-import constant.support.CSExceptionMessage;
-import constant.support.CSMenuMessage;
-import constant.support.MainMenuMessage;
+import constant.support.BoardErrorCode;
+import constant.support.BoardText;
+import constant.support.MainMenuText;
+import constant.support.ValidCheck;
 import domain.support.Notice;
 import exception.support.InputException;
 import model.support.service.dao.daoImpl.NoticeDaoImpl;
@@ -13,6 +14,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class CSMenu {
+    ValidCheck validCheck = new ValidCheck();
     NoticeMenu noticeMenu = new NoticeMenu();
     InquiryMenu inquiryMenu = new InquiryMenu();
     FaqMenu faqMenu = new FaqMenu();
@@ -22,40 +24,42 @@ public class CSMenu {
     public void mainMenu() {
         TheEnd:
         while (true) {
-            System.out.print(MainMenuMessage.MAIN_MENU.getMessage());
+            System.out.print(MainMenuText.MAIN_MENU.getMessage());
             NoticeDaoImpl noticeDAO = new NoticeDaoImpl();
+
             // -- 공지사항 메인화면 출력
             List<Notice> noticeListMain = noticeDAO.readNoticeMain();
+
             for (Notice notice : noticeListMain) {
                 notice.setNoticeDate(notice.getNoticeDate());
                 notice.setNoticeTitle(notice.getNoticeTitle());
                 System.out.printf("%S %S", notice.getNoticeDate(), notice.getNoticeTitle());
                 System.out.println();
             }
-            System.out.print(MainMenuMessage.MAIN_MENU_OPTION.getMessage());
-            int choice;
+
+            System.out.print(MainMenuText.MAIN_MENU_OPTION.getMessage());
+
+            String choice = null;
             try {
-                choice = Integer.parseInt(input.readLine());
-                if (choice <= 0 || choice > 3)
-                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
+                choice = input.readLine();
+                validCheck.isThreeMenuValid(choice);
+            } catch (InputException e) {
+                System.out.println(e.getMessage());
             } catch (IOException e) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
-            } catch (NumberFormatException e1) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
-            } catch (Exception e2) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
+                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
             }
+
             switch (choice) {
-                case 1:
+                case "1":
                     // 로그인
                     csMenu();
                     break;
-                case 2:
+                case "2":
                     noticeMenu.memberNoticeMenu();
                     break;
-                case 3:
-                    System.out.println(CSMenuMessage.LINE.getMessage());
-                    System.out.println(MainMenuMessage.MAIN_MENU_END.getMessage());
+                case "3":
+                    System.out.println(BoardText.LINE.getMessage());
+                    System.out.println(MainMenuText.MAIN_MENU_END.getMessage());
                     break TheEnd;
             }
         }
@@ -67,34 +71,33 @@ public class CSMenu {
         String memberId = "member1"; // -> String userId = User.getUserId()
         TheEndCS:
         while (true) {
-            System.out.print(CSMenuMessage.CS_MENU.getMessage());
-            int choice;
+            System.out.print(BoardText.CS_MENU.getMessage());
+
+            String choice = null;
             try {
-                choice = Integer.parseInt(input.readLine());
-                if (choice <= 0 || choice > 4)
-                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
+                choice = input.readLine();
+                validCheck.isFourMenuValid(choice);
+            } catch (InputException e) {
+                System.out.println(e.getMessage());
             } catch (IOException e) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
-            } catch (NumberFormatException e1) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_NUMBER.getMessage());
-            } catch (Exception e2) {
-                throw new InputException(CSExceptionMessage.NOT_INPUT_ERROR.getMessage());
+                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
             }
+
             switch (choice) {
-                case 1:
-//                    noticeMenu.memberNoticeMenu();
-                    noticeMenu.managerNoticeMenu(managerId);
+                case "1":
+                    noticeMenu.memberNoticeMenu();
+//                    noticeMenu.managerNoticeMenu(managerId);
                     break;
-                case 2:
-//                    inquiryMenu.memberInquiryMenu(memberId);
-                    inquiryMenu.managerInquiryMenu(managerId);
+                case "2":
+                    inquiryMenu.memberInquiryMenu(memberId);
+//                    inquiryMenu.managerInquiryMenu(managerId);
                     break;
-                case 3:
-//                    faqMenu.memberFaqMenu();
-                    faqMenu.managerFaqMenu(managerId);
+                case "3":
+                    faqMenu.memberFaqMenu();
+//                    faqMenu.managerFaqMenu(managerId);
                     break;
-                case 4:
-                    System.out.println(CSMenuMessage.BACK.getMessage());
+                case "4":
+                    System.out.println(BoardText.BACK.getMessage());
                     break TheEndCS;
             }
         }

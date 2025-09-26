@@ -1,7 +1,7 @@
 package model.support.service.inputService.inputImpl;
 
-import constant.support.CSExceptionMessage;
-import constant.support.CSMenuMessage;
+import constant.support.BoardErrorCode;
+import constant.support.BoardText;
 import domain.support.Notice;
 import exception.support.InputException;
 import model.support.service.inputService.NoticeInput;
@@ -19,32 +19,32 @@ public class NoticeInputImpl implements NoticeInput {
     public Notice noticeDataInput(String managerId) {
         Notice notice = new Notice();
 
-        System.out.println(CSMenuMessage.NOTICE_CREATE.getMessage());
+        System.out.println(BoardText.NOTICE_CREATE.getMessage());
 
         try {
-            System.out.print(CSMenuMessage.TITLE.getMessage());
+            System.out.print(BoardText.TITLE.getMessage());
             String title = input.readLine();
             notice.setNoticeTitle(title);
 
-            System.out.print(CSMenuMessage.CONTENT.getMessage());
+            System.out.print(BoardText.CONTENT.getMessage());
             String content = input.readLine();
             notice.setNoticeContent(content);
 
             while (true) {
-                System.out.print(CSMenuMessage.FIXED.getMessage());
+                System.out.print(BoardText.FIXED.getMessage());
                 Character C = input.readLine().charAt(0);
                 if (toUpperCase(C) == 'Y' || toUpperCase(C) == 'N') {
                     boolean fixed = yesOrNo(C);
                     notice.setNoticeFixed(fixed);
                     break;
                 } else {
-                    System.out.println(CSMenuMessage.LINE.getMessage());
-                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
+                    System.out.println(BoardText.LINE.getMessage());
+                    System.out.println(BoardErrorCode.NOT_INPUT_OPTION.getMessage());
                 }
             }
 
         } catch (IOException e) {
-            throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+            System.out.println(e.getMessage());
         }
 
         notice.setNoticeManagerId(managerId);
@@ -58,32 +58,32 @@ public class NoticeInputImpl implements NoticeInput {
 
         notice.setNoticeId(readChoice);
 
-        System.out.println(CSMenuMessage.NOTICE_UPDATE.getMessage());
+        System.out.println(BoardText.NOTICE_UPDATE.getMessage());
 
         try {
-            System.out.print(CSMenuMessage.TITLE.getMessage());
+            System.out.print(BoardText.TITLE.getMessage());
             String title = input.readLine();
             notice.setNoticeTitle(title);
 
-            System.out.print(CSMenuMessage.CONTENT.getMessage());
+            System.out.print(BoardText.CONTENT.getMessage());
             String content = input.readLine();
             notice.setNoticeContent(content);
 
             while (true) {
-                System.out.print(CSMenuMessage.FIXED.getMessage());
-                Character C = input.readLine().charAt(0);
+                System.out.print(BoardText.FIXED.getMessage());
+                char C = input.readLine().charAt(0);
                 if (toUpperCase(C) == 'Y' || toUpperCase(C) == 'N') {
                     boolean fixed = yesOrNo(C);
                     notice.setNoticeFixed(fixed);
                     break;
                 } else {
-                    System.out.println(CSMenuMessage.LINE.getMessage());
-                    System.out.println(CSExceptionMessage.NOT_INPUT_OPTION.getMessage());
+                    System.out.println(BoardText.LINE.getMessage());
+                    System.out.println(BoardErrorCode.NOT_INPUT_OPTION.getMessage());
                 }
             }
 
         } catch (IOException e) {
-            throw new InputException(CSExceptionMessage.NOT_INPUT_IO.getMessage());
+            System.out.println(e.getMessage());
         }
 
         notice.setNoticeManagerId(managerId);

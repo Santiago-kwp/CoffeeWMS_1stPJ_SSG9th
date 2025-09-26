@@ -1,6 +1,6 @@
 package constant.support;
 
-public enum MainMenuMessage {
+public enum MainMenuText {
     MAIN_MENU("""
             --------------------------------------------------------------------------------
                                       Welcome to the Coffee World
@@ -16,7 +16,7 @@ public enum MainMenuMessage {
 
     private final String message;
 
-    MainMenuMessage(String message) {
+    MainMenuText(String message) {
         this.message = message;
     }
 

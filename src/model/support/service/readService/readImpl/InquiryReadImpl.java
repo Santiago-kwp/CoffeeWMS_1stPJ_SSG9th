@@ -1,6 +1,6 @@
 package model.support.service.readService.readImpl;
 
-import constant.support.CSMenuMessage;
+import constant.support.BoardText;
 import domain.support.Inquiry;
 import model.support.service.dao.InquiryDAO;
 import model.support.service.dao.daoImpl.InquiryDaoImpl;
@@ -14,11 +14,11 @@ public class InquiryReadImpl implements InquiryRead {
     // 1:1문의 전체 조회 ---------------------------------------------------------------------------------------------------
     public void managerInquiryReadAll() {
         inquiryDAO = new InquiryDaoImpl();
-        System.out.println(CSMenuMessage.INQUIRY_READ_ALL.getMessage());
+        System.out.println(BoardText.INQUIRY_READ_ALL.getMessage());
 
         System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "문의날짜", "카테고리", "문의", "답변 상태");
 
-        System.out.println(CSMenuMessage.LINE.getMessage());
+        System.out.println(BoardText.LINE.getMessage());
 
         List<Inquiry> readAll = inquiryDAO.readInquiryManagerAll();
         for (Inquiry inquiry : readAll) {
@@ -41,11 +41,11 @@ public class InquiryReadImpl implements InquiryRead {
     // 1:1문의 전체 조회 ---------------------------------------------------------------------------------------------------
     public void memberInquiryReadAll(String memberId) {
         inquiryDAO = new InquiryDaoImpl();
-        System.out.println(CSMenuMessage.INQUIRY_READ_ALL.getMessage());
+        System.out.println(BoardText.INQUIRY_READ_ALL.getMessage());
 
         System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "문의날짜", "카테고리", "문의", "답변 상태");
 
-        System.out.println(CSMenuMessage.LINE.getMessage());
+        System.out.println(BoardText.LINE.getMessage());
 
         List<Inquiry> readAll = inquiryDAO.readInquiryMemberAll(memberId);
         for (Inquiry inquiry : readAll) {

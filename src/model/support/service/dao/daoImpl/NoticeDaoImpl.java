@@ -1,7 +1,7 @@
 package model.support.service.dao.daoImpl;
 
 import config.DBUtil;
-import constant.support.CSExceptionMessage;
+import constant.support.BoardErrorCode;
 import domain.support.Notice;
 import exception.support.NotFoundException;
 import model.support.service.dao.NoticeDAO;
@@ -40,11 +40,11 @@ public class NoticeDaoImpl implements NoticeDAO {
                     noticeList.add(notice);
                 }
             } catch (SQLException e) {
-                throw new NotFoundException(CSExceptionMessage.NOT_CREATE_BOARD.getMessage());
+                throw new NotFoundException(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
             }
             return pass;
         } catch (SQLException e) {
-            throw new NotFoundException(CSExceptionMessage.NOT_CREATE_BOARD.getMessage());
+            throw new NotFoundException(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
         }
     }
 
@@ -68,7 +68,7 @@ public class NoticeDaoImpl implements NoticeDAO {
             }
             return noticeList;
         } catch (SQLException e) {
-            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_LIST.getMessage());
+            throw new NotFoundException(BoardErrorCode.NOT_FOUND_LIST.getMessage());
         }
     }
 
@@ -94,7 +94,7 @@ public class NoticeDaoImpl implements NoticeDAO {
             }
             return noticeList;
         } catch (SQLException e) {
-            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_LIST.getMessage());
+            throw new NotFoundException(BoardErrorCode.NOT_FOUND_LIST.getMessage());
         }
     }
 
@@ -119,7 +119,7 @@ public class NoticeDaoImpl implements NoticeDAO {
                 return oneNotice;
             }
         } catch (SQLException e) {
-            throw new NotFoundException(CSExceptionMessage.NOT_FOUND_BOARD.getMessage());
+            throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
         }
         return null;
     }
@@ -143,7 +143,7 @@ public class NoticeDaoImpl implements NoticeDAO {
             if (pass > 0) return true;
 
         } catch (SQLException e) {
-            throw new NotFoundException(CSExceptionMessage.NOT_UPDATE_BOARD.getMessage());
+            throw new NotFoundException(BoardErrorCode.NOT_UPDATE_BOARD.getMessage());
         }
         return false;
     }
@@ -163,7 +163,7 @@ public class NoticeDaoImpl implements NoticeDAO {
 
             if (pass > 0) return true;
         } catch (Exception e) {
-            throw new NotFoundException(CSExceptionMessage.NOT_DELETE_BOARD.getMessage());
+            throw new NotFoundException(BoardErrorCode.NOT_DELETE_BOARD.getMessage());
         }
         return false;
     }
