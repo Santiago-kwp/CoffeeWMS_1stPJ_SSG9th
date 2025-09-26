@@ -86,10 +86,10 @@ public class ManagerDAO implements UserDAO {
     }
 
     public User searchUser(String targetID, String targetType) {
+        // 찾을 아이디가 현재 로그인한 회원의 것이라면 자신의 상세정보를 출력
         if (targetID.equals(manager.getId())) {
             return searchUserDetails();
         }
-
         String sql = (targetType.endsWith("관리자"))
                 ? "{call search_other_manager(?)}"
                 : "{call search_other_member(?)}";

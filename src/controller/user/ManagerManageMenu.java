@@ -8,6 +8,7 @@ import domain.user.User;
 import model.user.ManagerDAO;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class ManagerManageMenu implements UserManageMenu {
                     readAllUser();
                     break;
                 case "3":
-                    readUserByRole();
+                    readUsersByRole();
                     break;
                 case "4":
                     quitRead = quit();
@@ -117,8 +118,28 @@ public class ManagerManageMenu implements UserManageMenu {
     }
 
     //
-    public void readUserByRole() {
+    public void readUsersByRole() throws IOException {
         System.out.print(UserPage.MANAGER_SEARCH_BY_ROLE);
+        String menuNum = input.readLine();
+
+        switch (menuNum) {
+            case "1":
+                readMemberList();
+                break;
+            case "2":
+                readManagerList(currentManager.getPosition());
+                break;
+        }
+    }
+
+    public void readMemberList() {
+        List<Member> memberList = new ArrayList<>();
+    }
+
+    public void readManagerList(String position) {
+        if (!position.equals("총관리자")) {
+            throw new RuntimeException(UserPage.NOT_HAVE_PERMISSION.toString());
+        }
     }
 
     @Override

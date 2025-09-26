@@ -146,4 +146,15 @@ DELIMITER ;
 
 call search_all_users();
 
+DROP PROCEDURE IF EXISTS search_by_role;
+DELIMITER $$
+CREATE PROCEDURE search_by_role(IN tableName varchar(10))
+BEGIN
+    SET @searchByRole = concat('select * from ', tableName);
 
+    PREPARE searchByRole FROM @searchByRole;
+    EXECUTE searchByRole;
+
+    DEALLOCATE PREPARE searchByRole;
+END $$
+DELIMITER ;
