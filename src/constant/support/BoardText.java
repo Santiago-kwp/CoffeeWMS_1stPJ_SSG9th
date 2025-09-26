@@ -160,7 +160,8 @@ public enum BoardText {
     CREATE_DATE("문의일"),
     REPLY_DATE("답변일"),
     CATEGORY("카테고리"),
-
+    TITLE_("제목"),
+    CONTENT_("내용"),
     QUEST("문의"),
     ANSWER("답변"),
     NUMBER("NO"),

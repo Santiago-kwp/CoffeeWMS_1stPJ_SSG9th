@@ -73,7 +73,8 @@ public class NoticeMenu {
 
                     System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
                             BoardText.CREATE_DATE.getMessage(), oneNotice.getNoticeDate(),
-                            "제목", oneNotice.getNoticeTitle(), "내용", oneNotice.getNoticeContent());
+                            BoardText.TITLE_.getMessage(), oneNotice.getNoticeTitle(),
+                            BoardText.CONTENT_.getMessage(), oneNotice.getNoticeContent());
                     break;
 
                 case "2":
@@ -141,7 +142,9 @@ public class NoticeMenu {
                     }
 
                     System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                            "작성일", oneNotice.getNoticeDate(), "제목", oneNotice.getNoticeTitle(), "내용", oneNotice.getNoticeContent());
+                            BoardText.CREATE_DATE.getMessage(), oneNotice.getNoticeDate(),
+                            BoardText.TITLE_.getMessage(), oneNotice.getNoticeTitle(),
+                            BoardText.CONTENT_.getMessage(), oneNotice.getNoticeContent());
 
                     noticeDetailMenu(readChoice, managerId);
                     break;
