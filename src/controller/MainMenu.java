@@ -4,12 +4,11 @@ import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.MainMenuText;
 import constant.support.ValidCheck;
-import controller.support.CSMenu;
 import controller.support.NoticeMenu;
 import controller.user.LoginMenu;
 import domain.support.Notice;
 import exception.support.InputException;
-import model.support.service.dao.daoImpl.NoticeDaoImpl;
+import model.support.dao.daoImpl.NoticeDaoImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;

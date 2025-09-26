@@ -3,6 +3,8 @@ package constant.support;
 import domain.support.Faq;
 import domain.support.Inquiry;
 import domain.support.Notice;
+import domain.user.Manager;
+import domain.user.User;
 import exception.support.InputException;
 import exception.support.NotFoundException;
 
@@ -76,5 +78,11 @@ public class ValidCheck {
 
     public void isValidNotFoundFaq(Faq faq) {
         if (faq == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
+    }
+
+    public void managerCheck(Manager manager) {
+        if (!manager.getPosition().equals("총관리자")) {
+            throw new InputException(BoardErrorCode.YOU_ARE_NOT.getMessage());
+        }
     }
 }

@@ -1,10 +1,10 @@
-package model.support.service.readService.readImpl;
+package service.support.readService.readImpl;
 
 import constant.support.BoardText;
 import domain.support.Inquiry;
-import model.support.service.dao.InquiryDAO;
-import model.support.service.dao.daoImpl.InquiryDaoImpl;
-import model.support.service.readService.InquiryRead;
+import model.support.dao.InquiryDAO;
+import model.support.dao.daoImpl.InquiryDaoImpl;
+import service.support.readService.InquiryRead;
 
 import java.util.List;
 
@@ -62,6 +62,30 @@ public class InquiryReadImpl implements InquiryRead {
             System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t",
                     inquiry.getInquiryId(), inquiry.getInquiryDate(), inquiry.getInquiryCategoryName(), content, status);
             System.out.println();
+        }
+    }
+
+    public void inquiryReadOne(Inquiry oneInquiry) {
+        String status;
+        switch (oneInquiry.getInquiryStatus()) {
+            case PENDING -> {
+                status = BoardText.REPLY_PENDING.getMessage();
+                System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                        BoardText.CREATE_DATE.getMessage(), oneInquiry.getInquiryDate(),
+                        BoardText.CATEGORY.getMessage(), oneInquiry.getInquiryCategoryName(),
+                        BoardText.QUEST.getMessage(), oneInquiry.getInquiryContent(),
+                        BoardText.REPLY_STATUS.getMessage(), status);
+            }
+            case DONE -> {
+                status = BoardText.REPLY_DONE.getMessage();
+                System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                        BoardText.CREATE_DATE.getMessage(), oneInquiry.getInquiryDate(),
+                        BoardText.CATEGORY.getMessage(), oneInquiry.getInquiryCategoryName(),
+                        BoardText.QUEST.getMessage(), oneInquiry.getInquiryContent(),
+                        BoardText.REPLY_STATUS.getMessage(), status,
+                        BoardText.REPLY_DATE.getMessage(), oneInquiry.getReplyDate(),
+                        BoardText.ANSWER.getMessage(), oneInquiry.getReplyContent());
+            }
         }
     }
 }

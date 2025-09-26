@@ -4,14 +4,15 @@ import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.ValidCheck;
 import domain.support.Faq;
+import domain.user.Manager;
 import exception.support.InputException;
 import exception.support.NotFoundException;
-import model.support.service.dao.FaqDAO;
-import model.support.service.dao.daoImpl.FaqDaoImpl;
-import model.support.service.inputService.FaqInput;
-import model.support.service.inputService.inputImpl.FaqInputImpl;
-import model.support.service.readService.FaqRead;
-import model.support.service.readService.readImpl.FaqReadImpl;
+import model.support.dao.FaqDAO;
+import model.support.dao.daoImpl.FaqDaoImpl;
+import service.support.inputService.FaqInput;
+import service.support.inputService.inputImpl.FaqInputImpl;
+import service.support.readService.FaqRead;
+import service.support.readService.readImpl.FaqReadImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class FaqMenu {
     FaqRead faqRead = new FaqReadImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-    // 창고관리자 & 회원 <FAQ> 메뉴 ------------------------------------------------------------------------------------------------------
+    // 회원 <FAQ> 메뉴 ------------------------------------------------------------------------------------------------------
     public void memberFaqMenu() {
         KIKI:
         while (true) {
@@ -70,11 +71,8 @@ public class FaqMenu {
                         break;
                     }
 
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                            BoardText.CREATE_DATE.getMessage(), oneFaq.getFaqDate(),
-                            BoardText.CATEGORY.getMessage(), oneFaq.getFaqCategoryName(),
-                            BoardText.QUEST.getMessage(), oneFaq.getFaqQuestion(),
-                            BoardText.ANSWER.getMessage(), oneFaq.getFaqReply());
+                    faqRead.faqReadOne(oneFaq);
+
                     break;
 
                 case "2":
@@ -85,9 +83,11 @@ public class FaqMenu {
     }
 
     // 총관리자 <FAQ> 메뉴 ------------------------------------------------------------------------------------------------------
-    public void managerFaqMenu(String managerId) {
+    public void managerFaqMenu(Manager manager) {
         KIKI:
         while (true) {
+            String managerId = manager.getId();
+
             faqRead.faqReadAll();
 
             System.out.print(BoardText.FAQ_MENU.getMessage());
@@ -104,6 +104,12 @@ public class FaqMenu {
 
             switch (choice) {
                 case "1":
+                    try {
+                        validCheck.managerCheck(manager);
+                    } catch (InputException e) {
+                        System.out.println(e.getMessage());
+                        break;
+                    }
                     Faq faq = faqInput.faqDataInput(managerId);
 
                     boolean pass = faqDAO.createFaq(faq);
@@ -120,10 +126,10 @@ public class FaqMenu {
                         readChoice = Integer.parseInt(input.readLine());
                     } catch (IOException e) {
                         System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-                        managerFaqMenu(managerId);
+                        managerFaqMenu(manager);
                     } catch (NumberFormatException e) {
                         System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
-                        managerFaqMenu(managerId);
+                        managerFaqMenu(manager);
                     }
 
                     System.out.println(BoardText.LINE.getMessage());
@@ -139,12 +145,9 @@ public class FaqMenu {
                         break;
                     }
 
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                            BoardText.CREATE_DATE.getMessage(), oneFaq.getFaqDate(),
-                            BoardText.CATEGORY.getMessage(), oneFaq.getFaqCategoryName(),
-                            BoardText.QUEST.getMessage(), oneFaq.getFaqQuestion(),
-                            BoardText.ANSWER.getMessage(), oneFaq.getFaqReply());
-                    faqDetailMenu(readChoice, managerId);
+                    faqRead.faqReadOne(oneFaq);
+
+                    faqDetailMenu(readChoice, manager);
                     break;
 
                 case "3":
@@ -155,7 +158,10 @@ public class FaqMenu {
     }
 
     //  총관리자 <FAQ> 상세 메뉴 ---------------------------------------------------------------------------------------------------
-    public void faqDetailMenu(Integer readChoice, String managerId) {
+    public void faqDetailMenu(Integer readChoice, Manager manager) {
+
+        String managerId = manager.getId();
+
         System.out.print(BoardText.FAQ_DETAIL_MENU.getMessage());
 
         String choice = null;
@@ -171,6 +177,12 @@ public class FaqMenu {
 
         switch (choice) {
             case "1":
+                try {
+                    validCheck.managerCheck(manager);
+                } catch (InputException e) {
+                    System.out.println(e.getMessage());
+                    break;
+                }
                 Faq faq = faqInput.faqDataUpdate(readChoice, managerId);
 
                 boolean update = faqDAO.updateFaq(faq);
@@ -180,6 +192,12 @@ public class FaqMenu {
                 break;
 
             case "2":
+                try {
+                    validCheck.managerCheck(manager);
+                } catch (InputException e) {
+                    System.out.println(e.getMessage());
+                    break;
+                }
                 boolean delete = faqDAO.deleteFaq(readChoice, managerId);
 
                 if (delete) System.out.println(BoardText.FAQ_DELETE_SUCCESS.getMessage());

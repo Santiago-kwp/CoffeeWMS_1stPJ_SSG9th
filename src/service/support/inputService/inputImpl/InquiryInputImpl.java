@@ -1,4 +1,4 @@
-package model.support.service.inputService.inputImpl;
+package service.support.inputService.inputImpl;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
@@ -6,9 +6,9 @@ import constant.support.ValidCheck;
 import domain.support.Category;
 import domain.support.Inquiry;
 import exception.support.InputException;
-import model.support.service.dao.InquiryDAO;
-import model.support.service.dao.daoImpl.InquiryDaoImpl;
-import model.support.service.inputService.InquiryInput;
+import model.support.dao.InquiryDAO;
+import model.support.dao.daoImpl.InquiryDaoImpl;
+import service.support.inputService.InquiryInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;

@@ -1,10 +1,9 @@
-package model.support.service.inputService.inputImpl;
+package service.support.inputService.inputImpl;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import domain.support.Notice;
-import exception.support.InputException;
-import model.support.service.inputService.NoticeInput;
+import service.support.inputService.NoticeInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;

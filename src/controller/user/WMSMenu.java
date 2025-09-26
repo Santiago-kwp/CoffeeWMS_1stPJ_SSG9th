@@ -5,6 +5,7 @@ import controller.support.CSMenu;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
+import exception.support.InputException;
 import model.user.LoginDAO;
 
 import java.io.BufferedReader;
@@ -48,7 +49,7 @@ public class WMSMenu {
                 userManagement(member);
                 break;
             case "2":   // 고객센터
-                csMenu.csMenu();
+                csMenu.memberCSMenu(member);
                 break;
             case "3":   // 재고관리
                 break;
@@ -71,7 +72,7 @@ public class WMSMenu {
                 userManagement(manager);
                 break;
             case "2":   // 고객센터
-                csMenu.csMenu();
+                csMenu.managerCSMenu(manager);
                 break;
             case "3":   // 창고관리
                 break;

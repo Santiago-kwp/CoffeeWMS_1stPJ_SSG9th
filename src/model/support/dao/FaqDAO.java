@@ -1,4 +1,4 @@
-package model.support.service.dao;
+package model.support.dao;
 
 import domain.support.Category;
 

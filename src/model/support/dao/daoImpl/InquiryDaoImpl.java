@@ -1,11 +1,10 @@
-package model.support.service.dao.daoImpl;
+package model.support.dao.daoImpl;
 
 import config.DBUtil;
 import constant.support.BoardErrorCode;
 import domain.support.Category;
 import domain.support.Inquiry;
-import exception.support.NotFoundException;
-import model.support.service.dao.InquiryDAO;
+import model.support.dao.InquiryDAO;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

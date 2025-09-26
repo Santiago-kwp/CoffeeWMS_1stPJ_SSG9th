@@ -1,4 +1,4 @@
-package model.support.service.inputService;
+package service.support.inputService;
 
 import domain.support.Notice;
 

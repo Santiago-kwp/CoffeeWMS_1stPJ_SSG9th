@@ -6,12 +6,12 @@ import constant.support.ValidCheck;
 import domain.support.Inquiry;
 import exception.support.InputException;
 import exception.support.NotFoundException;
-import model.support.service.dao.InquiryDAO;
-import model.support.service.dao.daoImpl.InquiryDaoImpl;
-import model.support.service.inputService.InquiryInput;
-import model.support.service.inputService.inputImpl.InquiryInputImpl;
-import model.support.service.readService.InquiryRead;
-import model.support.service.readService.readImpl.InquiryReadImpl;
+import model.support.dao.InquiryDAO;
+import model.support.dao.daoImpl.InquiryDaoImpl;
+import service.support.inputService.InquiryInput;
+import service.support.inputService.inputImpl.InquiryInputImpl;
+import service.support.readService.InquiryRead;
+import service.support.readService.readImpl.InquiryReadImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,14 +23,6 @@ public class InquiryMenu {
     InquiryInput inquiryInput = new InquiryInputImpl();
     InquiryRead inquiryRead = new InquiryReadImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-
-//    public void inquiryMenu(User user) throws IOException {
-//        if (user instanceof Manager manager){
-//            managerInquiryMenu();
-//        } else if (user instanceof Member member) {
-//            memberInquiryMenu();
-//        }
-//    }
 
     // 총관리자 1:1문의 메뉴 -------------------------------------------------------------------------------------------------
     public void managerInquiryMenu(String managerId) {
@@ -69,7 +61,7 @@ public class InquiryMenu {
 
                     System.out.println(BoardText.INQUIRY_CHOICE.getMessage());
 
-                    String status;
+
                     Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
 
                     try {
@@ -78,27 +70,7 @@ public class InquiryMenu {
                         System.out.println(e.getMessage());
                     }
 
-                    switch (oneInquiry.getInquiryStatus()) {
-                        case PENDING -> {
-                            status = BoardText.REPLY_PENDING.getMessage();
-                            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                                    BoardText.CREATE_DATE.getMessage(), oneInquiry.getInquiryDate(),
-                                    BoardText.CATEGORY.getMessage(), oneInquiry.getInquiryCategoryName(),
-                                    BoardText.QUEST.getMessage(), oneInquiry.getInquiryContent(),
-                                    BoardText.REPLY_STATUS.getMessage(), status);
-                        }
-                        case DONE -> {
-                            status = BoardText.REPLY_DONE.getMessage();
-                            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                                    BoardText.CREATE_DATE.getMessage(), oneInquiry.getInquiryDate(),
-                                    BoardText.CATEGORY.getMessage(), oneInquiry.getInquiryCategoryName(),
-                                    BoardText.QUEST.getMessage(), oneInquiry.getInquiryContent(),
-                                    BoardText.REPLY_STATUS.getMessage(), status,
-                                    BoardText.REPLY_DATE.getMessage(), oneInquiry.getReplyDate(),
-                                    BoardText.REPLY_STATUS.getMessage(), status);
-
-                        }
-                    }
+                    inquiryRead.inquiryReadOne(oneInquiry);
 
                     managerInquiryDetailMenu(readChoice, managerId);
 
@@ -157,7 +129,7 @@ public class InquiryMenu {
 
                     System.out.println(BoardText.INQUIRY_CHOICE.getMessage());
 
-                    String status;
+
                     Inquiry oneInquiry = inquiryDAO.readInquiryMemberOne(memberId, readChoice);
 
                     try {
@@ -167,27 +139,8 @@ public class InquiryMenu {
                         break;
                     }
 
-                    switch (oneInquiry.getInquiryStatus()) {
-                        case PENDING -> {
-                            status = "답변 대기";
-                            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                                    BoardText.CREATE_DATE.getMessage(), oneInquiry.getInquiryDate(),
-                                    BoardText.CATEGORY.getMessage(), oneInquiry.getInquiryCategoryName(),
-                                    BoardText.QUEST.getMessage(), oneInquiry.getInquiryContent(),
-                                    BoardText.REPLY_STATUS.getMessage(), status);
-                        }
-                        case DONE -> {
-                            status = "답변 완료";
-                            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                                    BoardText.CREATE_DATE.getMessage(), oneInquiry.getInquiryDate(),
-                                    BoardText.CATEGORY.getMessage(), oneInquiry.getInquiryCategoryName(),
-                                    BoardText.QUEST.getMessage(), oneInquiry.getInquiryContent(),
-                                    BoardText.REPLY_STATUS.getMessage(), status,
-                                    BoardText.REPLY_DATE.getMessage(), oneInquiry.getReplyDate(),
-                                    BoardText.REPLY_STATUS.getMessage(), status);
-                        }
-                        default -> System.out.println(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
-                    }
+                    inquiryRead.inquiryReadOne(oneInquiry);
+
                     memberInquiryDetailMenu(memberId, readChoice);
                     break;
 
@@ -238,7 +191,7 @@ public class InquiryMenu {
         }
     }
 
-    // 회원 공지사항 상세 메뉴 ---------------------------------------------------------------------------------------------------
+    // 회원 1:1 문의 상세 메뉴 ---------------------------------------------------------------------------------------------------
     public void memberInquiryDetailMenu(String memberIdEx, Integer readChoice) {
         System.out.print(BoardText.INQUIRY_DETAIL_MENU_MEMBER.getMessage());
 

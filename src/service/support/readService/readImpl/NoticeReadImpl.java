@@ -1,10 +1,10 @@
-package model.support.service.readService.readImpl;
+package service.support.readService.readImpl;
 
 import constant.support.BoardText;
 import domain.support.Notice;
-import model.support.service.dao.NoticeDAO;
-import model.support.service.dao.daoImpl.NoticeDaoImpl;
-import model.support.service.readService.NoticeRead;
+import model.support.dao.NoticeDAO;
+import model.support.dao.daoImpl.NoticeDaoImpl;
+import service.support.readService.NoticeRead;
 
 import java.util.List;
 
@@ -30,5 +30,12 @@ public class NoticeReadImpl implements NoticeRead {
             System.out.printf("%-5S\t | %-10S\t | %-30S\t | %-10S\t", notice.getNoticeId(), notice.getNoticeDate(), notice.getNoticeTitle(), content);
             System.out.println();
         }
+    }
+
+    public void noticeReadOne(Notice oneNotice) {
+        System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                BoardText.CREATE_DATE.getMessage(), oneNotice.getNoticeDate(),
+                BoardText.TITLE_.getMessage(), oneNotice.getNoticeTitle(),
+                BoardText.CONTENT_.getMessage(), oneNotice.getNoticeContent());
     }
 }

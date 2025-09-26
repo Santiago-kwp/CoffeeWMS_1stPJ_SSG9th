@@ -1,11 +1,10 @@
-package model.support.service.dao.daoImpl;
+package model.support.dao.daoImpl;
 
 import config.DBUtil;
 import constant.support.BoardErrorCode;
 import domain.support.Faq;
 import domain.support.Category;
-import exception.support.NotFoundException;
-import model.support.service.dao.FaqDAO;
+import model.support.dao.FaqDAO;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;

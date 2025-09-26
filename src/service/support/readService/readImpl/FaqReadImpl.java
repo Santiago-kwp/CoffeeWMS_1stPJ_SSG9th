@@ -1,9 +1,9 @@
-package model.support.service.readService.readImpl;
+package service.support.readService.readImpl;
 
 import constant.support.BoardText;
 import domain.support.Faq;
-import model.support.service.dao.daoImpl.FaqDaoImpl;
-import model.support.service.readService.FaqRead;
+import model.support.dao.daoImpl.FaqDaoImpl;
+import service.support.readService.FaqRead;
 
 import java.util.List;
 
@@ -32,5 +32,13 @@ public class FaqReadImpl implements FaqRead {
             System.out.printf("%-5S\t | %-10S\t | %-13S\t | %-15S\t | %-15S\t", faq.getFaqId(), faq.getFaqDate(), faq.getFaqCategoryName(), q, r);
             System.out.println();
         }
+    }
+
+    public void faqReadOne(Faq oneFaq) {
+        System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                BoardText.CREATE_DATE.getMessage(), oneFaq.getFaqDate(),
+                BoardText.CATEGORY.getMessage(), oneFaq.getFaqCategoryName(),
+                BoardText.QUEST.getMessage(), oneFaq.getFaqQuestion(),
+                BoardText.ANSWER.getMessage(), oneFaq.getFaqReply());
     }
 }
