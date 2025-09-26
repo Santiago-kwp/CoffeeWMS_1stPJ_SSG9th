@@ -19,6 +19,7 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="mysql-connector-java-8.0.22" level="project" />
+    <orderEntry type="module-library" exported="">
     <orderEntry type="module-library" scope="PROVIDED">
       <library>
         <CLASSES>
