@@ -10,6 +10,8 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ManagerDAO implements UserDAO {
 
@@ -134,5 +136,31 @@ public class ManagerDAO implements UserDAO {
         manager.setHireDate(rs.getDate(7));
 
         return manager;
+    }
+
+    public List<User> searchAllUser() {
+        List<User> allUsers = new ArrayList<>();
+        String sql = "{call search_all_users()}";
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement call = conn.prepareCall(sql)) {
+
+            call.execute();
+
+            try (ResultSet rs = call.getResultSet()) {
+                while (rs.next()) {
+                    String userID = rs.getString("user_id");
+                    String userPwd = rs.getString("user_pwd");
+                    String userName = rs.getString("user_name");
+                    String userPhone = rs.getString("user_phone");
+                    String userEmail = rs.getString("user_email");
+                    String userType = rs.getString("user_type");
+
+                    allUsers.add(new User(userID, userPwd, userName, userPhone, userEmail, userType));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return allUsers;
     }
 }

@@ -104,7 +104,13 @@ DROP PROCEDURE IF EXISTS search_other_member;
 DELIMITER $$
 CREATE PROCEDURE search_other_member(IN targetID varchar(15))
 BEGIN
-	select * from members where member_id = targetID;
+	set @targetID = targetID;
+    set @searchMember = 'select * from members where member_id = ?;';
+    
+    prepare selectQuery from @searchMember;
+    execute selectQuery using @targetID;
+    
+    deallocate prepare selectQuery;
 END $$
 DELIMITER ;
 
@@ -112,7 +118,32 @@ DROP PROCEDURE IF EXISTS search_other_manager;
 DELIMITER $$
 CREATE PROCEDURE search_other_manager(IN targetID varchar(15))
 BEGIN
-	select * from managers where manager_id = targetID;
+	set @targetID = targetID;
+    set @searchManager = 'select * from managers where manager_id = ?;';
+    
+    prepare selectQuery from @searchManager;
+    execute selectQuery using @targetID;
+    
+    deallocate prepare selectQuery;
 END $$
 DELIMITER ;
+commit;
+
+-- 승인된 모든 가입자의 정보 조회(관리자, 회원이 공통으로 보유한 정보만 간략히 출력)
+DROP PROCEDURE IF EXISTS search_all_users;
+DELIMITER $$
+CREATE PROCEDURE search_all_users()
+BEGIN
+	SET @approval = '승인완료';
+	SET @selectAll = 'select * from users where user_approval = ?';
+    
+    PREPARE selectAllQuery FROM @selectAll;
+    EXECUTE selectAllQuery USING @approval;
+    
+    DEALLOCATE PREPARE selectAllQuery;
+END $$
+DELIMITER ;
+
+call search_all_users();
+
 

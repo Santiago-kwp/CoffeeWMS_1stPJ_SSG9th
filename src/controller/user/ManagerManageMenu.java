@@ -8,6 +8,8 @@ import domain.user.User;
 import model.user.ManagerDAO;
 
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.List;
 
 public class ManagerManageMenu implements UserManageMenu {
 
@@ -103,6 +105,15 @@ public class ManagerManageMenu implements UserManageMenu {
     // 권한에 관계없이 전체 회원 조회(승인된 회원의 공통 정보만 조회)
     public void readAllUser() {
         System.out.print(UserPage.MANAGER_SEARCH_ALL);
+        if (!currentManager.getPosition().equals("총관리자")) {
+            throw new RuntimeException(UserPage.NOT_HAVE_PERMISSION.toString());
+        }
+        List<User> allApprovedUser = dao.searchAllUser();
+
+        UserPage.userCommonInfoTitle();
+        allApprovedUser.stream()
+                .sorted(Comparator.comparing(User::getType).reversed().thenComparing(User::getId))
+                .forEach(UserPage::userCommonInfo); // 변경 예정
     }
 
     //

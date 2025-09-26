@@ -2,6 +2,7 @@ package constant.user;
 
 import domain.user.Manager;
 import domain.user.Member;
+import domain.user.User;
 
 public enum UserPage {
 
@@ -72,8 +73,9 @@ public enum UserPage {
             """),
 
     MANAGER_SEARCH_ALL("""
-            -------------------<< 전체회원조회 >>-----------------------
+            -----------------------------------<< 전체회원조회 >>-----------------------------------
             """),
+    SEARCHED_COMMON_INFO("%-16s\t%-21s\t%-8s\t%-14s\t%-31s\t%-5s\n"),
     MANAGER_SEARCH_BY_ROLE("""
             -------------------<< 권한별 회원조회 >>--------------------
             1.일반회원     2.관리자
@@ -89,7 +91,7 @@ public enum UserPage {
             메뉴를 선택해주세요.
             """),
     MANAGER_UPDATE_SUBTITLE("--------------------<< 관리자 회원정보 수정 >>--------------------------"),
-    INPUT_ID_FOR_UPDATE_ROLE("권한을 변경할 회원의 아이디를 입력해주세요."),
+    INPUT_ID_FOR_UPDATE_ROLE("권한을 변경할 일반회원의 아이디를 입력해주세요."),
 
     MANAGER_DELETE_TITLE("""
             -------------------<< 관리자 전용 삭제 >>--------------------
@@ -98,9 +100,9 @@ public enum UserPage {
             메뉴를 선택해주세요.
             """),
     INPUT_ID_FOR_DELETE_INFO("탈퇴시킬 회원의 아이디를 입력해주세요."),
-    INPUT_ID_FOR_DELETE_ROLE("권한을 삭제할 회원의 아이디를 입력해주세요."),
+    INPUT_ID_FOR_DELETE_ROLE("권한을 삭제할 일반회원 및 관리자의 아이디를 입력해주세요."),
 
-    NOT_HAVE_PERMISSION("해당 작업을 수행할 권한이 없습니다."),
+    NOT_HAVE_PERMISSION("권한이 낮아 해당 작업을 수행할 수 없습니다."),
     CHIEF_MANAGER_CANNOT_DELETE("총관리자는 삭제할 수 없습니다."),
     USER_MENU_PREVIOUS("이전 메뉴로 돌아갑니다.");
 
@@ -121,6 +123,13 @@ public enum UserPage {
         System.out.printf(MANAGER_DETAIL.toString(),
                 manager.getId(), manager.getPwd(), manager.getName(),
                 manager.getPhone(), manager.getEmail(), manager.getHireDate(), manager.getType());
+    }
+
+    public static void userCommonInfoTitle() {
+        System.out.printf(SEARCHED_COMMON_INFO.toString(), "아이디", "비밀번호", "소속사/이름", "연락처", "이메일", "회원유형");
+    }
+    public static void userCommonInfo(User user) {
+        System.out.printf(SEARCHED_COMMON_INFO.toString(), user.getId(), user.getPwd(), user.getName(), user.getPhone(), user.getEmail(), user.getType());
     }
 
     @Override
