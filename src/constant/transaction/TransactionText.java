@@ -54,7 +54,9 @@ public enum TransactionText {
   APPROVED_INBOUNDS_LIST("-".repeat(50)+"<< 승인된 입고요청 내역 >>" + "-".repeat(50)),
   APPROVED_INBOUND_LIST_HEADER(String.format("%-15s| %-15s\t | %-10s | %-15s\n", "회원 ID", "커피 이름", "수량", "입고 요청 날짜")),
 
-
+  EMPTY_MEMBER_UNAPPROVED_INBOUND("미승인된 입고 요청이 있는 회원이 없습니다."),
+  MEMBER_UNAPPROVED_INBOUNDS_HEADER("-".repeat(50)+"<< 입고 승인 요청 회원 ID 목록 >>" + "-".repeat(50)),
+  MEMBER_UNAPPROVED_INBOUNDS_LIST(String.format("%-15s | %-15s\n", "회원 ID", "입고 요청 건수")),
 
   REQUEST_UPDATE("(수정)"),
   CHECK_MENU("보조 메뉴: 1.OK | 2. Cancel"),

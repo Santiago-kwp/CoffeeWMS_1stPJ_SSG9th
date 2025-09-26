@@ -10,7 +10,8 @@ public enum ErrorCode {
 
     INVALID_INBOUND_EMPTY("입고된 커피ID 숫자 번호를 입력하세요."),
     INVALID_COFFEE_QUANTITY_NUMBER("신청 가능한 커피 수량은 0보다 크고 100보다 작아야 합니다."),
-    INVALID_INBOUND_DATE("입고 요청 날짜는 금일 기준 최소 한달 후여야 합니다.");
+    INVALID_INBOUND_DATE("입고 요청 날짜는 금일 기준 최소 한달 후여야 합니다."),
+    INVALID_MEMBER_ID("해당하는 회원이 없습니다.");
 
     private String msg;
 

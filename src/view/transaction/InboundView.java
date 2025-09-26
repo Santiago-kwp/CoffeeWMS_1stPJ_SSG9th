@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.swing.DefaultListSelectionModel;
 
 /**
  * InboundView
@@ -68,7 +69,7 @@ public class InboundView {
     System.out.println(TransactionText.COFFEE_ATTRIBUTES_HEADER.getText());
 
     if (coffees.isEmpty()) {
-      System.out.println(TransactionText.NO_AVAILABLE_COFFEE);
+      System.out.println(TransactionText.NO_AVAILABLE_COFFEE.getText());
     } else {
       coffees.forEach(coffee -> System.out.printf("|   %-4d %s\n",inboundRequestCoffeeNum.getAndIncrement(), coffee.toString()));
     }
@@ -248,5 +249,81 @@ public class InboundView {
   }
 
 
+  public void displayMemberUnapprovedInboundRequests(Map<String, Integer> requests) {
+    if (requests.isEmpty()) {
+      System.out.println(TransactionText.EMPTY_MEMBER_UNAPPROVED_INBOUND.getText());
+    } else {
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.println(TransactionText.MEMBER_UNAPPROVED_INBOUNDS_HEADER.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.println(TransactionText.MEMBER_UNAPPROVED_INBOUNDS_LIST.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      requests.keySet().stream().forEach(
+          key -> System.out.printf("%-15s | %-15s\n",
+              key, requests.get(key)));
 
+    }
+  }
+
+  public String getMemberId(Map<String, Integer> requests, String prompt) {
+    String input;
+    while (true) {
+      System.out.print(prompt);
+      input = scanner.nextLine().trim();
+      try {
+        validCheck.isValidMemberId(requests, input); // 새로운 유효성 검사 메소드 호출
+      } catch (TransactionException e) {
+        System.out.println(e.getMessage());
+        // 유효하지 않은 회원ID를 입력한 경우 다시 받음
+        if (e.error == ErrorCode.INVALID_MEMBER_ID) {
+          continue;
+        }
+      }
+      break;
+    }
+    return input;
+  }
+
+
+  public int getInboundRequestGrant(String memberId) {
+
+    try {
+      while (true) {
+        // 사용자에게 입고 승인 여부 확인 요청
+        System.out.printf("선택하신 회원 ID : %s 의 입고 요청을 승인하시겠습니까? (y/n)\n", memberId);
+        System.out.print(">> ");
+        String confirm = scanner.nextLine().trim();
+        if ("y".equalsIgnoreCase(confirm)) {
+          return 1;
+        } else if ("n".equalsIgnoreCase(confirm)) {
+          return 0;
+        } else {
+          System.out.println("유효하지 않은 입력입니다.");
+        }
+      }
+    } catch (TransactionException e) {
+      System.out.println(e.getMessage());
+      getInboundRequestGrant(memberId);
+    }
+    return 0;
+  }
+
+  public String getInboundRequestIdByMember(String memberId, String prompt) {
+    String input;
+    while (true) {
+      System.out.print(prompt);
+      input = scanner.nextLine().trim();
+      try {
+        validCheck.isValidRequestId(input); // 새로운 유효성 검사 메소드 호출
+      } catch (TransactionException e) {
+        System.out.println(e.getMessage());
+        // 유효하지 않은 입고 요청ID를 입력한 경우 다시 받음
+        if (e.error == ErrorCode.INVALID_MEMBER_ID) {
+          continue;
+        }
+      }
+      break;
+    }
+    return input;
+  }
 }

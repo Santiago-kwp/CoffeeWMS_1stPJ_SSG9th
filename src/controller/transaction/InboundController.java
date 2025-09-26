@@ -5,21 +5,20 @@ import command.transaction.CreateInboundRequestCommand;
 import command.transaction.ShowApprovedRequestsCommand;
 import command.transaction.ShowMemberUnapprovedCommand;
 import command.transaction.ShowUnapprovedRequestsCommand;
-import config.transaction.DBUtil;
-import constant.transaction.TransactionText;
+
 import constant.transaction.ValidCheck;
 import domain.transaction.Coffee;
 import domain.transaction.InboundRequest;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
+
 import java.util.UUID;
+import java.util.stream.Collectors;
 import service.transaction.InboundService;
 import service.transaction.InboundServiceImpl;
 import view.transaction.InboundView;
@@ -114,8 +113,9 @@ public class InboundController {
   /**
    * 2번 메뉴: 입고 요청 내역 조회
    * 아직 승인되지 않은 입고 요청 목록을 조회합니다.
+   * 조회 후 해당 멤버의 입고 요청 ID 리스트를 반환합니다.
    */
-  public void showUnapprovedRequests(String memberId) {
+  public List<String> showUnapprovedRequests(String memberId) {
     inboundView.displayMessage("미승인된 입고 요청 내역을 조회합니다.");
     memberId = "member12346"; // 병합시 받아서 넣어야 함.
 
@@ -129,6 +129,11 @@ public class InboundController {
     // 뷰에 결과 표시
     inboundView.displayUnapprovedRequests(requests);
 
+    // 요청아이디 리스트 반환
+    List<String> inboundRequestItemId = requests.stream()
+        .map(request -> (String) request.get("inboundRequestItemId"))
+        .collect(Collectors.toList());
+    return inboundRequestItemId;
   }
 
   /**
@@ -165,7 +170,7 @@ public class InboundController {
 
       switch (choice) {
         case 1:
-
+          showMemberUnapprovedInboundRequest();
           break;
         case 2:
 
@@ -191,13 +196,78 @@ public class InboundController {
     executeCommand(showCommand);
 
     // 실행 결과 가져오기
-    List<Map<String, Integer>> requests = showCommand.getResult();
+    Map<String, Integer> requests = showCommand.getResult();
     // 뷰에 결과 표시
-//    inboundView.displayApprovedRequests(requests);
+    inboundView.displayMemberUnapprovedInboundRequests(requests);
 
+    // 사용자가 회원의 ID를 입력하면 해당 회원의 미승인된 요청 내역을 보여줌
+    showMemberUnapprovedInboundList(requests);
   }
 
 
+  public void showMemberUnapprovedInboundList(Map<String, Integer> requests) {
+      // 뷰에서 회원 ID 입력 받음
+      String memberId = inboundView.getMemberId(requests, "조회할 회원의 ID를 입력하세요.");
+
+      // 해당하는 회원의 입고 요청 정보를 사용자에게 출력
+      showUnapprovedRequests(memberId);
+
+      // 해당하는 회원의 입고 요청 정보를 처리하는 메소드 호출
+      processInboundRequest(memberId);
+
+  }
+
+  // 관리자가 해당 회원의 입고 요청 정보를 처리하는 메소드
+  public void processInboundRequest(String memberId) {
+    // 뷰에서 해당 회원의 여러 건의 입고 요청 중 관리자가 승인할 입고 요청 건의 ID를 받음.
+    String inboundRequestId = inboundView.getInboundRequestIdByMember(memberId);
+
+    // 뷰에서 해당 회원의 입고 요청 승인 여부를 사용자에게 출력하고 사용자의 승인 여부를 받음
+    int choice = inboundView.getInboundRequestGrant(memberId);
+
+
+    switch (choice) {
+      // 승인한 경우 입고 처리 프로세스 진행
+      case 1:
+        processInboundRequestByMember(memberId, inboundRequestId);
+        break;
+      case 0:
+        // 승인하지 않은 경우 다시 회원의 입고 요청 목록을 보여줌
+        showMemberUnapprovedInboundRequest();
+        break;
+    }
+
+
+
+  }
+
+  // 한 회원의 입고 요청 상품 재고 업데이트
+  private void processInboundRequestByMember(String memberId) {
+    //
+
+
+    /*
+    SET v_coffee_id = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].coffee_id')));
+    SET v_location_place_id = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].location_place_id')));
+    SET v_quantity = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].quantity')));
+    SET v_inbound_request_item_id = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].inbound_request_item_id')));
+     */
+
+
+    // DTO 객체 생성 및 데이터 주입
+    InboundRequest newRequest = new InboundRequest();
+    newRequest.setInboundRequestId("REQ" + UUID.randomUUID().toString().substring(0, 8)); // 고유 ID 생성
+    newRequest.setMemberId("member12346"); // 나중에 합치면 받아야 함
+    newRequest.setManagerId("manager1235"); // 마찬가지
+    newRequest.setRequestItemsJson(itemsJson);
+    newRequest.setInboundRequestDate(requestDate);
+
+    // 커맨드 생성 및 실행
+    Command createCommand = new CreateInboundRequestCommand(inboundService, newRequest);
+    executeCommand(createCommand);
+
+
+  }
 
 
 }

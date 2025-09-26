@@ -19,12 +19,13 @@ public class InboundServiceImpl implements InboundService {
   private InboundDao inboundDao;
   private Connection conn;
 
-  // In a real application, you would use dependency injection (e.g., Spring)
+  // 연결 객체를 받고, DAO 메소드를 사용하기 위해 의존성 주입
   public InboundServiceImpl(Connection connection) {
     this.conn = connection;
     this.inboundDao = new InboundDao(conn);
   }
 
+  // 사용자의 입고 요청을 DB에 제출하는 메소드
   @Override
   public void submitInboundRequest(InboundRequest request) {
     System.out.println("서비스: 입고 요청서를 제출 중입니다...");
@@ -44,16 +45,11 @@ public class InboundServiceImpl implements InboundService {
 
   @Override
   public List<Coffee> getAllCoffees() {
+    // DAO 메소드를 호출하여 전체 커피 상품 목록을 가져옵니다.
     return inboundDao.getAllCoffees();
   }
 
-  /**
-   * 특정 회원의 미승인 입고 요청 목록을 조회하는 메서드입니다.
-   *
-   * @param memberId 입고 요청을 조회할 회원의 ID
-   * @return 미승인 입고 요청 목록
-   * @throws SQLException 데이터베이스 접근 중 오류 발생 시
-   */
+
   @Override
   public List<Map<String, Object>> getUnapprovedRequestsByMember(String memberId) throws SQLException {
     // DAO 메서드를 호출하여 미승인 요청 목록을 가져옵니다.
@@ -67,7 +63,8 @@ public class InboundServiceImpl implements InboundService {
   }
 
   @Override
-  public List<Map<String, Integer>> getMemberUnapprovedInboundRequests() {
+  public Map<String, Integer> getMemberUnapprovedInboundRequests() {
+    // DAO 메소드를 호출하여 미승인 요청이 있는 회원의 ID 목록 및 요청 건수를 가져옵니다.
     return inboundDao.getAllMemberHasUnapprovedInboundRequest();
   }
 

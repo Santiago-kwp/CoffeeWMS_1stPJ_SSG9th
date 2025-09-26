@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class ValidCheck {
   private static final String MENU_NUMBER_1_4 = "^[1-4]$";
@@ -93,4 +95,9 @@ public class ValidCheck {
     }
   }
 
+  // 유효한 회원 ID 입력인지 검사하는 메소드
+  public void isValidMemberId(Map<String, Integer> requests, String memberId) {
+    if (!requests.containsKey(memberId))
+      throw new TransactionException(ErrorCode.INVALID_MEMBER_ID);
+  }
 }

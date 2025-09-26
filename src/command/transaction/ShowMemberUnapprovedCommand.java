@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class ShowMemberUnapprovedCommand implements Command {
     private final InboundService inboundService;
-    private List<Map<String, Integer>> result;
+    private Map<String, Integer> result;
 
     public ShowMemberUnapprovedCommand(InboundService inboundService) {
         this.inboundService = inboundService;
@@ -18,7 +18,7 @@ public class ShowMemberUnapprovedCommand implements Command {
     public void execute() {
         this.result = inboundService.getMemberUnapprovedInboundRequests();
     }
-    public List<Map<String, Integer>> getResult() {
+    public Map<String, Integer> getResult() {
         return this.result;
     }
 

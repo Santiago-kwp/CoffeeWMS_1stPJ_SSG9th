@@ -24,5 +24,5 @@ public interface InboundService {
    */
   List<Map<String, Object>> getUnapprovedRequestsByMember(String memberId) throws SQLException;
   List<Map<String, Object>> getApprovedRequestsByMember(String memberId) throws SQLException;
-  List<Map<String, Integer>> getMemberUnapprovedInboundRequests();
+  Map<String, Integer> getMemberUnapprovedInboundRequests();
 }
