@@ -220,7 +220,7 @@ public class InboundController {
   // 관리자가 해당 회원의 입고 요청 정보를 처리하는 메소드
   public void processInboundRequest(String memberId) {
     // 뷰에서 해당 회원의 여러 건의 입고 요청 중 관리자가 승인할 입고 요청 건의 ID를 받음.
-    String inboundRequestId = inboundView.getInboundRequestIdByMember(memberId);
+//    String inboundRequestId = inboundView.getInboundRequestIdByMember(memberId, inboundRequestId);
 
     // 뷰에서 해당 회원의 입고 요청 승인 여부를 사용자에게 출력하고 사용자의 승인 여부를 받음
     int choice = inboundView.getInboundRequestGrant(memberId);
@@ -229,7 +229,7 @@ public class InboundController {
     switch (choice) {
       // 승인한 경우 입고 처리 프로세스 진행
       case 1:
-        processInboundRequestByMember(memberId, inboundRequestId);
+//        processInboundRequestByMember(memberId, inboundRequestId);
         break;
       case 0:
         // 승인하지 않은 경우 다시 회원의 입고 요청 목록을 보여줌
@@ -255,16 +255,16 @@ public class InboundController {
 
 
     // DTO 객체 생성 및 데이터 주입
-    InboundRequest newRequest = new InboundRequest();
-    newRequest.setInboundRequestId("REQ" + UUID.randomUUID().toString().substring(0, 8)); // 고유 ID 생성
-    newRequest.setMemberId("member12346"); // 나중에 합치면 받아야 함
-    newRequest.setManagerId("manager1235"); // 마찬가지
-    newRequest.setRequestItemsJson(itemsJson);
-    newRequest.setInboundRequestDate(requestDate);
+//    InboundRequest newRequest = new InboundRequest();
+//    newRequest.setInboundRequestId("REQ" + UUID.randomUUID().toString().substring(0, 8)); // 고유 ID 생성
+//    newRequest.setMemberId("member12346"); // 나중에 합치면 받아야 함
+//    newRequest.setManagerId("manager1235"); // 마찬가지
+//    newRequest.setRequestItemsJson(itemsJson);
+//    newRequest.setInboundRequestDate(requestDate);
 
     // 커맨드 생성 및 실행
-    Command createCommand = new CreateInboundRequestCommand(inboundService, newRequest);
-    executeCommand(createCommand);
+//    Command createCommand = new CreateInboundRequestCommand(inboundService, newRequest);
+//    executeCommand(createCommand);
 
 
   }

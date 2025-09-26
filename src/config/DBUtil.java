@@ -11,13 +11,14 @@ public class DBUtil {
     static {
         bundle = ResourceBundle.getBundle("config.dbinfo");
 
-    try {
-      Class.forName(bundle.getString("driver")); // 리플렉션으로 드라이버 로딩
+        try {
+            Class.forName(bundle.getString("driver")); // 리플렉션으로 드라이버 로딩
 //      System.out.println("JDBC 드라이버 로딩 성공");
 
-    } catch (ClassNotFoundException e) {
+        } catch (ClassNotFoundException e) {
 //      System.out.println("JDBC 드라이버 로딩 실패");
-      e.printStackTrace();
+            e.printStackTrace();
+        }
     }
 
     public static Connection getConnection() {

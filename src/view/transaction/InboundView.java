@@ -314,7 +314,7 @@ public class InboundView {
       System.out.print(prompt);
       input = scanner.nextLine().trim();
       try {
-        validCheck.isValidRequestId(input); // 새로운 유효성 검사 메소드 호출
+//        validCheck.isValidRequestId(input); // 새로운 유효성 검사 메소드 호출
       } catch (TransactionException e) {
         System.out.println(e.getMessage());
         // 유효하지 않은 입고 요청ID를 입력한 경우 다시 받음

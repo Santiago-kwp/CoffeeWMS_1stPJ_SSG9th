@@ -24,7 +24,7 @@ public class InboundMenu {
       view.setController(controller);
 
       // 컨트롤러의 회원 메소드
-      controller.runMember();
+//      controller.runMember();
 
 
     } finally {
