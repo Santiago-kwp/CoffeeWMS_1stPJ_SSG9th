@@ -176,12 +176,8 @@ public class ManagerDAO implements UserDAO {
             try (ResultSet rs = call.executeQuery()) {
                 while (rs.next()) {
                     switch (groupName) {
-                        case "members":
-                            searchResult.add(getMember(rs));
-                            break;
-                        case "managers":
-                            searchResult.add(getManager(rs));
-                            break;
+                        case "members" -> searchResult.add(getMember(rs));
+                        case "managers" -> searchResult.add(getManager(rs));
                     }
                 }
             }
@@ -189,5 +185,13 @@ public class ManagerDAO implements UserDAO {
             System.out.println(e.getMessage());
         }
         return searchResult;
+    }
+
+    public boolean updateRole(String targetID, String newRole) {
+        return false;
+    }
+
+    public boolean deleteRole(String targetID, String newRole) {
+        return false;
     }
 }

@@ -5,10 +5,7 @@ import constant.user.UserPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-import exception.user.DeleteException;
-import exception.user.NotAvailableDeleteChiefManagerException;
-import exception.user.NotHavePermissionException;
-import exception.user.NotRegisteredUserException;
+import exception.user.*;
 import model.user.ManagerDAO;
 
 import java.io.IOException;
@@ -20,9 +17,14 @@ public class ManagerManageMenu implements UserManageMenu {
     private final ManagerDAO dao;
     private final Manager currentManager;
 
+    private List<User> allUsers;
+
     public ManagerManageMenu(Manager manager) {
         this.currentManager = manager;
         this.dao = new ManagerDAO(manager);
+        if (currentManager.getPosition().equals("총관리자")) {
+            allUsers = dao.searchAllUser();
+        }
     }
 
     @Override
@@ -116,12 +118,12 @@ public class ManagerManageMenu implements UserManageMenu {
         if (!currentManager.getPosition().equals("총관리자")) {
             throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
         }
-        List<User> allApprovedUser = dao.searchAllUser();
+        allUsers = dao.searchAllUser();
 
         UserPage.userCommonInfoTitle();
-        allApprovedUser.stream()
+        allUsers.stream()
                 .sorted(Comparator.comparing(User::getType).reversed().thenComparing(User::getId))
-                .forEach(UserPage::userCommonInfo); // 변경 예정
+                .forEach(UserPage::userCommonInfo);
     }
 
     // 회원이 보유한 권한에 따라 회원 조회를 진행
@@ -165,10 +167,10 @@ public class ManagerManageMenu implements UserManageMenu {
             String menuNum = input.readLine();
             switch (menuNum) {
                 case "1":
-                    updateCurrentMember();
+                    updateCurrentManager();
                     break;
                 case "2":
-                    updateManagerRole();
+                    updateUserRole();
                     break;
                 case "3":
                     quitUpdate = quit();
@@ -177,19 +179,17 @@ public class ManagerManageMenu implements UserManageMenu {
         }
     }
 
-    public void updateCurrentMember() throws IOException {
+    public void updateCurrentManager() throws IOException {
         User newUserInfo = inputNewManager();
         boolean ack = dao.updateUserInfo(newUserInfo);
-        System.out.println(ack ? UserPage.MEMBER_UPDATE : UserPage.MEMBER_UPDATE_FAILED);
-    }
-
-    public void updateManagerRole() {
-        String position = currentManager.getPosition();
-        if (!position.equals("총관리자")) {
-            // 예외 처리 필요
-            throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
+        if (!ack) {
+            throw new NotUpdatedMemberException(UserPage.MEMBER_UPDATE_FAILED.toString());
         }
-
+        currentManager.setPwd(newUserInfo.getPwd());
+        currentManager.setName(newUserInfo.getName());
+        currentManager.setPhone(newUserInfo.getPhone());
+        currentManager.setEmail(newUserInfo.getEmail());
+        System.out.println(UserPage.MEMBER_UPDATE);
     }
 
     public User inputNewManager() throws IOException {
@@ -211,6 +211,33 @@ public class ManagerManageMenu implements UserManageMenu {
         return newInfo;
     }
 
+    // 아무런 권한이 없는 회원에게 권한을 부여
+    // 창고관리자는 일반회원 권한만 부여 가능
+    public void updateUserRole() throws IOException {
+        System.out.println(UserPage.INPUT_ID_FOR_UPDATE_ROLE);
+        String targetID = input.readLine();
+        String userType = dao.searchUserTypeBy(targetID);
+        if (userType != null) {
+            throw new UpdateException(UserPage.ALREADY_HAVE_ROLE.toString());
+        }
+
+        System.out.println(UserPage.ROLE_UPDATE_OPTION);
+        String option = input.readLine();
+        boolean ack = false;
+        switch (option) {
+            case "1":   // 일반회원 권한부여
+                ack = dao.updateRole(targetID, "일반회원");
+                break;
+            case "2":   // 창고관리자 권한부여
+                if (!currentManager.getPosition().equals("총관리자")) {
+                    throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
+                }
+                ack = dao.updateRole(targetID, "창고관리자");
+                break;
+        }
+        System.out.println(ack ? UserPage.ROLE_UPDATE_OPTION : UserPage.ROLE_UPDATE_FAILED);
+    }
+
     @Override
     public boolean delete() throws IOException {
         boolean quitDelete = false;
@@ -223,7 +250,7 @@ public class ManagerManageMenu implements UserManageMenu {
                     isDeleted = deleteCurrentUser();
                     break;
                 case "2":
-                    deleteManagerRole();
+                    deleteUserRole();
                     break;
                 case "3":
                     quitDelete = quit();
@@ -246,18 +273,37 @@ public class ManagerManageMenu implements UserManageMenu {
 
         boolean ack = dao.deleteUserInfo();
         if (!ack) {
-            // 예외처리
             throw new DeleteException(UserPage.USER_DELETE_FAILED.toString());
         }
         System.out.println(UserPage.USER_DELETE);
         return true;
     }
 
-    public void deleteManagerRole() {
-        String position = currentManager.getPosition();
-        if (!position.equals("총관리자")) {
-            throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
+    // 권한이 부여된 회원의 권한을 삭제
+    // 창고관리자는 일반회원 권한만 삭제 가능
+    public void deleteUserRole() throws IOException {
+        System.out.println(UserPage.INPUT_ID_FOR_DELETE_ROLE);
+        String targetID = input.readLine();
+        String userType = dao.searchUserTypeBy(targetID);
+        if (userType == null) {
+            throw new UpdateException(UserPage.ALREADY_DELETED_ROLE.toString());
         }
+
+        System.out.println(UserPage.ROLE_DELETE_OPTION);
+        String option = input.readLine();
+        boolean ack = false;
+        switch (option) {
+            case "1":   // 일반회원 권한부여
+                ack = dao.deleteRole(targetID, "일반회원");
+                break;
+            case "2":   // 창고관리자 권한부여
+                if (!currentManager.getPosition().equals("총관리자")) {
+                    throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
+                }
+                ack = dao.deleteRole(targetID, "창고관리자");
+                break;
+        }
+        System.out.println(ack ? UserPage.ROLE_DELETE_OPTION : UserPage.ROLE_DELETE_FAILED);
     }
 
     private boolean quit() {

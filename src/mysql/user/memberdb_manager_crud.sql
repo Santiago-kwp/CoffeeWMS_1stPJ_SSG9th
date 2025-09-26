@@ -162,43 +162,45 @@ BEGIN
 END $$
 DELIMITER ;
 
--- 권한 수정은 현재 로그아웃한 회원을 대상으로만 진행할 수 있으며, 총관리자만 수행할 수 있다.
--- 한번 삭제된 회원의 권한은 다시 복구되지 않는다.
--- 일반회원 -> 관리자 또는 관리자 -> 일반회원일 경우 이미 아이디가 존재한다면 인적사항을 갱신한다.
+-- 권한 수정은 아무 권한이 없는 회원을 대상으로 진행하며, 총관리자와 창고관리자 모두 수행할 수 있다.
+-- 즉, 회원의 권한을 다시 복구한다.
+-- 창고관리자는 일반회원 권한만 부여할 수 있다.
 DROP PROCEDURE IF EXISTS update_to_another_role;
 DELIMITER $$
-CREATE PROCEDURE update_to_another_role(IN targetID varchar(15), IN previousRole varchar(10), IN newRole varchar(10))
+CREATE PROCEDURE update_to_another_role(IN targetID varchar(15), IN newRole varchar(10))
 BEGIN
     SET @targetID = targetID;
-    SET @previousRole = previousRole;
     SET @newRole = newRole;
-    SET @updateRole = 'update users set user_type = ? where user_id = ? and user_approval = \'승인완료\' and user_type = ?';
+    SET @updateRole = 'update users set user_type = ? where user_id = ? and user_approval = \'승인완료\' and user_type is null';
 
     PREPARE updateRole from @updateRole;
     EXECUTE updateRole USING @newRole, @targetID, @previousRole;
-
     DEALLOCATE PREPARE updateRole;
-END $$
-DELIMITER ;
 
-DROP TRIGGER IF EXISTS update_role_trigger;
-DELIMITER $$
-CREATE TRIGGER update_role_trigger
-    AFTER UPDATE ON users
-    FOR EACH ROW
-BEGIN
-    IF (old.user_type != new.user_type) THEN
-        IF (old.user_type = '일반회원') THEN
-            update members set member_login = null where member_id = new.user_id;
+    IF (newRole = '창고관리자') THEN
+        IF EXISTS (select manager_id from managers where manager_id = targetID) THEN
+            update managers set manager_position = newRole where manager_id = targetID;
+        ELSE
             insert into managers
-                values(new.user_id, new.user_pwd, new.user_name,
-                   new.user_phone, new.user_email, true, now(), new.user_type);
+            select user_id, user_pwd, user_name,
+                   user_phone, user_email, false, now(), newRole
+                       from users where user_id = targetID and user_approval = '승인완료';
+        END IF;
+    ELSEIF (newRole = '일반회원') THEN
+        IF EXISTS (select member_id from members where member_id = targetID) THEN
+            update managers set manager_position = newRole where manager_id = targetID;
+        ELSE
+            insert into members
+            select user_id, user_pwd, user_name,
+                   user_phone, user_email, user_company_code,
+                   user_address, false, now(), date_add(now(), interval 1 year)
+            from users where user_id = targetID and user_approval = '승인완료';
         END IF;
     END IF;
 END $$
 DELIMITER ;
 
--- 권한 삭제는 현재 로그아웃한 회원을 대상으로만 진행할 수 있으며, 총관리자만 수행할 수 있다.
+# 여기서부터 작업 수행 필요
 DROP PROCEDURE IF EXISTS delete_role;
 DELIMITER $$
 CREATE PROCEDURE delete_member_role(IN targetID varchar(15))

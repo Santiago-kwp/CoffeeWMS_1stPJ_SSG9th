@@ -245,9 +245,9 @@ END $$
 DELIMITER ;
 
 -- 변경된 비밀번호를 members, managers 테이블에도 적용
-DROP TRIGGER IF EXISTS update_pwd_trigger;
+DROP TRIGGER IF EXISTS update_trigger;
 DELIMITER $$
-CREATE TRIGGER update_pwd_trigger
+CREATE TRIGGER update_trigger
 	AFTER UPDATE ON users
     FOR EACH ROW
 BEGIN

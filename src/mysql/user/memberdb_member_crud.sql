@@ -94,7 +94,9 @@ BEGIN
     
     DEALLOCATE PREPARE deleteQuery;
     
-    select count(member_id) into deleteCount from members where member_
+    select count(member_id) into deleteCount
+    from members
+    where member_id = currentID and member_login is null;
 END $$
 DELIMITER ;
 
