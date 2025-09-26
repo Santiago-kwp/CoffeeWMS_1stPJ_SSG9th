@@ -1,6 +1,7 @@
 package controller.user;
 
 import constant.user.WMSPage;
+import controller.support.CSMenu;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
@@ -18,6 +19,7 @@ public class WMSMenu {
 
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
+    private CSMenu csMenu = new CSMenu();
 
     public WMSMenu(User loginUser) {
         this.currentLoginUser = loginUser;
@@ -46,6 +48,7 @@ public class WMSMenu {
                 userManagement(member);
                 break;
             case "2":   // 고객센터
+                csMenu.csMenu();
                 break;
             case "3":   // 재고관리
                 break;
@@ -68,6 +71,7 @@ public class WMSMenu {
                 userManagement(manager);
                 break;
             case "2":   // 고객센터
+                csMenu.csMenu();
                 break;
             case "3":   // 창고관리
                 break;
@@ -94,7 +98,9 @@ public class WMSMenu {
         }
     }
 
-    // WMS의 나머지 주요 기능을 실행하기 위한 메서드를 여기서부터 작성해주시면 됩니다.
+    // WMS의 나머지 기능에 관한 컨트롤러를 실행할 메서드를 여기서부터 작성해주시면 됩니다.
+
+
 
     public void logout(String userID) {
         LoginDAO.logout(userID);
