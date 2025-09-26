@@ -5,6 +5,8 @@ import constant.user.UserPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
+import exception.user.DeleteException;
+import exception.user.NotAvailableDeleteChiefManagerException;
 import exception.user.NotHavePermissionException;
 import model.user.ManagerDAO;
 
@@ -121,7 +123,7 @@ public class ManagerManageMenu implements UserManageMenu {
                 .forEach(UserPage::userCommonInfo); // 변경 예정
     }
 
-    //
+    // 회원이 보유한 권한에 따라 회원 조회를 진행
     public void readUsersByRole() throws IOException {
         System.out.print(UserPage.MANAGER_SEARCH_BY_ROLE_TITLE);
         String menuNum = input.readLine();
@@ -184,8 +186,7 @@ public class ManagerManageMenu implements UserManageMenu {
         String position = currentManager.getPosition();
         if (!position.equals("총관리자")) {
             // 예외 처리 필요
-            System.out.println(UserPage.NOT_HAVE_PERMISSION);
-            return;
+            throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
         }
 
     }
@@ -234,11 +235,10 @@ public class ManagerManageMenu implements UserManageMenu {
     public boolean deleteCurrentUser() throws IOException {
         System.out.print(UserPage.USER_DELETE_TITLE);
         if (currentManager.getPosition().equals("총관리자")) {  // 예외처리
-            System.out.println(UserPage.CHIEF_MANAGER_CANNOT_DELETE);
-            return false;
+            throw new NotAvailableDeleteChiefManagerException(UserPage.CHIEF_MANAGER_CANNOT_DELETE.toString());
         }
         String yesOrNo = input.readLine();
-        if (!yesOrNo.equalsIgnoreCase("Y")) {   // 예외처리
+        if (!yesOrNo.equalsIgnoreCase("Y")) {
             System.out.println(UserPage.USER_NOT_DELETE);
             return false;
         }
@@ -246,8 +246,7 @@ public class ManagerManageMenu implements UserManageMenu {
         boolean ack = dao.deleteUserInfo();
         if (!ack) {
             // 예외처리
-            System.out.println(UserPage.USER_DELETE_FAILED);
-            return false;
+            throw new DeleteException(UserPage.USER_DELETE_FAILED.toString());
         }
         System.out.println(UserPage.USER_DELETE);
         return true;
@@ -256,8 +255,7 @@ public class ManagerManageMenu implements UserManageMenu {
     public void deleteManagerRole() {
         String position = currentManager.getPosition();
         if (!position.equals("총관리자")) {
-            System.out.println(UserPage.NOT_HAVE_PERMISSION);
-            return;
+            throw new NotHavePermissionException(UserPage.NOT_HAVE_PERMISSION.toString());
         }
     }
 

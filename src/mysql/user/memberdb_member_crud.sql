@@ -84,11 +84,11 @@ BEGIN
     -- 회원 정보 삭제: 삭제 시 해당 아이디로는 더 이상 로그인 불가
     SET @loginID = currentID;
     
-    SET @deleteMember = 'update members set member_id = concat(\'del_\', ?), member_login = false where member_id = ? and member_login = true';
+    SET @deleteMember = 'update members set member_login = null where member_id = ? and member_login = true';
     PREPARE deleteQuery FROM @deleteMember;
     EXECUTE deleteQuery USING @loginID, @loginID;
     
-    SET @deleteInfo = 'delete from users where user_id = ?';
+    SET @deleteInfo = 'update users set user_approval = \'\' where user_id = ?';
     PREPARE deleteQuery FROM @deleteInfo;
     EXECUTE deleteQuery USING @loginID;
     
