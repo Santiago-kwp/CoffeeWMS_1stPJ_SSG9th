@@ -6,6 +6,7 @@ import constant.transaction.TransactionText;
 import constant.transaction.ValidCheck;
 import controller.transaction.InboundController;
 import domain.transaction.Coffee;
+import domain.transaction.LocationPlace;
 import exception.transaction.TransactionException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -156,8 +157,8 @@ public class InboundView {
       } catch (TransactionException | NumberFormatException e) {
         // 예외가 발생하면 예외 메시지를 출력합니다.
         System.out.println(e.getMessage());
-        // 그리고 continue 키워드를 사용하여 반복문의 처음으로 돌아갑니다.
-        continue;
+        // 재귀호출 진행
+        getJsonInput(prompt);
       }
     }
 
@@ -285,12 +286,12 @@ public class InboundView {
   }
 
 
-  public int getInboundRequestGrant(String memberId) {
+  public int getInboundRequestGrant(String memberId, String requestId) {
 
     try {
       while (true) {
         // 사용자에게 입고 승인 여부 확인 요청
-        System.out.printf("선택하신 회원 ID : %s 의 입고 요청을 승인하시겠습니까? (y/n)\n", memberId);
+        System.out.printf("선택하신 회원 ID : %s 의 입고 요청 (ID : %s)을 승인하시겠습니까? (y/n)\n", memberId, requestId);
         System.out.print(">> ");
         String confirm = scanner.nextLine().trim();
         if ("y".equalsIgnoreCase(confirm)) {
@@ -303,27 +304,74 @@ public class InboundView {
       }
     } catch (TransactionException e) {
       System.out.println(e.getMessage());
-      getInboundRequestGrant(memberId);
+      getInboundRequestGrant(memberId, requestId);
     }
     return 0;
   }
 
-  public String getInboundRequestIdByMember(String memberId, String prompt) {
+  public String getInboundRequestIdByMember(String memberId, List<String> unapprovedRequestIdList, String prompt) {
     String input;
     while (true) {
       System.out.print(prompt);
       input = scanner.nextLine().trim();
       try {
-//        validCheck.isValidRequestId(input); // 새로운 유효성 검사 메소드 호출
+        validCheck.isValidRequestId(input, unapprovedRequestIdList); // 새로운 유효성 검사 메소드 호출
       } catch (TransactionException e) {
         System.out.println(e.getMessage());
         // 유효하지 않은 입고 요청ID를 입력한 경우 다시 받음
-        if (e.error == ErrorCode.INVALID_MEMBER_ID) {
+        if (e.error == ErrorCode.INVALID_REQUEST_ID) {
           continue;
         }
       }
       break;
     }
     return input;
+  }
+
+  public String showAvailableLocationPlaces(List<LocationPlace> locationPlaces) {
+    AtomicInteger availableLocationCount = new AtomicInteger(1);
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println("입고 가능한 창고의 위치 목록");
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println();
+
+    if (locationPlaces.isEmpty()) {
+      System.out.println(TransactionText.NO_AVAILABLE_COFFEE.getText());
+    } else {
+      locationPlaces.forEach(locationPlace ->
+          System.out.printf("|  %-4d %s\n",availableLocationCount.getAndIncrement(), locationPlace.toString()));
+    }
+    System.out.println(TransactionText.BORDER_LINE.getText());
+
+    while (true) {
+      // 예외가 발생할 수 있는 코드
+      try {
+        System.out.print("보관할 창고의 번호를 입력하세요 : ");
+        String locationPlaceNum = scanner.nextLine().trim();
+
+        // 창고 위치 번호 유효성 검사
+        int num = validCheck.isValidLocationPlaceNum(locationPlaceNum, locationPlaces.size());
+
+        // 사용자에게 한번 더 확인 요청
+        System.out.printf("선택하신 위치가 아래의 위치가 맞습니까? (y/n)\n%s\n", locationPlaces.get(num).toString());
+        System.out.print(">> ");
+        String confirm = scanner.nextLine().trim();
+
+        if ("y".equalsIgnoreCase(confirm)) {
+          System.out.println("재고 위치가 지정되었습니다.");
+          return locationPlaces.get(num).getLocationPlaceId();
+        } else if ("n".equalsIgnoreCase(confirm)) {
+          System.out.println("재고 위치 지정이 취소되었습니다. 다시 입력해주세요.");
+        } else {
+          System.out.println("유효하지 않은 입력입니다. 재고 위치 지정이 취소되었습니다.");
+        }
+
+      } catch (TransactionException e) {
+        System.out.println(e.getMessage());
+        if (e.error == ErrorCode.INVALID_LOCATION_PLACE_NUMBER)
+          // 예외 발생 시 재귀 호출
+          showAvailableLocationPlaces(locationPlaces);
+      }
+    }
   }
 }

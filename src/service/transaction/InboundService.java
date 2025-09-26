@@ -2,6 +2,7 @@ package service.transaction;
 
 import domain.transaction.Coffee;
 import domain.transaction.InboundRequest;
+import domain.transaction.LocationPlace;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ public interface InboundService {
   void submitInboundRequest(InboundRequest request);
   // Add other methods for processing, viewing, etc.
   List<Coffee> getAllCoffees();
+  List<LocationPlace> getAvailableLocationPlaces();
 
   /**
    * 특정 회원의 미승인 입고 요청 목록을 조회합니다.

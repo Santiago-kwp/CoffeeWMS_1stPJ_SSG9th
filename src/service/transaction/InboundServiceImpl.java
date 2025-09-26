@@ -1,12 +1,15 @@
 package service.transaction;
 
+import config.DBUtil;
 import domain.transaction.Coffee;
 import domain.transaction.InboundRequest;
+import domain.transaction.LocationPlace;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.xml.stream.Location;
 import model.transaction.InboundDao;
 
 /**
@@ -17,12 +20,10 @@ import model.transaction.InboundDao;
 public class InboundServiceImpl implements InboundService {
 
   private InboundDao inboundDao;
-  private Connection conn;
 
   // 연결 객체를 받고, DAO 메소드를 사용하기 위해 의존성 주입
-  public InboundServiceImpl(Connection connection) {
-    this.conn = connection;
-    this.inboundDao = new InboundDao(conn);
+  public InboundServiceImpl() {
+    this.inboundDao = new InboundDao();
   }
 
   // 사용자의 입고 요청을 DB에 제출하는 메소드
@@ -47,6 +48,11 @@ public class InboundServiceImpl implements InboundService {
   public List<Coffee> getAllCoffees() {
     // DAO 메소드를 호출하여 전체 커피 상품 목록을 가져옵니다.
     return inboundDao.getAllCoffees();
+  }
+
+  @Override
+  public List<LocationPlace> getAvailableLocationPlaces() {
+    return inboundDao.getAvailableLocationPlaces();
   }
 
 

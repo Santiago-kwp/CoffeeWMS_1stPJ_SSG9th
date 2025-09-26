@@ -55,7 +55,7 @@ public class ValidCheck {
 
   public int isValidCoffeeQuantity(String quantityInput) {
     int num = Integer.parseInt(quantityInput);
-    if(num < 1 || num > 100)
+    if(num < 1 || num > 2000)
       throw new TransactionException(ErrorCode.INVALID_COFFEE_QUANTITY_NUMBER);
     return num;
   }
@@ -99,5 +99,18 @@ public class ValidCheck {
   public void isValidMemberId(Map<String, Integer> requests, String memberId) {
     if (!requests.containsKey(memberId))
       throw new TransactionException(ErrorCode.INVALID_MEMBER_ID);
+  }
+
+  // 유효한 요청 ID 입력인지 검사하는 메소드
+  public void isValidRequestId(String input, List<String> unapprovedRequestIdList) {
+    if (!unapprovedRequestIdList.stream().anyMatch(string -> string.equals(input)))
+      throw new TransactionException(ErrorCode.INVALID_REQUEST_ID);
+  }
+
+  public int isValidLocationPlaceNum(String locationPlaceNum, int size) {
+    int num = Integer.parseInt(locationPlaceNum);
+    if(num < 1 || num > size)
+      throw new TransactionException(ErrorCode.INVALID_LOCATION_PLACE_NUMBER);
+    return num-1; // 1번 부터 시작
   }
 }

@@ -1,14 +1,7 @@
-use testdb1;
-
-select * from inbound_request;
-
-select * from coffees;
+USE railway;
 
 ### 1. 회원의 입고 요청
 DROP PROCEDURE IF EXISTS submit_member_inbound_request;
-
-
-
 -- 입고 요청 및 상세 내역을 트랜잭션으로 처리하는 프로시저
 -- c_inbound_request_id: 입고 요청 고유 ID
 -- c_member_id: 요청을 하는 회원 ID
@@ -124,7 +117,7 @@ SELECT * FROM inbound_request_items WHERE inbound_request_id = @test_request_id;
 
 -- 관리자가 회원의 미승인된 입고 요청 내역이 있는 회원의 아이디를 조회하는 프로시저
 -- -> 선택한 회원의 입고요청상세 전체 내역 조회 : procedure show_all_inbound_request_items;
-drop procedure  get_all_member_has_unapproved_inbound_request;
+drop procedure if exists get_all_member_has_unapproved_inbound_request;
 delimiter @@
 create procedure get_all_member_has_unapproved_inbound_request()
 begin
@@ -141,7 +134,7 @@ call get_all_member_has_unapproved_inbound_request();
 
 
 -- 회원의 미승인된 입고 요청을 회원 정보로 조회하는 프로시저
-drop procedure get_unapproved_inbounds_by_member;
+drop procedure if exists get_unapproved_inbounds_by_member;
 delimiter @@
 create procedure get_unapproved_inbounds_by_member(
 	IN c_member_id varchar(15))
@@ -158,10 +151,10 @@ delimiter ;
 select * from inbound_request_items;
 select * from inbound_request;
 
-call get_unapproved_inbounds_by_member('member12346');
+call get_unapproved_inbounds_by_member('usera002');
 
 -- 회원의 승인된 입고 완료 현황을 회원 id로 조회하는 프로시저
-drop procedure get_approved_inbounds_by_member;
+drop procedure if exists get_approved_inbounds_by_member;
 delimiter @@
 create procedure get_approved_inbounds_by_member(
 	IN c_member_id varchar(15))
@@ -178,11 +171,11 @@ delimiter ;
 select * from inbound_request_items;
 select * from inbound_request;
 
-call get_approved_inbounds_by_member('member12347');
+call get_approved_inbounds_by_member('usera002');
 
 -- 회원의 입고 요청 상세 테이블에서 하나의 커피와 수량을 수정하는 프로시저
 
-drop procedure update_inbound_request_items;
+drop procedure if exists update_inbound_request_items;
 delimiter @@
 create procedure update_inbound_request_items(
 	IN c_inbound_request_item_id int, 
@@ -302,7 +295,7 @@ SELECT * FROM inbound_request_items WHERE inbound_request_id = @test_request_id;
 
 
 -- 관리자가 입고 요청을 승인하고 재고를 업데이트하는 프로시저
-drop procedure process_inbound_request;
+drop procedure if exists process_inbound_request;
 DELIMITER @@
 CREATE PROCEDURE process_inbound_request(
     IN p_inbound_request_id CHAR(12),
@@ -401,7 +394,7 @@ SELECT * FROM inventory WHERE coffee_id IN (SELECT coffee_id FROM inbound_reques
 
 
 -- 1.3 회원의 입고요청상세 전체 내역 조회
-drop procedure show_all_inbound_request_items;
+drop procedure if exists show_all_inbound_request_items;
 delimiter @@
 create procedure show_all_inbound_request_items(IN c_member_id varchar(15))
 begin
@@ -420,11 +413,11 @@ CALL show_all_inbound_request_items(@member_id_to_show);
 
 
 -- 1.4 회원의 입고요청 하나 조회
-drop procedure show_one_inbound_request_items;
+drop procedure if exists show_one_inbound_request_items;
 delimiter @@
 create procedure show_one_inbound_request_items(IN c_member_id varchar(15), IN c_inbound_request_id char(12))
 begin
-	select C.coffee_name, C.coffee_id, I.inbound_request_quantity, I.inbound_request_date
+	select C.coffee_name, C.coffee_id, I.inbound_request_quantity, I.inbound_request_date, I.inbound_request_item_id
 	from inbound_request_items I
     join coffees C on I.coffee_id = C.coffee_id
     join inbound_request R on I.inbound_request_id = R.inbound_request_id
@@ -443,7 +436,7 @@ CALL show_one_inbound_request_items(@member_id_one_item, @inbound_request_id_one
 
 ### 입고 고지서를 입력하는 프로시저
 
-drop procedure create_inbound_receipt;
+drop procedure if exists create_inbound_receipt;
 delimiter @@
 create procedure create_inbound_receipt(IN c_inbound_request_id char(12), IN c_member_id varchar(15), IN c_inbound_receipt TEXT)
 begin
@@ -469,7 +462,7 @@ SELECT * FROM inbound_request WHERE inbound_request_id = @receipt_request_id;
 
 ### 회원의 입고 현황 조회 프로시저
 -- 승인된 입고 현황을 기간별로 조회
-drop procedure show_inbound_period;
+drop procedure if exists show_inbound_period;
 delimiter @@
 create procedure show_inbound_period(IN c_member_id varchar(15), IN start_date date, IN end_date date)
 begin
@@ -486,7 +479,8 @@ delimiter ;
 -- show_inbound_period 프로시저 테스트
 -- 테스트를 위해 입고 현황을 조회할 회원의 ID와 날짜 범위를 선택합니다.
 -- 입고 요청 상세 내역이 존재하는 회원 중 한 명을 선택합니다.
-SET @member_id_period = (SELECT member_id FROM inbound_request_items ORDER BY RAND() LIMIT 1);
+SET @member_id_period = (
+SELECT member_id FROM inbound_request_items ORDER BY RAND() LIMIT 1);
 -- 조회 시작 날짜를 현재 날짜로부터 1년 전으로 설정합니다.
 SET @start_date = DATE_SUB(CURDATE(), INTERVAL 1 YEAR);
 -- 조회 종료 날짜를 현재 날짜로 설정합니다.
@@ -497,7 +491,7 @@ CALL show_inbound_period(@member_id_period, @start_date, @end_date);
 
 
 -- 월별 입고현황 조회
-drop procedure show_inbound_month;
+drop procedure if exists show_inbound_month;
 delimiter @@
 create procedure show_inbound_month(IN c_member_id varchar(15), IN mon int)
 begin
@@ -521,3 +515,9 @@ SET @month_to_show = (SELECT MONTH(I.inbound_request_date) FROM inbound_request_
 
 -- 프로시저를 호출하여 해당 회원의 월별 입고 현황을 조회합니다.
 CALL show_inbound_month(@member_id_month, @month_to_show);
+
+
+-- get 창고 위치 프로시저
+select * from location_places;
+
+select * from inbound_request_items;

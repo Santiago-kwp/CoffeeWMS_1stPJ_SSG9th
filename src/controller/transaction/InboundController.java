@@ -3,13 +3,17 @@ package controller.transaction;
 import command.Command;
 import command.transaction.CreateInboundRequestCommand;
 import command.transaction.ShowApprovedRequestsCommand;
+import command.transaction.ShowAvailableLocationPlacesCommand;
 import command.transaction.ShowMemberUnapprovedCommand;
 import command.transaction.ShowUnapprovedRequestsCommand;
 
+import constant.transaction.TransactionText;
 import constant.transaction.ValidCheck;
 import domain.transaction.Coffee;
+import domain.transaction.InboundItem;
 import domain.transaction.InboundRequest;
 
+import domain.transaction.LocationPlace;
 import java.sql.Connection;
 
 import java.util.ArrayList;
@@ -33,9 +37,10 @@ public class InboundController {
   private InboundService inboundService;
   private final InboundView inboundView;
 
-  public InboundController(Connection connection, InboundView inboundView) {
+  public InboundController(InboundView inboundView) {
     // 입고 컨트롤러는 입고 서비스에 의존한다. 입고 Dao에 직접 의존하지 않음 => 약한 결합
-    this.inboundService = new InboundServiceImpl(connection);
+    // 컨트롤러는 사용자의 요청을 받고, 어떤 서비스를 호출할지만 결정하자
+    this.inboundService = new InboundServiceImpl();
     this.inboundView = inboundView;
   }
 
@@ -63,7 +68,7 @@ public class InboundController {
 
       switch (choice) {
         case 1:
-          submitNewInboundRequest();
+          submitNewInboundRequest(memberId);
           break;
         case 2:
           showUnapprovedRequests(memberId);
@@ -72,9 +77,7 @@ public class InboundController {
           showApprovedInboundStatus(memberId);
           break;
         case 4:
-          // 합치면 뒤로 가기로 로그인 메인 페이지로 가도록!
-          inboundView.displayMessage("프로그램을 종료합니다.");
-          running = false;
+          // running = false;
           break;
         default:
           inboundView.displayMessage("잘못된 입력입니다. 다시 시도하세요.");
@@ -86,21 +89,19 @@ public class InboundController {
    * 1번 메뉴: 입고 요청
    * 사용자로부터 입고 요청에 필요한 데이터를 받아 커맨드 객체를 생성하고 실행합니다.
    */
-  private void submitNewInboundRequest() {
+  private void submitNewInboundRequest(String memberId) {
     // 뷰를 통해 입고 가능한 커피 목록을 보여줌
     inboundView.displayCoffees(inboundService.getAllCoffees());
 
     // 사용자로부터 필요한 데이터 입력 받기
-//    String memberId = inboundView.getStringInput("회원 ID를 입력하세요: ");
-//    String managerId = inboundView.getStringInput("관리자 ID를 입력하세요: ");
     String itemsJson = inboundView.getJsonInput("입고 요청 상품ID 및 수량을 입력하세요. exit 입력시 종료됩니다.");
     Date requestDate = inboundView.getDateInput("입고 요청 날짜를 입력하세요. ");
 
     // DTO 객체 생성 및 데이터 주입
     InboundRequest newRequest = new InboundRequest();
     newRequest.setInboundRequestId("REQ" + UUID.randomUUID().toString().substring(0, 8)); // 고유 ID 생성
-    newRequest.setMemberId("member12346"); // 나중에 합치면 받아야 함
-    newRequest.setManagerId("manager1235"); // 마찬가지
+    newRequest.setMemberId(memberId);
+    newRequest.setManagerId(TransactionText.WMSADMIN.getText()); // 얘는 일단 후순위로 처리하기
     newRequest.setRequestItemsJson(itemsJson);
     newRequest.setInboundRequestDate(requestDate);
 
@@ -117,7 +118,6 @@ public class InboundController {
    */
   public List<String> showUnapprovedRequests(String memberId) {
     inboundView.displayMessage("미승인된 입고 요청 내역을 조회합니다.");
-    memberId = "member12346"; // 병합시 받아서 넣어야 함.
 
     // 커맨드 생성 및 실행
     ShowUnapprovedRequestsCommand showCommand = new ShowUnapprovedRequestsCommand(inboundService, memberId);
@@ -142,7 +142,6 @@ public class InboundController {
    */
   private void showApprovedInboundStatus(String memberId) {
     inboundView.displayMessage("승인된 입고 완료 현황을 조회합니다.");
-    memberId = "member12347"; // 병합시 받아서 넣어야 함.
 
     // 커맨드 객체 생성 및 실행
     ShowApprovedRequestsCommand command = new ShowApprovedRequestsCommand(inboundService,memberId);
@@ -156,13 +155,11 @@ public class InboundController {
   }
 
 
-  /*
-  관리자
-   */
+
   /**
-   * 애플리케이션의 메인 루프를 실행하여 회원 사용자와 상호작용하는 메소드
+   * 애플리케이션의 메인 루프를 실행하여 관리자 사용자와 상호작용하는 메소드
    */
-  public void runManager() {
+  public void runManager(String managerId) {
     boolean running = true;
     while (running) {
       inboundView.displayManagerInboundMenu();
@@ -210,26 +207,27 @@ public class InboundController {
       String memberId = inboundView.getMemberId(requests, "조회할 회원의 ID를 입력하세요.");
 
       // 해당하는 회원의 입고 요청 정보를 사용자에게 출력
-      showUnapprovedRequests(memberId);
+      List<String> unapprovedRequestIdList = showUnapprovedRequests(memberId);
 
       // 해당하는 회원의 입고 요청 정보를 처리하는 메소드 호출
-      processInboundRequest(memberId);
+      processInboundRequest(memberId, unapprovedRequestIdList);
 
   }
 
   // 관리자가 해당 회원의 입고 요청 정보를 처리하는 메소드
-  public void processInboundRequest(String memberId) {
+  public void processInboundRequest(String memberId, List<String> unapprovedRequestIdList) {
     // 뷰에서 해당 회원의 여러 건의 입고 요청 중 관리자가 승인할 입고 요청 건의 ID를 받음.
-//    String inboundRequestId = inboundView.getInboundRequestIdByMember(memberId, inboundRequestId);
+    String inboundRequestId = inboundView.getInboundRequestIdByMember(memberId, unapprovedRequestIdList, "회원의 입고 요청 ID를 입력해주세요.");
 
     // 뷰에서 해당 회원의 입고 요청 승인 여부를 사용자에게 출력하고 사용자의 승인 여부를 받음
-    int choice = inboundView.getInboundRequestGrant(memberId);
-
+    int choice = inboundView.getInboundRequestGrant(memberId, inboundRequestId);
 
     switch (choice) {
       // 승인한 경우 입고 처리 프로세스 진행
       case 1:
-//        processInboundRequestByMember(memberId, inboundRequestId);
+        // 창고 위치를 먼저 보여주고
+        String locationPlaceId = getAvailableLocationPlaces();
+        processInboundRequestByMember(memberId, inboundRequestId, locationPlaceId);
         break;
       case 0:
         // 승인하지 않은 경우 다시 회원의 입고 요청 목록을 보여줌
@@ -242,9 +240,7 @@ public class InboundController {
   }
 
   // 한 회원의 입고 요청 상품 재고 업데이트
-  private void processInboundRequestByMember(String memberId) {
-    //
-
+  private void processInboundRequestByMember(String memberId, String inboundRequestId, String locationPlaceId) {
 
     /*
     SET v_coffee_id = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].coffee_id')));
@@ -252,9 +248,13 @@ public class InboundController {
     SET v_quantity = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].quantity')));
     SET v_inbound_request_item_id = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].inbound_request_item_id')));
      */
-
-
     // DTO 객체 생성 및 데이터 주입
+    InboundItem inboundItem = new InboundItem(
+
+    );
+
+
+//    DTO 객체 생성 및 데이터 주입
 //    InboundRequest newRequest = new InboundRequest();
 //    newRequest.setInboundRequestId("REQ" + UUID.randomUUID().toString().substring(0, 8)); // 고유 ID 생성
 //    newRequest.setMemberId("member12346"); // 나중에 합치면 받아야 함
@@ -262,12 +262,26 @@ public class InboundController {
 //    newRequest.setRequestItemsJson(itemsJson);
 //    newRequest.setInboundRequestDate(requestDate);
 
-    // 커맨드 생성 및 실행
+//    커맨드 생성 및 실행
 //    Command createCommand = new CreateInboundRequestCommand(inboundService, newRequest);
 //    executeCommand(createCommand);
 
 
   }
+
+  // 가능한 창고 위치를 보여주고 창고 위치ID를 반환하는 메소드
+  public String getAvailableLocationPlaces() {
+    // 커맨드 객체 생성 및 실행
+    ShowAvailableLocationPlacesCommand showCommand = new ShowAvailableLocationPlacesCommand(inboundService);
+    executeCommand(showCommand);
+
+    // 실행 결과 가져오기
+    List<LocationPlace> locationPlaces = showCommand.getResult();
+
+    // 뷰에서 보여주고, 사용자에게 창고 위치ID를 받아오기
+    return inboundView.showAvailableLocationPlaces(locationPlaces);
+  }
+
 
 
 }
