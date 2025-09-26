@@ -88,13 +88,13 @@ BEGIN
     PREPARE deleteQuery FROM @deleteMember;
     EXECUTE deleteQuery USING @loginID, @loginID;
     
-    SET @deleteInfo = 'update users set user_approval = \'\' where user_id = ?';
+    SET @deleteInfo = 'update users set user_approval = \'삭제됨\' where user_id = ? and user_approval = \'승인완료\'';
     PREPARE deleteQuery FROM @deleteInfo;
     EXECUTE deleteQuery USING @loginID;
     
     DEALLOCATE PREPARE deleteQuery;
     
-    select count(member_id) into deleteCount from members where member_id = concat('del_', @loginID);
+    select count(member_id) into deleteCount from members where member_
 END $$
 DELIMITER ;
 

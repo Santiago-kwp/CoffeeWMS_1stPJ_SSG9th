@@ -24,6 +24,7 @@ VALUES
 ('usera004', '승인완료', 'userpass04', '스타벅스', '010-2222-0004', 'usera04@starbucks.com', '111-11-11111', '서울시 종로구', '2023-03-13', '일반회원'),
 ('usera005', '미승인', 'userpass05', '스타벅스', '010-2222-0005', 'usera05@starbucks.com', '111-11-11111', '서울시 중구', '2023-03-14', '일반회원');
 
+
 -- 일반회원 (투썸플레이스: 5명)
 INSERT INTO users (user_id, user_approval, user_pwd, user_name, user_phone, user_email, user_company_code, user_address, user_join_date, user_type)
 VALUES

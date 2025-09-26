@@ -74,19 +74,22 @@ CREATE PROCEDURE manager_delete(IN currentID varchar(15), OUT deleteCount int)
 BEGIN
     -- 회원 정보 삭제: 삭제 시 아이디 중복으로 인해 미승인된 건까지 모두 삭제
     SET @loginID = currentID;
+    SET @beforeDelete = 0;
     SET @deleteCount = 0;
+
+    select count(*) into @beforeDelete from managers where manager_login is null;
     
-    SET @deleteManager = 'update managers set manager_id = concat(\'del_\', ?), manager_login = false where manager_id = ? and manager_login = true';
+    SET @deleteManager = 'update managers set manager_login = null where manager_id = ? and manager_login = true';
     PREPARE deleteQuery FROM @deleteManager;
-    EXECUTE deleteQuery USING @loginID, @loginID;
+    EXECUTE deleteQuery USING @loginID;
     
-    SET @deleteInfo = 'delete from users where user_id = ?';
+    SET @deleteInfo = 'update from users set user_approval = \'삭제됨\',  where user_id = ? and user_approval = \'승인완료\'';
     PREPARE deleteQuery FROM @deleteInfo;
     EXECUTE deleteQuery USING @loginID;
     
     DEALLOCATE PREPARE deleteQuery;
     
-    select count(manager_id) into deleteCount from managers where manager_id = concat('del_', @loginID);
+    select count(manager_id) into @deleteCount from managers where manager_id = currentID and manager_login is null;
 END $$
 DELIMITER ;
 
@@ -156,5 +159,61 @@ BEGIN
     EXECUTE searchByRole;
 
     DEALLOCATE PREPARE searchByRole;
+END $$
+DELIMITER ;
+
+-- 권한 수정은 현재 로그아웃한 회원을 대상으로만 진행할 수 있으며, 총관리자만 수행할 수 있다.
+-- 한번 삭제된 회원의 권한은 다시 복구되지 않는다.
+-- 일반회원 -> 관리자 또는 관리자 -> 일반회원일 경우 이미 아이디가 존재한다면 인적사항을 갱신한다.
+DROP PROCEDURE IF EXISTS update_to_another_role;
+DELIMITER $$
+CREATE PROCEDURE update_to_another_role(IN targetID varchar(15), IN previousRole varchar(10), IN newRole varchar(10))
+BEGIN
+    SET @targetID = targetID;
+    SET @previousRole = previousRole;
+    SET @newRole = newRole;
+    SET @updateRole = 'update users set user_type = ? where user_id = ? and user_approval = \'승인완료\' and user_type = ?';
+
+    PREPARE updateRole from @updateRole;
+    EXECUTE updateRole USING @newRole, @targetID, @previousRole;
+
+    DEALLOCATE PREPARE updateRole;
+END $$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS update_role_trigger;
+DELIMITER $$
+CREATE TRIGGER update_role_trigger
+    AFTER UPDATE ON users
+    FOR EACH ROW
+BEGIN
+    IF (old.user_type != new.user_type) THEN
+        IF (old.user_type = '일반회원') THEN
+            update members set member_login = null where member_id = new.user_id;
+            insert into managers
+                values(new.user_id, new.user_pwd, new.user_name,
+                   new.user_phone, new.user_email, true, now(), new.user_type);
+        END IF;
+    END IF;
+END $$
+DELIMITER ;
+
+-- 권한 삭제는 현재 로그아웃한 회원을 대상으로만 진행할 수 있으며, 총관리자만 수행할 수 있다.
+DROP PROCEDURE IF EXISTS delete_role;
+DELIMITER $$
+CREATE PROCEDURE delete_member_role(IN targetID varchar(15))
+BEGIN
+    SET @targetID = targetID;
+    SET @deleteRole = 'update members set member_login = null where member_id = ? and member_login = false';
+
+    PREPARE deleteRole FROM @deleteRole;
+    EXECUTE deleteRole USING @targetID;
+
+    SET @deleteRole = 'update users set user_type = null where user_id = ? and user_approval = \'승인완료\' and user_type = \'일반회원\'';
+
+    PREPARE deleteRole FROM @deleteRole;
+    EXECUTE deleteRole USING @targetID;
+
+    DEALLOCATE PREPARE deleteRole;
 END $$
 DELIMITER ;

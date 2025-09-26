@@ -8,6 +8,7 @@ import domain.user.User;
 import exception.user.DeleteException;
 import exception.user.NotAvailableDeleteChiefManagerException;
 import exception.user.NotHavePermissionException;
+import exception.user.NotRegisteredUserException;
 import model.user.ManagerDAO;
 
 import java.io.IOException;
@@ -50,13 +51,13 @@ public class ManagerManageMenu implements UserManageMenu {
                         quitRead = quit();
                         break;
                 }
-            } catch (NotHavePermissionException e) {
+            } catch (NotHavePermissionException | NotRegisteredUserException e) {
                 System.out.println(e.getMessage());
             }
         }
     }
 
-    public void readOneUserDetail() throws IOException, NotHavePermissionException {
+    public void readOneUserDetail() throws IOException {
         boolean quitRead = false;
         while (!quitRead) {
             System.out.print(UserPage.MANAGER_DETAIL_INFO_TITLE);
@@ -89,7 +90,7 @@ public class ManagerManageMenu implements UserManageMenu {
         User found = dao.searchUser(targetID, userType);
 
         if (userType == null || found == null) {
-            throw new RuntimeException("해당하는 회원을 찾을 수 없습니다.");
+            throw new NotRegisteredUserException("해당하는 회원을 찾을 수 없습니다.");
         }
         switch (currentManager.getPosition()) {
             case "창고관리자":
