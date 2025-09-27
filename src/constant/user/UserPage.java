@@ -145,8 +145,8 @@ public enum UserPage {
 
     public static void managerDetails(Manager manager) {
         System.out.printf(MANAGER_DETAIL.toString(),
-                manager.getId(), manager.getPwd(), manager.getName(),
-                manager.getPhone(), manager.getEmail(), manager.getHireDate(), manager.getType());
+                manager.getId(), manager.getName(), manager.getPhone(),
+                manager.getEmail(), manager.getHireDate(), manager.getType());
     }
 
     public static void userCommonInfoTitle() {
