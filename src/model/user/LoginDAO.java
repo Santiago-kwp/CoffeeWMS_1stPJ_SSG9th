@@ -106,7 +106,7 @@ public class LoginDAO {
     }
 
     public boolean register(User user) {
-        String sql = "call register(?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "call register(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBUtil.getConnection();
                 CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, user.getId());
@@ -117,10 +117,12 @@ public class LoginDAO {
             call.setString(6, user.getCompanyCode());
             call.setString(7, user.getAddress());
             call.setString(8, user.getType());
+            call.registerOutParameter(9, Types.INTEGER);
 
             call.execute();
 
-            return true;
+            int affected = call.getInt(9);
+            return affected == 1;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -129,7 +131,8 @@ public class LoginDAO {
 
     public String findID(String userEmail) {
         String sql = "{call find_userID(?, ?)}";
-        String foundID = null;
+        String foundID;
+
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, userEmail);
@@ -138,10 +141,11 @@ public class LoginDAO {
             call.execute();
 
             foundID = call.getString(2);
+            return foundID;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            return null;
         }
-        return foundID;
     }
 
     public boolean isExistID(String userID) {

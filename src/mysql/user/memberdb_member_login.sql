@@ -78,34 +78,40 @@ call login_manager('wmscargoman', 'wms123456', @userType);
 DROP PROCEDURE IF EXISTS register;
 DELIMITER $$
 CREATE PROCEDURE register(
-	IN id varchar(15), 
-    IN pwd varchar(20), 
+    IN id varchar(15),
+    IN pwd varchar(20),
     IN name varchar(10),
     IN phone varchar(13),
-    IN email varchar(30), 
-	IN company_code char(12), 
+    IN email varchar(30),
+    IN company_code char(12),
     IN address varchar(255),
-    IN register_type varchar(10)
+    IN register_type varchar(10),
+    OUT affected INT
 )
 BEGIN
-	DECLARE approval varchar(10);
-    DECLARE found_count int;
-    DECLARE admin_count int;
-    
+    DECLARE approval varchar(10);
+
     -- 중복된 아이디가 있는지 확인
-    select count(user_id) into found_count from users where user_id = id and user_approval = '승인완료';
-    select count(user_id) into admin_count from users where user_type = '총관리자';
-    
-    if (found_count > 0 or (register_type = '총관리자' and admin_count > 0)) then
-		set approval = '미승인';		-- 이미 승인완료된 아이디가 존재하면 미승인 처리
-    else
-		set approval = '승인완료';	-- 사용가능한 아이디면 승인완료처리
-    end if;
-    
+    IF EXISTS(select users.user_id from users where user_approval = '승인완료' and (user_id = id or user_type = '총관리자')) THEN
+        SET approval = '미승인';
+        SET affected = 0;
+    ELSE
+        SET approval = '승인완료';
+    END IF;
+
     -- 회원정보 추가
     insert into users
     values(id, approval, pwd, name, phone,
-	         email, company_code, address, now(), register_type);
+           email, company_code, address, now(), register_type)
+    on duplicate key update
+                         user_pwd = pwd, user_name = name, user_phone = phone, user_email = email,
+                         user_company_code = company_code, user_address = address, user_join_date = now(), user_type = register_type;
+
+    IF (register_type like '%관리자' and approval = '승인완료') THEN
+        select count(manager_id) into affected from managers where manager_id = (select user_id from users where user_id = id and user_approval = '승인완료');
+    ELSEIF (register_type = '일반회원' and approval = '승인완료') THEN
+        select count(member_id) into affected from members where member_id = (select user_id from users where user_id = id and user_approval = '승인완료');
+    END IF;
 END $$
 DELIMITER ;
 
@@ -120,15 +126,21 @@ BEGIN
 		values(
 			new.user_id, new.user_pwd, new.user_name, new.user_phone, 
 			new.user_email, new.user_company_code, new.user_address,
-			false, now(), date_add(now(), interval 1 year)
-		);
+			false, now(), date_add(now(), interval 1 year))
+		on duplicate key update
+		    member_pwd = NEW.user_pwd, member_company_name = NEW.user_name, member_phone = NEW.user_phone,
+		    member_email = new.user_email, member_company_code = NEW.user_email, member_address = NEW.user_address,
+		    member_login = false, member_start_date = now(), member_expired_date = date_add(now(), interval 1 year);
 	-- 가입승인된 회원의 가입유형이 창고관리자 또는 총관리자면 관리자 권한을 부여
 	ELSEIF (new.user_approval = '승인완료' and new.user_type like '%관리자') then
 		insert into managers
 		values(
 			new.user_id, new.user_pwd, new.user_name, new.user_phone, 
 			new.user_email, false, now(), new.user_type
-		);
+		)
+		on duplicate key update
+             manager_pwd = NEW.user_pwd, manager_name = NEW.user_name, manager_phone = NEW.user_phone,
+             manager_email = new.user_email, manager_login = false, manager_hire_date = now(), manager_position = NEW.user_type;
 	END IF;
 END $$
 DELIMITER ;
