@@ -112,6 +112,7 @@ BEGIN
     ELSEIF (register_type = '일반회원' and approval = '승인완료') THEN
         select count(member_id) into affected from members where member_id = (select user_id from users where user_id = id and user_approval = '승인완료');
     END IF;
+    commit;
 END $$
 DELIMITER ;
 
@@ -236,7 +237,7 @@ select @result;
 -- 비밀번호 변경: users 테이블의 비밀번호 변경
 DROP PROCEDURE IF EXISTS update_pwd;
 DELIMITER $$
-CREATE PROCEDURE update_pwd(IN targetID varchar(15), IN newPwd varchar(20))
+CREATE PROCEDURE update_pwd(IN targetID varchar(15), IN newPwd varchar(20), OUT affected INT)
 BEGIN
 	set @targetID = targetID;
     set @newPwd = newPwd;
@@ -246,6 +247,8 @@ BEGIN
     execute updateQuery using @newPwd, @targetID;
     
     deallocate prepare updateQuery;
+
+	SELECT COUNT(user_id) INTO affected FROM users WHERE user_id = targetID AND user_pwd = newPwd;
     commit;
 END $$
 DELIMITER ;
