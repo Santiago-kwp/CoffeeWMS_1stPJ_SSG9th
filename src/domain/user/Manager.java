@@ -1,10 +1,10 @@
 package domain.user;
 
+import constant.user.ManagerPage;
+import java.util.Date;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
@@ -22,16 +22,7 @@ public class Manager extends User {
 
     @Override
     public String toString() {
-        return "Manager{" +
-                "id='" + getId() + '\'' +
-                ", pwd='" + getPwd() + '\'' +
-                ", name='" + getName() + '\'' +
-                ", phone='" + getPhone() + '\'' +
-                ", email='" + getEmail() + '\'' +
-                ", type='" + getType() + '\'' +
-                ", login=" + login +
-                ", hireDate=" + hireDate +
-                ", position='" + position + '\'' +
-                '}';
+        return super.toString()
+                + String.format(ManagerPage.SEARCHED_MANAGER_INFO.toString(), hireDate, position);
     }
 }

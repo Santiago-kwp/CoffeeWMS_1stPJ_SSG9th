@@ -1,4 +1,5 @@
-use railway;
+# use railway;
+use testdb1;
 
 -- 권한에 따른 회원관리 기능의 허용 범위는 회원관리 유스케이스를 참조할 것
 
@@ -86,9 +87,9 @@ BEGIN
     
     SET @deleteMember = 'update members set member_login = null where member_id = ? and member_login = true';
     PREPARE deleteQuery FROM @deleteMember;
-    EXECUTE deleteQuery USING @loginID, @loginID;
+    EXECUTE deleteQuery USING @loginID;
     
-    SET @deleteInfo = 'update users set user_approval = \'삭제됨\' where user_id = ? and user_approval = \'승인완료\'';
+    SET @deleteInfo = 'update users set user_approval = \'삭제됨\', user_type = null where user_id = ? and user_approval = \'승인완료\'';
     PREPARE deleteQuery FROM @deleteInfo;
     EXECUTE deleteQuery USING @loginID;
     
@@ -97,6 +98,7 @@ BEGIN
     select count(member_id) into deleteCount
     from members
     where member_id = currentID and member_login is null;
+    commit;
 END $$
 DELIMITER ;
 

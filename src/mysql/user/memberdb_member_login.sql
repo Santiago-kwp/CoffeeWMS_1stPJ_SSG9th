@@ -1,4 +1,5 @@
-use railway;
+# use railway;
+use testdb1;
 
 #########################################################
 # 1. 로그인 메뉴의 주요 기능 구현
@@ -102,10 +103,9 @@ BEGIN
     end if;
     
     -- 회원정보 추가
-    insert into users(
-		user_id, user_approval, user_pwd, user_name, user_phone, user_email, 
-		user_company_code, user_address, user_join_date, user_type
-	) values(id, approval, pwd, name, phone, email, company_code, address, now(), register_type);
+    insert into users
+    values(id, approval, pwd, name, phone,
+	         email, company_code, address, now(), register_type);
 END $$
 DELIMITER ;
 
@@ -116,25 +116,18 @@ CREATE TRIGGER authorize
 	AFTER INSERT ON users FOR EACH ROW
 BEGIN
 	IF (new.user_approval = '승인완료' and new.user_type = '일반회원') then
-		insert into members(
-				member_id, member_pwd, member_company_name, member_phone, 
-				member_email, member_company_code, member_address,
-				member_start_date, member_expired_date
-		)
+		insert into members
 		values(
 			new.user_id, new.user_pwd, new.user_name, new.user_phone, 
 			new.user_email, new.user_company_code, new.user_address,
-			now(), date_add(now(), interval 1 year)
+			false, now(), date_add(now(), interval 1 year)
 		);
 	-- 가입승인된 회원의 가입유형이 창고관리자 또는 총관리자면 관리자 권한을 부여
 	ELSEIF (new.user_approval = '승인완료' and new.user_type like '%관리자') then
-		insert into managers(
-			manager_id, manager_pwd, manager_name, manager_phone, 
-			manager_email, manager_hire_date, manager_position
-		) 
+		insert into managers
 		values(
 			new.user_id, new.user_pwd, new.user_name, new.user_phone, 
-			new.user_email, now(), new.user_type
+			new.user_email, false, now(), new.user_type
 		);
 	END IF;
 END $$
@@ -224,6 +217,7 @@ BEGIN
     end if;
 END $$
 DELIMITER ;
+
 call has_userID('wmsAdmin', @result);
 select @result;
 
@@ -245,9 +239,9 @@ END $$
 DELIMITER ;
 
 -- 변경된 비밀번호를 members, managers 테이블에도 적용
-DROP TRIGGER IF EXISTS update_trigger;
+DROP TRIGGER IF EXISTS update_pwd_trigger;
 DELIMITER $$
-CREATE TRIGGER update_trigger
+CREATE TRIGGER update_pwd_trigger
 	AFTER UPDATE ON users
     FOR EACH ROW
 BEGIN

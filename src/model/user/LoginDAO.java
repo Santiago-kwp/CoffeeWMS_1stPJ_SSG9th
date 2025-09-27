@@ -1,14 +1,16 @@
 package model.user;
 
-
 import config.DBUtil;
 import constant.user.LoginPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-
-import exception.user.NotRegisteredUserException;
-import java.sql.*;
+import exception.user.UserNotRegisteredException;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 
 public class LoginDAO {
 
@@ -31,7 +33,7 @@ public class LoginDAO {
         try {
             String userType = searchUserTypeBy(userID, userPwd);
             if (userType == null) {
-                throw new NotRegisteredUserException(LoginPage.USER_NOT_EXIST.toString());
+                throw new UserNotRegisteredException(LoginPage.USER_NOT_EXIST.toString());
             }
             if (userType.endsWith("관리자")) {
                 return loginManager(userID, userPwd, userType);
@@ -105,7 +107,8 @@ public class LoginDAO {
 
     public boolean register(User user) {
         String sql = "call register(?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DBUtil.getConnection(); CallableStatement call = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+                CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, user.getId());
             call.setString(2, user.getPwd());
             call.setString(3, user.getName());

@@ -1,12 +1,12 @@
 package controller.user;
 
 import constant.user.LoginPage;
+import constant.user.MemberPage;
 import constant.user.UserPage;
 import domain.user.Member;
 import domain.user.User;
-import model.user.MemberDAO;
-
 import java.io.IOException;
+import model.user.MemberDAO;
 
 public class MemberManageMenu implements UserManageMenu {
 
@@ -17,7 +17,7 @@ public class MemberManageMenu implements UserManageMenu {
     }
 
     public void printMenu() {
-        System.out.print(UserPage.MEMBER_MEMBER_MENU_TITLE);
+        System.out.print(MemberPage.MEMBER_MANAGEMENT_MENU_TITLE);
     }
 
     public void read() throws IOException {
@@ -25,17 +25,17 @@ public class MemberManageMenu implements UserManageMenu {
         System.out.println(UserPage.CURRENT_USER_SELECT);
         Member member = dao.searchUserDetails();
         // 현재 회원 정보 조회
-        UserPage.memberDetails(member);
+        MemberPage.memberDetails(member);
     }
 
     public void update() throws IOException {
         User newUserInfo = inputNewMember();
         boolean ack = dao.updateUserInfo(newUserInfo);
-        System.out.println(ack ? UserPage.MEMBER_UPDATE : UserPage.MEMBER_UPDATE_FAILED);
+        System.out.println(ack ? UserPage.USER_UPDATE : UserPage.USER_UPDATE_FAILED);
     }
 
     private User inputNewMember() throws IOException {
-        System.out.println(UserPage.MEMBER_UPDATE_TITLE);
+        System.out.println(MemberPage.MEMBER_UPDATE_TITLE);
         System.out.println(LoginPage.INPUT_PWD);
         String userPwd = input.readLine();
         System.out.println(LoginPage.INPUT_COMPANY_NAME);
@@ -61,7 +61,7 @@ public class MemberManageMenu implements UserManageMenu {
 
     public boolean delete() {
         try {
-            System.out.println(UserPage.USER_DELETE_TITLE);
+            System.out.print(UserPage.USER_DELETE_TITLE);
             String yesOrNo = input.readLine();
             if (!yesOrNo.equalsIgnoreCase("Y")) {
                 System.out.println(UserPage.USER_NOT_DELETE);

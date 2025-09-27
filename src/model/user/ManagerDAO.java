@@ -4,7 +4,6 @@ import config.DBUtil;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -28,7 +27,7 @@ public class ManagerDAO implements UserDAO {
 
     @Override
     public boolean updateUserInfo(User newInfo) {
-        String sql = "{call manager_update(?, ?, ?, ?, ?, ?, ?)}";
+        String sql = "{call manager_update(?, ?, ?, ?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, manager.getId());
@@ -187,11 +186,58 @@ public class ManagerDAO implements UserDAO {
         return searchResult;
     }
 
-    public boolean updateRole(String targetID, String newRole) {
-        return false;
+    public boolean approve(String targetID, boolean isRestore) {
+        String sql = isRestore
+                ? "{call restore_user(?, ?)}"
+                : "{call approve_user(?, ?)}";
+        try (Connection conn = DBUtil.getConnection();
+                CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, targetID);
+            call.registerOutParameter(2, Types.INTEGER);
+
+            call.execute();
+
+            int affected = call.getInt(2);
+            return affected == 1;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
-    public boolean deleteRole(String targetID, String newRole) {
+    public boolean updateRole(String targetID, String newRole) {
+        String sql = "{call update_role(?, ?, ?)}";
+        try (Connection conn = DBUtil.getConnection();
+                CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, targetID);
+            call.setString(2, newRole);
+            call.registerOutParameter(3, Types.INTEGER);
+
+            call.execute();
+
+            int affected = call.getInt(3);
+            return affected == 1;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean deleteRole(String targetID, String targetType) {
+        String sql = "{call delete_role(?, ?, ?)}";
+        try (Connection conn = DBUtil.getConnection();
+                CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, targetID);
+            call.setString(2, targetType);
+            call.registerOutParameter(3, Types.INTEGER);
+
+            call.execute();
+
+            int affected = call.getInt(3);
+            return affected == 1;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
         return false;
     }
 }

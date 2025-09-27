@@ -3,7 +3,6 @@ package model.user;
 import config.DBUtil;
 import domain.user.Member;
 import domain.user.User;
-
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -58,7 +57,7 @@ public class MemberDAO implements UserDAO {
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, member.getId());
-            call.setInt(2, Types.INTEGER);
+            call.registerOutParameter(2, Types.INTEGER);
             call.execute();
 
             int affected = call.getInt(2);

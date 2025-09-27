@@ -1,3 +1,5 @@
+use testdb1;
+
 -- 총관리자 (1명)
 INSERT INTO users (user_id, user_approval, user_pwd, user_name, user_phone, user_email, user_company_code, user_address, user_join_date, user_type)
 VALUES ('wmsAdmin', '승인완료', 'admin1234', '총관리자', '010-0000-0000', 'admin@wms.com', NULL, '서울시 강남구', '2023-01-15', '총관리자');

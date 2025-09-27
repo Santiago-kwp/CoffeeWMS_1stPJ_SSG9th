@@ -1,7 +1,6 @@
 package controller.user;
 
 import constant.user.UserPage;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,18 +18,10 @@ public interface UserManageMenu {
                 printMenu();
                 String menuNum = input.readLine();
                 switch (menuNum) {
-                    case "1":
-                        read();
-                        break;
-                    case "2":
-                        update();
-                        break;
-                    case "3":
-                        hasLogout = delete();
-                        break;
-                    case "4":
-                        quitMenu = exitMenu();
-                        break;
+                    case "1" -> read();
+                    case "2" -> update();
+                    case "3" -> hasLogout = delete();
+                    case "4" -> quitMenu = exitMenu();
                 }
             } catch (IOException e) {
                 System.out.println(e.getMessage());
@@ -41,7 +32,7 @@ public interface UserManageMenu {
 
     default boolean exitMenu() {
         boolean quitMenu = true;
-        System.out.println(UserPage.USER_MENU_PREVIOUS);
+        System.out.println(UserPage.TO_PREVIOUS_MENU);
         return quitMenu;
     }
 

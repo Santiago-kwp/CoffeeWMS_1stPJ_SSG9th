@@ -1,5 +1,6 @@
 package domain.user;
 
+import constant.user.UserPage;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,13 +41,6 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "id='" + id + '\'' +
-                ", pwd='" + pwd + '\'' +
-                ", name='" + name + '\'' +
-                ", phone='" + phone + '\'' +
-                ", email='" + email + '\'' +
-                ", type='" + type + '\'' +
-                '}';
+        return String.format(UserPage.SEARCHED_COMMON_INFO.toString(), id, pwd, name, phone, email, type);
     }
 }
