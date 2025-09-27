@@ -115,8 +115,9 @@ public class LoginDAO {
             call.setString(7, user.getAddress());
             call.setString(8, user.getType());
 
-            int affected = call.executeUpdate();
-            return affected > 0;
+            call.execute();
+
+            return true;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
