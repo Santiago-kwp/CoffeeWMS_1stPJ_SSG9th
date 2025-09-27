@@ -1,4 +1,5 @@
-use testdb1;
+use railway;
+# use testdb1;
 
 -- 총관리자 (1명)
 INSERT INTO users (user_id, user_approval, user_pwd, user_name, user_phone, user_email, user_company_code, user_address, user_join_date, user_type)

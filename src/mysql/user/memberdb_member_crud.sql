@@ -1,5 +1,5 @@
-# use railway;
-use testdb1;
+use railway;
+# use testdb1;
 
 -- 권한에 따른 회원관리 기능의 허용 범위는 회원관리 유스케이스를 참조할 것
 

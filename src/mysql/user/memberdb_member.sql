@@ -1,4 +1,5 @@
-use testdb1;
+use railway;
+# use testdb1;
 -- 회원정보(권한요청) 테이블 생성
 -- user_type 속성값이 null이면 회원의 권한이 삭제된 것으로 취급
 -- user_approval 속성값에 '삭제됨' 추가
