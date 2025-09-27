@@ -164,12 +164,12 @@ BEGIN
 END $$
 DELIMITER ;
 
-# 회원 권한 부여(완료)
--- 권한 부여는 아무 권한이 없는 회원을 대상으로 진행하며, 총관리자와 창고관리자 모두 수행할 수 있다.
+# 회원 권한 복구(완료)
+-- 권한 복구는 아무 권한이 없는 회원을 대상으로 진행하며, 총관리자와 창고관리자 모두 수행할 수 있다.
 -- 단, 창고관리자는 일반회원 권한만 부여할 수 있다.
-DROP PROCEDURE IF EXISTS update_role;
+DROP PROCEDURE IF EXISTS restore_role;
 DELIMITER $$
-CREATE PROCEDURE update_role(IN targetID varchar(15), IN newRole varchar(10), OUT updateCount INT)
+CREATE PROCEDURE restore_role(IN targetID varchar(15), IN newRole varchar(10), OUT updateCount INT)
 BEGIN
     SET @targetID = targetID;
     SET @newRole = newRole;
@@ -205,14 +205,9 @@ CREATE TRIGGER update_to_member_trigger
     FOR EACH ROW
 BEGIN
     IF (OLD.user_type is null and NEW.user_type = '일반회원') THEN
-        insert into members     -- 새로운 권한을 부여
-            select user_id, user_pwd, user_name,
-               user_phone, user_email, user_company_code,
-               user_address, false, now(), date_add(now(), interval 1 year)
-            from users
-            where user_id = new.user_id and user_approval = '승인완료'
-        on duplicate key update  -- 이미 해당 아이디로 권한을 부여받은 적 있던 회원인 경우
-            member_login = false;
+        IF EXISTS(select members.member_id from members where members.member_id = NEW.user_id) THEN
+            update members set member_login = false where member_id = NEW.user_id;
+        END IF;
     END IF;
 END $$
 DELIMITER ;
@@ -225,18 +220,14 @@ CREATE TRIGGER update_to_manager_trigger
     FOLLOWS update_to_member_trigger
 BEGIN
     IF (OLD.user_type is null and NEW.user_type = '창고관리자') THEN
-        insert into managers
-            select user_id, user_pwd, user_name,
-                   user_phone, user_email, false, now(), NEW.user_type
-            from users
-            where user_id = NEW.user_id and user_approval = '승인완료'
-        on duplicate key update
-            manager_login = false, manager_position = NEW.user_type;
+        IF EXISTS(select managers.manager_id from managers where managers.manager_id = NEW.user_id) THEN
+            update managers set manager_login = false, manager_position = NEW.user_type where manager_id = NEW.user_id;
+        END IF;
     END IF;
 END $$
 DELIMITER ;
 
--- 회원 승인: 승인완료된 계정이 없으면,
+-- 회원 승인: 같은 아이디로 승인완료된 계정이 없으면, 미승인된 아이디를 승인한다.
 DROP PROCEDURE IF EXISTS approve_user;
 DELIMITER $$
 CREATE PROCEDURE approve_user(IN targetID varchar(15), OUT affected INT)
