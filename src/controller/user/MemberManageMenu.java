@@ -35,7 +35,7 @@ public class MemberManageMenu implements UserManageMenu {
 
     @Override
     public void update() throws IOException {
-        User newUserInfo = inputNewMember();
+        User newUserInfo = inputNewMemberInfo();
         boolean ack = dao.updateUserInfo(newUserInfo);
         if (!ack) {
             throw new UserNotUpdatedException(UserPage.USER_UPDATE_FAILED.toString());
@@ -43,7 +43,7 @@ public class MemberManageMenu implements UserManageMenu {
         System.out.println(UserPage.USER_UPDATE);
     }
 
-    private User inputNewMember() throws IOException {
+    private User inputNewMemberInfo() throws IOException {
         System.out.println(MemberPage.MEMBER_UPDATE_TITLE);
         System.out.println(LoginPage.INPUT_PWD);
         String userPwd = input.readLine();

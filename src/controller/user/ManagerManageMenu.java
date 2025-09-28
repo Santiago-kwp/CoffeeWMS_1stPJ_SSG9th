@@ -44,7 +44,7 @@ public class ManagerManageMenu implements UserManageMenu {
                 String menuNum = input.readLine();
                 switch (menuNum) {
                     case "1" -> readOneUserDetail();
-                    case "2" -> readAllUser();
+                    case "2" -> readAllUsers();
                     case "3" -> readUsersByRole();
                     case "4" -> quitRead = quit();
                 }
@@ -113,7 +113,7 @@ public class ManagerManageMenu implements UserManageMenu {
     }
 
     // 권한에 관계없이 전체 회원 조회(승인된 회원의 공통 정보만 조회)
-    public void readAllUser() {
+    public void readAllUsers() {
         if (!currentManager.getPosition().equals("총관리자")) {
             throw new UserNotHavePermissionException(ManagerPage.NOT_HAVE_PERMISSION.toString());
         }
@@ -177,9 +177,9 @@ public class ManagerManageMenu implements UserManageMenu {
                 System.out.print(ManagerPage.MANAGER_UPDATE_TITLE);
                 String menuNum = input.readLine();
                 switch (menuNum) {
-                    case "1" -> updateCurrentManager();
+                    case "1" -> updateCurrentUser();
                     case "2" -> approveUser();
-                    case "3" -> updateUserRole();
+                    case "3" -> restoreUserRole();
                     case "4" -> restoreUser();
                     case "5" -> quitUpdate = quit();
                 }
@@ -193,7 +193,7 @@ public class ManagerManageMenu implements UserManageMenu {
         }
     }
 
-    public void updateCurrentManager() throws IOException {
+    public void updateCurrentUser() throws IOException {
         User newUserInfo = inputNewManagerInfo();
         boolean ack = dao.updateUserInfo(newUserInfo);
         if (!ack) {
@@ -237,7 +237,7 @@ public class ManagerManageMenu implements UserManageMenu {
 
     // 아무런 권한이 없는 회원에게 권한을 부여
     // 창고관리자는 일반회원 권한만 부여 가능
-    public void updateUserRole() throws IOException {
+    public void restoreUserRole() throws IOException {
         System.out.print(ManagerPage.INPUT_ID_FOR_UPDATE_ROLE);
         String targetID = input.readLine();
         String userType = dao.searchUserTypeBy(targetID);
