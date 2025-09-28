@@ -1,6 +1,7 @@
 package controller.user;
 
 import constant.user.UserPage;
+import constant.user.validation.UserManagementValidCheck;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,6 +9,7 @@ import java.io.InputStreamReader;
 public interface UserManageMenu {
 
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    UserManagementValidCheck validCheck = new UserManagementValidCheck();
 
     default boolean run() {
         boolean quitMenu = false;
@@ -17,6 +19,7 @@ public interface UserManageMenu {
             try {
                 printMenu();
                 String menuNum = input.readLine();
+                validCheck.checkMenuNum("^[1-4]", menuNum);
                 switch (menuNum) {
                     case "1" -> read();
                     case "2" -> update();
