@@ -3,7 +3,7 @@ package controller.user;
 import constant.user.LoginPage;
 import domain.user.User;
 import exception.user.LoginException;
-import exception.user.UserIDNotFoundException;
+import exception.user.UserNotFoundException;
 import exception.user.UserNotRegisteredException;
 import exception.user.UserNotUpdatedException;
 import java.io.BufferedReader;
@@ -42,27 +42,27 @@ public class LoginMenu {
                     case "4" -> updatePassword();
                     case "5" -> exitLoginMenu();
                 }
-            } catch (IOException | LoginException e) {
+            } catch (IOException
+                     | LoginException
+                     | UserNotRegisteredException
+                     | UserNotFoundException
+                     | UserNotUpdatedException e) {
                 System.out.println(e.getMessage());
             }
         }
     }
 
-    public void login() throws IOException {
+    public void login() throws IOException, LoginException {
         System.out.println(LoginPage.INPUT_ID);
         String userID = input.readLine();
         System.out.println(LoginPage.INPUT_PWD);
         String userPwd = input.readLine();
-
         User loginUser = dao.login(userID, userPwd);
-        if (loginUser == null) {
-            throw new LoginException(LoginPage.CANNOT_LOGIN.toString());
-        }
         WMSMenu wmsMenu = new WMSMenu(loginUser);
         wmsMenu.run();
     }
 
-    public void register() throws IOException {
+    public void register() throws IOException, UserNotRegisteredException {
         LoginPage.print(LoginPage.SIGN_UP);
         System.out.print(LoginPage.REGISTER_OR_NOT);
         String yesOrNo = input.readLine();
@@ -141,9 +141,8 @@ public class LoginMenu {
         System.out.println(LoginPage.INPUT_EMAIL);
         String userEmail = input.readLine();
         String foundID = dao.findID(userEmail);
-
         if (foundID == null) {
-            throw new UserIDNotFoundException(LoginPage.NOT_FOUND_ID.toString());
+            throw new UserNotFoundException(LoginPage.NOT_FOUND_ID.toString());
         }
         System.out.printf(LoginPage.FOUND_ID.toString(), foundID);
     }
@@ -154,7 +153,7 @@ public class LoginMenu {
         String userID = input.readLine();
 
         if (!dao.isExistID(userID)) {
-            throw new UserIDNotFoundException(LoginPage.USER_NOT_EXIST.toString());
+            throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString());
         }
         System.out.println(LoginPage.NEW_PASSWORD);
         String newPassword = input.readLine();

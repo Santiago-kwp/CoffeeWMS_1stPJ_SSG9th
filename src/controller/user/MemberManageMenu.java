@@ -5,6 +5,9 @@ import constant.user.MemberPage;
 import constant.user.UserPage;
 import domain.user.Member;
 import domain.user.User;
+import exception.user.UnableToReadUserException;
+import exception.user.UserNotDeletedException;
+import exception.user.UserNotUpdatedException;
 import java.io.IOException;
 import model.user.MemberDAO;
 
@@ -20,18 +23,24 @@ public class MemberManageMenu implements UserManageMenu {
         System.out.print(MemberPage.MEMBER_MANAGEMENT_MENU_TITLE);
     }
 
-    public void read() throws IOException {
-        // 일반회원이면 자신만 조회
+    @Override
+    public void read() {
         System.out.println(UserPage.CURRENT_USER_SELECT);
         Member member = dao.searchUserDetails();
-        // 현재 회원 정보 조회
+        if (member == null) {
+            throw new UnableToReadUserException(UserPage.CANNOT_SEARCH_USER.toString());
+        }
         MemberPage.details(member);
     }
 
+    @Override
     public void update() throws IOException {
         User newUserInfo = inputNewMember();
         boolean ack = dao.updateUserInfo(newUserInfo);
-        System.out.println(ack ? UserPage.USER_UPDATE : UserPage.USER_UPDATE_FAILED);
+        if (!ack) {
+            throw new UserNotUpdatedException(UserPage.USER_UPDATE_FAILED.toString());
+        }
+        System.out.println(UserPage.USER_UPDATE);
     }
 
     private User inputNewMember() throws IOException {
@@ -59,6 +68,7 @@ public class MemberManageMenu implements UserManageMenu {
         return user;
     }
 
+    @Override
     public boolean delete() {
         try {
             System.out.print(UserPage.USER_DELETE_TITLE);
@@ -67,16 +77,15 @@ public class MemberManageMenu implements UserManageMenu {
                 System.out.println(UserPage.USER_NOT_DELETE);
                 return false;
             }
-
             boolean ack = dao.deleteUserInfo();
-            if (ack) {
-                System.out.println(UserPage.USER_DELETE);
-                return true;
+            if (!ack) {
+                throw new UserNotDeletedException(UserPage.USER_DELETE_FAILED.toString());
             }
-            System.out.println(UserPage.USER_DELETE_FAILED);
+            System.out.println(UserPage.USER_DELETE);
+            return true;
         } catch (IOException e) {
             System.out.println(e.getMessage());
+            return false;
         }
-        return false;
     }
 }

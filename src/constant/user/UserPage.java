@@ -3,6 +3,7 @@ package constant.user;
 public enum UserPage {
 
     CURRENT_USER_SELECT("현재 회원정보를 조회합니다."),
+    CANNOT_SEARCH_USER_TYPE("회원유형을 알 수 없습니다."),
     CANNOT_SEARCH_USER("조회할 수 있는 회원이 없습니다."),
 
     USER_UPDATE_TITLE("""

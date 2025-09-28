@@ -25,14 +25,9 @@ public class ManagerManageMenu implements UserManageMenu {
     private final ManagerDAO dao;
     private final Manager currentManager;
 
-    private List<User> allUsers;
-
     public ManagerManageMenu(Manager manager) {
         this.currentManager = manager;
         this.dao = new ManagerDAO(manager);
-        if (currentManager.getPosition().equals("총관리자")) {
-            allUsers = dao.searchAllUser();
-        }
     }
 
     @Override
@@ -122,7 +117,7 @@ public class ManagerManageMenu implements UserManageMenu {
         if (!currentManager.getPosition().equals("총관리자")) {
             throw new UserNotHavePermissionException(ManagerPage.NOT_HAVE_PERMISSION.toString());
         }
-        allUsers = dao.searchAllUser();
+        List<User> allUsers = dao.searchAllUser();
         if (allUsers.isEmpty()) {
             throw new UnableToReadUserException(UserPage.CANNOT_SEARCH_USER.toString());
         }

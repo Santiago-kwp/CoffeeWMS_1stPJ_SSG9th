@@ -2,9 +2,12 @@ package model.user;
 
 import config.DBUtil;
 import constant.user.LoginPage;
+import constant.user.UserPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
+import exception.user.LoginException;
+import exception.user.UserNotFoundException;
 import exception.user.UserNotRegisteredException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -14,7 +17,7 @@ import java.sql.Types;
 
 public class LoginDAO {
 
-    public String searchUserTypeBy(String userID, String userPwd) throws SQLException {
+    public String searchUserTypeBy(String userID, String userPwd) {
         String sql = "{call get_user_type(?, ?, ?)}";
         String userType;
         try (Connection conn = DBUtil.getConnection();
@@ -25,6 +28,8 @@ public class LoginDAO {
             call.execute();
 
             userType = call.getString(3);
+        } catch (SQLException e) {
+            throw new UserNotFoundException(UserPage.CANNOT_SEARCH_USER_TYPE.toString(), e);
         }
         return userType;
     }
@@ -33,19 +38,18 @@ public class LoginDAO {
         try {
             String userType = searchUserTypeBy(userID, userPwd);
             if (userType == null) {
-                throw new UserNotRegisteredException(LoginPage.USER_NOT_EXIST.toString());
+                throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString());
             }
             if (userType.endsWith("관리자")) {
                 return loginManager(userID, userPwd, userType);
             }
             return loginMember(userID, userPwd, userType);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
+        } catch (UserNotFoundException e) {
+            throw new LoginException(LoginPage.CANNOT_LOGIN.toString(), e);
         }
-        return null;
     }
 
-    public Manager loginManager(String userID, String userPwd, String userType) throws SQLException {
+    public Manager loginManager(String userID, String userPwd, String userType) {
         String sql = "{call login_manager(?, ?, ?)}";
         Manager manager = null;
 
@@ -71,11 +75,13 @@ public class LoginDAO {
                     manager.setHireDate(rs.getDate(7));
                 }
             } while (call.getMoreResults());
+        } catch (SQLException e) {
+            throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString(), e);
         }
         return manager;
     }
 
-    public Member loginMember(String userID, String userPwd, String userType) throws SQLException {
+    public Member loginMember(String userID, String userPwd, String userType) {
         String sql = "{call login_member(?, ?, ?)}";
         Member member = null;
         try (Connection conn = DBUtil.getConnection();
@@ -101,6 +107,8 @@ public class LoginDAO {
                     member.setExpired_date(rs.getDate(10));
                 }
             }
+        } catch (SQLException e) {
+            throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString(), e);
         }
         return member;
     }
@@ -124,9 +132,8 @@ public class LoginDAO {
             int affected = call.getInt(9);
             return affected > 0;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new UserNotRegisteredException(LoginPage.REGISTER_FAILED.toString());
         }
-        return false;
     }
 
     public String findID(String userEmail) {
