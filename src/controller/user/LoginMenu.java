@@ -38,7 +38,7 @@ public class LoginMenu {
                 switch (menuNum) {
                     case "1" -> login();
                     case "2" -> register();
-                    case "3" -> findID();
+                    case "3" -> searchID();
                     case "4" -> updatePassword();
                     case "5" -> exitLoginMenu();
                 }
@@ -84,7 +84,6 @@ public class LoginMenu {
                 ack = dao.register(newManager);
             }
         }
-
         if (!ack) {
             throw new UserNotRegisteredException(LoginPage.REGISTER_FAILED.toString());
         }
@@ -137,7 +136,7 @@ public class LoginMenu {
         return new User(userID, userPwd, name, phone, email, position);
     }
 
-    public void findID() throws IOException {
+    public void searchID() throws IOException {
         LoginPage.print(LoginPage.FIND_ID);
         System.out.println(LoginPage.INPUT_EMAIL);
         String userEmail = input.readLine();
