@@ -52,6 +52,7 @@ public enum ManagerPage {
             특정 권한을 보유한 회원 목록을 조회할 수 있습니다.
             어떤 권한을 보유한 회원을 조회할 것인지 선택해주세요.(1,2 중 택1)
             """),
+
     MANAGER_UPDATE_TITLE("""
             --------------------------<< 관리자 전용 수정 >>-----------------------------
             1.내 정보 수정 | 2.회원가입 승인 | 3.회원 권한 부여 | 4.이전 계정 복구 | 5.뒤로가기
@@ -102,7 +103,7 @@ public enum ManagerPage {
     ROLE_DELETE_FAILED("회원 권한 삭제를 완료하지 못했습니다."),
 
     NOT_HAVE_PERMISSION("권한이 낮아 해당 작업을 수행할 수 없습니다."),
-    ALREADY_DELETED_ROLE("이미 권한이 삭제된 회원입니다."),
+    ALREADY_DELETED_OR_NOT_EXIST("이미 권한이 삭제되었거나 존재하지 않는 회원입니다."),
     CHIEF_MANAGER_CANNOT_DELETE("총관리자는 삭제할 수 없습니다.");
 
     private final String page;
@@ -111,7 +112,7 @@ public enum ManagerPage {
         this.page = page;
     }
 
-    public static void managerDetails(Manager manager) {
+    public static void details(Manager manager) {
         System.out.printf(MANAGER_DETAIL.toString(),
                 manager.getId(), manager.getName(), manager.getPhone(),
                 manager.getEmail(), manager.getHireDate(), manager.getType());

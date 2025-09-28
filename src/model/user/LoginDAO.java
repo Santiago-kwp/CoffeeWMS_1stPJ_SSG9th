@@ -122,7 +122,7 @@ public class LoginDAO {
             call.execute();
 
             int affected = call.getInt(9);
-            return affected == 1;
+            return affected > 0;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -131,8 +131,7 @@ public class LoginDAO {
 
     public String findID(String userEmail) {
         String sql = "{call find_userID(?, ?)}";
-        String foundID;
-
+        String foundID = null;
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, userEmail);
@@ -141,11 +140,10 @@ public class LoginDAO {
             call.execute();
 
             foundID = call.getString(2);
-            return foundID;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return null;
         }
+        return foundID;
     }
 
     public boolean isExistID(String userID) {
@@ -165,7 +163,7 @@ public class LoginDAO {
     }
 
     public boolean updatePassword(String userID, String newPwd) {
-        String sql = "{call update_pwd(?, ?)}";
+        String sql = "{call update_pwd(?, ?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, userID);

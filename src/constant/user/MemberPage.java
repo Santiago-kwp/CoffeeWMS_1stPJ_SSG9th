@@ -42,7 +42,7 @@ public enum MemberPage {
         this.page = page;
     }
 
-    public static void memberDetails(Member member) {
+    public static void details(Member member) {
         System.out.printf(MEMBER_DETAIL.toString(),
                 member.getId(), member.getName(),
                 member.getPhone(), member.getEmail(), member.getCompanyCode(),

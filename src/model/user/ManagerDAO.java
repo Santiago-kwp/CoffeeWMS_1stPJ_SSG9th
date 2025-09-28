@@ -206,7 +206,7 @@ public class ManagerDAO implements UserDAO {
     }
 
     public boolean updateRole(String targetID, String newRole) {
-        String sql = "{call restore_role(?, ?, ?)}";
+        String sql = "{call update_role(?, ?, ?)}";
         try (Connection conn = DBUtil.getConnection();
                 CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, targetID);
@@ -237,7 +237,7 @@ public class ManagerDAO implements UserDAO {
             return affected == 1;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            return false;
         }
-        return false;
     }
 }
