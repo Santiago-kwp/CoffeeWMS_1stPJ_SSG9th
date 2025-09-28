@@ -3,6 +3,7 @@ package controller.user;
 import constant.user.WMSPage;
 import controller.support.CSMenu;
 import controller.transaction.InboundMenu;
+import controller.transaction.OutboundMenu;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
@@ -22,6 +23,7 @@ public class WMSMenu {
     private UserManageMenu userManageMenu;
     private CSMenu csMenu = new CSMenu();
     private InboundMenu inboundMenu = new InboundMenu();
+    private OutboundMenu outboundMenu = new OutboundMenu();
 
     public WMSMenu(User loginUser) {
         this.currentLoginUser = loginUser;
@@ -58,6 +60,7 @@ public class WMSMenu {
                 inboundMenu.menuMember(member.getId());
                 break;
             case "5":   // 출고
+                outboundMenu.menuMember(member.getId());
                 break;
             case "6":   // 로그아웃
                 logout(member.getId());
@@ -84,6 +87,7 @@ public class WMSMenu {
                 inboundMenu.menuManager(manager.getId());
                 break;
             case "6":   // 출고
+                outboundMenu.menuMember(manager.getId());
                 break;
             case "7":   // 로그아웃
                 logout(manager.getId());

@@ -6,6 +6,7 @@ import constant.transaction.TransactionText;
 import constant.transaction.ValidCheck;
 import controller.transaction.InboundController;
 import domain.transaction.Coffee;
+import domain.transaction.InboundItem;
 import domain.transaction.LocationPlace;
 import exception.transaction.TransactionException;
 import java.text.ParseException;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.DefaultListSelectionModel;
+import java.text.DecimalFormat;
 
 /**
  * InboundView
@@ -28,7 +30,10 @@ import javax.swing.DefaultListSelectionModel;
 public class InboundView {
   private static ValidCheck validCheck = new ValidCheck();
   private InboundController controller;
+
   private final Scanner scanner;
+
+
 
   public InboundView(InboundController controller) {
     this.controller = controller;
@@ -48,6 +53,19 @@ public class InboundView {
     System.out.println(TransactionText.MEMBER_INBOUND_HEADER.getText());
     System.out.println(TransactionText.BORDER_LINE.getText());
     System.out.println(TransactionText.MEMBER_INBOUND.getText());
+  }
+
+  public void displayInboundRequestsMenu() {
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.COMMON_INBOUND_REQUESTS_HEADER.getText());
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.COMMON_INBOUND_REQUESTS_LIST.getText());
+  }
+  public void displayManagerInboundRequestsMenu() {
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.COMMON_INBOUND_REQUESTS_HEADER.getText());
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.MANAGER_INBOUND_LIST.getText());
   }
 
   public void displayManagerInboundMenu() {
@@ -78,17 +96,33 @@ public class InboundView {
   }
 
 
-  public int getIntegerInput(String s) {
-    System.out.println(s);
-    String numberInput = scanner.nextLine();
-    try {
-      validCheck.isValidForMainMenu(numberInput);
+  public int getFourIntegerInput(String s) {
+    while(true){
+      System.out.println(s);
+      String numberInput = scanner.nextLine();
+      try {
+        validCheck.isValidForMainMenu(numberInput);
+      }
+      catch (TransactionException e) {
+        System.out.println(e.getMessage());
+      }
+      return Integer.parseInt(numberInput);
     }
-    catch (TransactionException e) {
-      System.out.println(e.getMessage());
-      getIntegerInput(s);
+
+  }
+
+  public int getThreeIntegerInput(String s) {
+    while(true){
+      System.out.println(s);
+      String numberInput = scanner.nextLine();
+      try {
+        validCheck.isValidForSubMenu(numberInput);
+      }
+      catch (TransactionException e) {
+        System.out.println(e.getMessage());
+      }
+      return Integer.parseInt(numberInput);
     }
-    return Integer.parseInt(numberInput);
   }
 
   /**
@@ -100,10 +134,6 @@ public class InboundView {
   }
 
 
-  public String getStringInput(String prompt) {
-    System.out.print(prompt);
-    return scanner.nextLine();
-  }
 
   /**
    * 사용자로부터 상품 ID와 수량을 반복적으로 입력받아 JSON 형식으로 변환합니다.
@@ -113,13 +143,14 @@ public class InboundView {
    */
   public String getJsonInput(String prompt) {
     System.out.println(prompt);
+
     List<Map<String, Object>> items = new ArrayList<>();
     List<Coffee> coffees = controller.showAvailableCoffees();
 
     while (true) {
       // 예외가 발생할 수 있는 코드
       try {
-        System.out.print("커피 번호를 입력하세요 (종료: 'exit'): ");
+        System.out.printf("커피 번호를 입력하세요. ( 1 ~ %d ) | 종료: 'exit' 입력): ", coffees.size());
         String coffeeNumInput = scanner.nextLine().trim();
 
         if ("exit".equalsIgnoreCase(coffeeNumInput)) {
@@ -129,7 +160,7 @@ public class InboundView {
         // 커피 번호 유효성 검사
         validCheck.isValidCoffeeNumber(coffeeNumInput, coffees.size());
 
-        System.out.print("수량을 입력하세요: ");
+        System.out.print("수량을 입력하세요. (최소 1 ~ 최대 2,000 (단위: 포대)) :  ");
         String quantityInput = scanner.nextLine().trim();
 
         // 수량 유효성 검사
@@ -157,8 +188,7 @@ public class InboundView {
       } catch (TransactionException | NumberFormatException e) {
         // 예외가 발생하면 예외 메시지를 출력합니다.
         System.out.println(e.getMessage());
-        // 재귀호출 진행
-        getJsonInput(prompt);
+        continue;
       }
     }
 
@@ -211,42 +241,51 @@ public class InboundView {
     return date;
   }
 
-  public void displayUnapprovedRequests(List<Map<String, Object>> requests) {
-    if (requests.isEmpty()) {
-      System.out.println(TransactionText.EMPTY_UNAPPROVED_INBOUND.getText());
+
+
+  public void displayInboundRequestItems(List<InboundItem> inboundItems) {
+    if (inboundItems.isEmpty()) {
+      System.out.println(TransactionText.EMPTY_CURRENT_INBOUND.getText());
     } else {
       System.out.println(TransactionText.UNAPPROVED_INBOUNDS_LIST.getText());
       System.out.println(TransactionText.BORDER_LINE.getText());
       System.out.printf(TransactionText.UNAPPROVED_INBOUND_LIST_HEADER.getText());
       System.out.println(TransactionText.BORDER_LINE.getText());
-      for (Map<String, Object> request : requests) {
-        System.out.printf("%-15s | %-15s | %-10s | %-15s\n",
-            request.get("memberId"),
-            request.get("coffeeName"),
-            request.get("quantity"),
-            request.get("inboundDate")
-        );
-      }
+      inboundItems.forEach(inboundItem -> {
+        System.out.printf("%-12s | %-5d | %-15s | %-15s | %-10s | %-15s\n",
+                inboundItem.getInboundRequestId(),
+                inboundItem.getInboundRequestItemId(),
+                inboundItem.getMemberId(),
+                inboundItem.getCoffeeName(),
+                inboundItem.getQuantity(),
+                inboundItem.getInboundRequestDate());
+
+      });
+
     }
   }
 
-  public void displayApprovedRequests(List<Map<String, Object>> requests) {
-    if (requests.isEmpty()) {
-      System.out.println(TransactionText.EMPTY_APPROVED_INBOUND.getText());
+  public void displayInboundApprovedItems(List<InboundItem> inboundItems) {
+    if (inboundItems.isEmpty()) {
+      System.out.println(TransactionText.EMPTY_CURRENT_INBOUND.getText());
     } else {
       System.out.println(TransactionText.APPROVED_INBOUNDS_LIST.getText());
       System.out.println(TransactionText.BORDER_LINE.getText());
       System.out.printf(TransactionText.APPROVED_INBOUND_LIST_HEADER.getText());
       System.out.println(TransactionText.BORDER_LINE.getText());
-      for (Map<String, Object> request : requests) {
-        System.out.printf("%-15s | %-15s | %-10s | %-15s\n",
-            request.get("memberId"),
-            request.get("coffeeName"),
-            request.get("quantity"),
-            request.get("inboundDate")
-        );
-      }
+      inboundItems.forEach(inboundItem -> {
+        System.out.printf("%-12s | %-5d | %-15s | %-15s | %-10s | %-15s\n",
+                inboundItem.getInboundRequestId(),
+                inboundItem.getInboundRequestItemId(),
+                inboundItem.getMemberId(),
+                inboundItem.getCoffeeName(),
+                inboundItem.getQuantity(),
+                inboundItem.getInboundRequestDate());
+
+      });
+
     }
+    System.out.println(TransactionText.COMMON_APPROVED_INBOUND_LIST.getText());
   }
 
 
@@ -262,6 +301,22 @@ public class InboundView {
       requests.keySet().stream().forEach(
           key -> System.out.printf("%-15s | %-15s\n",
               key, requests.get(key)));
+
+    }
+  }
+
+  public void displayMemberApprovedInboundRequests(Map<String, Integer> requests) {
+    if (requests.isEmpty()) {
+      System.out.println(TransactionText.EMPTY_MEMBER_APPROVED_INBOUND.getText());
+    } else {
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.println(TransactionText.MEMBER_APPROVED_INBOUNDS_HEADER.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.println(TransactionText.MEMBER_APPROVED_INBOUNDS_LIST.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      requests.keySet().stream().forEach(
+              key -> System.out.printf("%-15s | %-15s\n",
+                      key, requests.get(key)));
 
     }
   }
@@ -291,7 +346,7 @@ public class InboundView {
     try {
       while (true) {
         // 사용자에게 입고 승인 여부 확인 요청
-        System.out.printf("선택하신 회원 ID : %s 의 입고 요청 (ID : %s)을 승인하시겠습니까? (y/n)\n", memberId, requestId);
+        System.out.printf("선택하신 회원 ID : %s 의 입고 요청 ID : %s을 최종 승인하시겠습니까? (y/n)\n", memberId, requestId);
         System.out.print(">> ");
         String confirm = scanner.nextLine().trim();
         if ("y".equalsIgnoreCase(confirm)) {
@@ -304,18 +359,20 @@ public class InboundView {
       }
     } catch (TransactionException e) {
       System.out.println(e.getMessage());
+      // 예외가 발생할 경우 다시 승인 여부 재귀 호출
       getInboundRequestGrant(memberId, requestId);
     }
     return 0;
   }
 
-  public String getInboundRequestIdByMember(String memberId, List<String> unapprovedRequestIdList, String prompt) {
+  public long getInboundRequestItemIdByMember(String memberId, List<Long> unapprovedRequestIds, String prompt) {
     String input;
+    long inboundRequestItemId = 0;
     while (true) {
       System.out.print(prompt);
       input = scanner.nextLine().trim();
       try {
-        validCheck.isValidRequestId(input, unapprovedRequestIdList); // 새로운 유효성 검사 메소드 호출
+        inboundRequestItemId = validCheck.isValidRequestItemId(input, unapprovedRequestIds); // 새로운 유효성 검사 메소드 호출
       } catch (TransactionException e) {
         System.out.println(e.getMessage());
         // 유효하지 않은 입고 요청ID를 입력한 경우 다시 받음
@@ -325,7 +382,7 @@ public class InboundView {
       }
       break;
     }
-    return input;
+    return inboundRequestItemId;
   }
 
   public String showAvailableLocationPlaces(List<LocationPlace> locationPlaces) {
@@ -369,9 +426,82 @@ public class InboundView {
       } catch (TransactionException e) {
         System.out.println(e.getMessage());
         if (e.error == ErrorCode.INVALID_LOCATION_PLACE_NUMBER)
-          // 예외 발생 시 재귀 호출
-          showAvailableLocationPlaces(locationPlaces);
+          continue;
       }
     }
   }
+
+  // 한 회원의 여러 건의 입고 요청 중 한 건의 입고 요청을 받음.
+  public String getOneRequestId(List<String> unapprovedRequestIds, String prompt) {
+    String requestId;
+    while (true) {
+      try {
+        System.out.println(prompt);
+        requestId = scanner.nextLine().trim();
+        requestId = validCheck.isValidRequestId(requestId, unapprovedRequestIds);
+        return requestId;
+      } catch (TransactionException e) {
+        System.out.println(e.getMessage());
+        if (e.error == ErrorCode.INVALID_REQUEST_ID) {
+          getOneRequestId(unapprovedRequestIds, prompt);
+        }
+      }
+    }
+  }
+
+  public int getMonthInput(String s) {
+    System.out.println(s);
+    String numberInput = scanner.nextLine();
+    try {
+      validCheck.isValidMonth(numberInput);
+    }
+    catch (TransactionException e) {
+      System.out.println(e.getMessage());
+      getMonthInput(s);
+    }
+    return Integer.parseInt(numberInput);
+  }
+
+  public Date getDateStartInput(String prompt) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    sdf.setLenient(false); // 형식 검사
+    Date date = null;
+    while (date == null) {
+      System.out.print(prompt);
+      String input = scanner.nextLine().trim();
+      try {
+        date = sdf.parse(input);
+        validCheck.isValidInboundDate(date); // 새로운 유효성 검사 메소드 호출
+      } catch (ParseException e) {
+        System.out.println("잘못된 날짜 형식입니다. 'yyyy-MM-dd' 형식으로 다시 입력해주세요.");
+        date = null; // 날짜를 다시 null로 설정하여 루프를 계속함
+      } catch (TransactionException e) {
+        System.out.println(e.getMessage());
+        // 유효하지 않은 날짜인 경우, 한 달 후의 날짜를 계산하여 출력
+        if (e.error == ErrorCode.INVALID_INBOUND_DATE) {
+          Calendar cal = Calendar.getInstance();
+          cal.add(Calendar.MONTH, 1);
+          SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd");
+          System.out.println("입력 가능한 최소 날짜는 " + outputFormat.format(cal.getTime()) + "입니다.");
+        }
+        date = null;
+      }
+    }
+    return date;
+  }
+
+  public Date getDateEndInput(Date startDate, String prompt) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    return new Date();
+  }
 }
+
+//// DecimalFormat 객체 생성.
+//// #,##0 패턴은 천 단위 구분자를 사용하고, 정수가 0일 경우 0을 출력하도록 지정
+//DecimalFormat formatter = new DecimalFormat("###,###");
+//
+//// format() 메서드로 숫자 포맷팅
+//String formattedNumber = formatter.format(number);
+//
+//// 포맷팅된 결과 출력
+//        System.out.println(formattedNumber); // 출력: 1,234,567

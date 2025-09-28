@@ -1,11 +1,70 @@
 package domain.transaction;
 
+import java.util.Date;
+import java.util.Objects;
+
 public class InboundItem {
-  private long inboundRequestItemId;
-  private String inboundRequestId;
+  private String memberId;
   private String coffeeId;
+  private String coffeeName;
+  private String inboundRequestId;
+  private long inboundRequestItemId;
   private String locationPlaceId;
   private int quantity;
+  private Date inboundRequestDate;
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof InboundItem that)) return false;
+      return inboundRequestItemId == that.inboundRequestItemId;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hashCode(inboundRequestItemId);
+  }
+
+  public InboundItem() {}
+
+  // 생성자, getter 및 setter
+  public InboundItem(String memberId, String coffeeId, String coffeeName, String inboundRequestId,
+                     long inboundRequestItemId, int quantity, Date inboundRequestDate) {
+    this.memberId = memberId;
+    this.coffeeId = coffeeId;
+    this.coffeeName = coffeeName;
+    this.inboundRequestId = inboundRequestId;
+    this.inboundRequestItemId = inboundRequestItemId;
+    this.quantity = quantity;
+    this.inboundRequestDate = inboundRequestDate;
+
+
+  }
+
+  public Date getInboundRequestDate() {
+    return inboundRequestDate;
+  }
+
+  public void setInboundRequestDate(Date inboundRequestDate) {
+    this.inboundRequestDate = inboundRequestDate;
+  }
+
+  public String getMemberId() {
+    return memberId;
+  }
+
+  public void setMemberId(String memberId) {
+    this.memberId = memberId;
+  }
+
+  public String getCoffeeName() {
+    return coffeeName;
+  }
+
+  public void setCoffeeName(String coffeeName) {
+    this.coffeeName = coffeeName;
+  }
+
+
 
   public String getInboundRequestId() {
     return inboundRequestId;
@@ -15,13 +74,7 @@ public class InboundItem {
     this.inboundRequestId = inboundRequestId;
   }
 
-  // 생성자, getter 및 setter
-  public InboundItem(String coffeeId, String locationPlaceId, int quantity, long inboundRequestItemId) {
-    this.coffeeId = coffeeId;
-    this.locationPlaceId = locationPlaceId;
-    this.quantity = quantity;
-    this.inboundRequestItemId = inboundRequestItemId;
-  }
+
 
   public String getCoffeeId() {
     return coffeeId;

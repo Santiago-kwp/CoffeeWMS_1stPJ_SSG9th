@@ -13,7 +13,10 @@ public enum ErrorCode {
     INVALID_INBOUND_DATE("입고 요청 날짜는 금일 기준 최소 한달 후여야 합니다."),
     INVALID_MEMBER_ID("해당하는 회원이 없습니다."),
     INVALID_REQUEST_ID("회원의 입고 요청 ID를 잘못 입력하셨습니다."),
-    INVALID_LOCATION_PLACE_NUMBER("해당 창고 위치 번호는 존재하지 않습니다.");
+    INVALID_REQUEST_ITEM_ID("회원의 입고 요청 상세 ID를 잘못 입력하셨습니다."),
+    INVALID_LOCATION_PLACE_NUMBER("해당 창고 위치 번호는 존재하지 않습니다."),
+    INVALID_MONTH_NUMBER("잘못된 월입니다. [1-12]번 다시 입력하세요."),
+    INVALID_OUTBOUND_DATE("출고 요청 날짜는 입고 완료 날짜보다 뒤여야 합니다.");
 
     private String msg;
 
