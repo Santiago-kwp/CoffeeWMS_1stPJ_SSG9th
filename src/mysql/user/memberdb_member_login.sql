@@ -85,8 +85,7 @@ CREATE PROCEDURE register(
     IN email varchar(30),
     IN company_code char(12),
     IN address varchar(255),
-    IN register_type varchar(10),
-    OUT affected INT
+    IN register_type varchar(10)
 )
 BEGIN
     DECLARE approval varchar(10);
@@ -94,7 +93,6 @@ BEGIN
     -- 중복된 아이디가 있는지 확인
     IF EXISTS(select users.user_id from users where user_approval = '승인완료' and (user_id = id or user_type = '총관리자')) THEN
         SET approval = '미승인';
-        SET affected = 0;
     ELSE
         SET approval = '승인완료';
     END IF;
@@ -106,13 +104,6 @@ BEGIN
     on duplicate key update
                          user_pwd = pwd, user_name = name, user_phone = phone, user_email = email,
                          user_company_code = company_code, user_address = address, user_join_date = now(), user_type = register_type;
-
-    IF (register_type like '%관리자' and approval = '승인완료') THEN
-        select count(manager_id) into affected from managers where manager_id = (select user_id from users where user_id = id and user_approval = '승인완료');
-    ELSEIF (register_type = '일반회원' and approval = '승인완료') THEN
-        select count(member_id) into affected from members where member_id = (select user_id from users where user_id = id and user_approval = '승인완료');
-    END IF;
-    commit;
 END $$
 DELIMITER ;
 
