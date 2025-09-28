@@ -232,11 +232,14 @@ DROP PROCEDURE IF EXISTS approve_user;
 DELIMITER $$
 CREATE PROCEDURE approve_user(IN targetID varchar(15), OUT affected INT)
 BEGIN
-   IF NOT EXISTS(select user_id
-                 from users
+   IF NOT EXISTS(select user_id from users
                  where user_id = targetID and user_approval = '승인완료') THEN
-       update users set user_approval = '승인완료' where user_id = targetID and user_approval = '미승인';
-       SET affected = 1;
+       IF EXISTS(select user_id from users where user_id = targetID and user_approval = '미승인') THEN
+           update users set user_approval = '승인완료' where user_id = targetID and user_approval = '미승인';
+           SET affected = 1;
+       ELSE
+           SET affected = 0;
+       END IF;
    ELSE
        SET affected = 0;
    END IF;
@@ -277,8 +280,12 @@ BEGIN
     IF NOT EXISTS(select user_id
                   from users
                   where user_id = targetID and user_approval = '승인완료') THEN
-        update users set user_approval = '승인완료' where user_id = targetID and user_approval = '삭제됨';
-        SET affected = 1;
+        IF EXISTS(select user_id from users where user_id = targetID and user_approval = '삭제됨') THEN
+            update users set user_approval = '승인완료' where user_id = targetID and user_approval = '삭제됨';
+            SET affected = 1;
+        ELSE
+            SET affected = 0;
+        END IF;
     ELSE
         SET affected = 0;
     END IF;

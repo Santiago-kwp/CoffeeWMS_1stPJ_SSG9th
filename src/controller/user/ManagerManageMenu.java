@@ -43,7 +43,7 @@ public class ManagerManageMenu implements UserManageMenu {
                 System.out.print(ManagerPage.MANAGER_SELECT_TITLE);
                 String menuNum = input.readLine();
                 switch (menuNum) {
-                    case "1" -> readOneUserDetail();
+                    case "1" -> readOneUser();
                     case "2" -> readAllUsers();
                     case "3" -> readUsersByRole();
                     case "4" -> quitRead = quit();
@@ -55,7 +55,7 @@ public class ManagerManageMenu implements UserManageMenu {
         }
     }
 
-    public void readOneUserDetail() throws IOException {
+    public void readOneUser() throws IOException {
         boolean quitRead = false;
         while (!quitRead) {
             try {
@@ -180,7 +180,12 @@ public class ManagerManageMenu implements UserManageMenu {
                     case "1" -> updateCurrentUser();
                     case "2" -> approveUser();
                     case "3" -> restoreUserRole();
-                    case "4" -> restoreUser();
+                    case "4" -> {
+                        if (!currentManager.getPosition().equals("총관리자")) {
+                            throw new UserNotHavePermissionException(ManagerPage.NOT_HAVE_PERMISSION.toString());
+                        }
+                        restoreUser();
+                    }
                     case "5" -> quitUpdate = quit();
                 }
             } catch (UserNotUpdatedException
@@ -228,7 +233,20 @@ public class ManagerManageMenu implements UserManageMenu {
     private void approveUser() throws IOException {
         System.out.print(ManagerPage.INPUT_ID_FOR_APPROVE);
         String targetID = input.readLine();
-        boolean ack = dao.approve(targetID, false);
+        String userType = dao.searchUserTypeBy(targetID);
+        if (userType == null) {
+            throw new UserRoleNotUpdatedException(UserPage.CANNOT_SEARCH_USER.toString());
+        }
+        boolean ack = false;
+        switch (userType) {
+            case "일반회원" -> ack = dao.approve(targetID, false);
+            case "창고관리자" -> {
+                if (!currentManager.getPosition().equals("총관리자")) {
+                    throw new UserNotHavePermissionException(ManagerPage.NOT_HAVE_PERMISSION.toString());
+                }
+                ack = dao.approve(targetID, false);
+            }
+        }
         if (!ack) {
             throw new UserNotApprovedException(ManagerPage.APPROVE_FAILED.toString());
         }
@@ -244,17 +262,16 @@ public class ManagerManageMenu implements UserManageMenu {
         if (userType != null) {
             throw new UserRoleNotUpdatedException(ManagerPage.ALREADY_HAVE_ROLE.toString());
         }
-
         System.out.print(ManagerPage.ROLE_UPDATE_OPTION);
         String option = input.readLine();
         boolean ack = false;
         switch (option) {
-            case "1" -> ack = dao.updateRole(targetID, "일반회원");
+            case "1" -> ack = dao.restoreRole(targetID, "일반회원");
             case "2" -> {
                 if (!currentManager.getPosition().equals("총관리자")) {
                     throw new UserNotHavePermissionException(ManagerPage.NOT_HAVE_PERMISSION.toString());
                 }
-                ack = dao.updateRole(targetID, "창고관리자");
+                ack = dao.restoreRole(targetID, "창고관리자");
             }
         }
         if (!ack) {
