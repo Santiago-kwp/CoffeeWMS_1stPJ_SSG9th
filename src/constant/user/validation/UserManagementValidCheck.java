@@ -58,19 +58,25 @@ public class UserManagementValidCheck {
         }
     }
 
-    public void checkUserUpdated(boolean isUserUpdated, boolean restoreOption) {
+    public void checkUserUpdated(boolean isUserUpdated) {
         if (!isUserUpdated) {
-            if (restoreOption) {
-                throw new UserNotRestoredException(ManagerPage.RESTORE_FAILED.toString());
+            throw new UserNotUpdatedException(UserPage.USER_UPDATE_FAILED.toString());
+        }
+    }
+
+    public void checkUserApproved(boolean isUserApproved, boolean restoreOption) {
+        if (!isUserApproved) {
+            if (!restoreOption) {
+                throw new UserNotApprovedException(ManagerPage.APPROVE_FAILED.toString());
             } else {
-                throw new UserNotUpdatedException(UserPage.USER_UPDATE_FAILED.toString());
+                throw new UserNotRestoredException(ManagerPage.RESTORE_FAILED.toString());
             }
         }
     }
 
-    public void checkUserApproved(boolean isUserApproved) {
-        if (!isUserApproved) {
-            throw new UserNotApprovedException(ManagerPage.APPROVE_FAILED.toString());
+    public void checkUserDeleted(boolean isUserDeleted) {
+        if (!isUserDeleted) {
+            throw new UserNotDeletedException(UserPage.USER_DELETE_FAILED.toString());
         }
     }
 
@@ -95,12 +101,6 @@ public class UserManagementValidCheck {
     public void checkRoleDeleted(String userRole) {
         if (userRole != null) {
             throw new UserRoleNotDeletedException(ManagerPage.ALREADY_HAVE_ROLE.toString());
-        }
-    }
-
-    public void checkUserDeleted(boolean isUserDeleted) {
-        if (!isUserDeleted) {
-            throw new UserNotDeletedException(UserPage.USER_DELETE_FAILED.toString());
         }
     }
 

@@ -42,16 +42,20 @@ public class InputValidCheck {
         }
     }
 
-    public void checkMemberData(User user) {
-        checkUserID(user.getId());
+    public void checkMemberData(User user, boolean updateOption) {
+        if (!updateOption) {
+            checkUserID(user.getId());
+        }
         checkPwd(user.getPwd());
         checkPhoneFormat(user.getPhone());
         checkEmailFormat(user.getEmail());
         checkCompanyCode(user.getCompanyCode());
     }
 
-    public void checkManagerData(User user) {
-        checkUserID(user.getId());
+    public void checkManagerData(User user, boolean updateOption) {
+        if (!updateOption) {
+            checkUserID(user.getId());
+        }
         checkPwd(user.getPwd());
         checkPhoneFormat(user.getPhone());
         checkEmailFormat(user.getEmail());

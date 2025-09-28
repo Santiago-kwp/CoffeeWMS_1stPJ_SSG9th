@@ -3,20 +3,20 @@ package controller.user;
 import constant.user.LoginPage;
 import constant.user.MemberPage;
 import constant.user.UserPage;
+import constant.user.validation.InputValidCheck;
 import domain.user.Member;
 import domain.user.User;
-import exception.user.UnableToReadUserException;
-import exception.user.UserNotDeletedException;
-import exception.user.UserNotUpdatedException;
 import java.io.IOException;
 import model.user.MemberDAO;
 
 public class MemberManageMenu implements UserManageMenu {
 
     private final MemberDAO dao;
+    private final InputValidCheck inputValidCheck;
 
     public MemberManageMenu(Member member) {
         this.dao = new MemberDAO(member);
+        this.inputValidCheck = new InputValidCheck();
     }
 
     public void printMenu() {
@@ -27,9 +27,7 @@ public class MemberManageMenu implements UserManageMenu {
     public void read() {
         System.out.println(UserPage.CURRENT_USER_SELECT);
         Member member = dao.searchUserDetails();
-        if (member == null) {
-            throw new UnableToReadUserException(UserPage.CANNOT_SEARCH_USER.toString());
-        }
+        validCheck.checkUserFound(member);
         MemberPage.details(member);
     }
 
@@ -43,9 +41,7 @@ public class MemberManageMenu implements UserManageMenu {
         }
         User newUserInfo = inputNewMemberInfo();
         boolean ack = dao.updateUserInfo(newUserInfo);
-        if (!ack) {
-            throw new UserNotUpdatedException(UserPage.USER_UPDATE_FAILED.toString());
-        }
+        validCheck.checkUserUpdated(ack);
         System.out.println(UserPage.USER_UPDATE);
     }
 
@@ -72,6 +68,8 @@ public class MemberManageMenu implements UserManageMenu {
         user.setEmail(email);
         user.setCompanyCode(companyCode);
         user.setAddress(address);
+
+        inputValidCheck.checkMemberData(user, true);
         return user;
     }
 
@@ -85,9 +83,7 @@ public class MemberManageMenu implements UserManageMenu {
                 return false;
             }
             boolean ack = dao.deleteUserInfo();
-            if (!ack) {
-                throw new UserNotDeletedException(UserPage.USER_DELETE_FAILED.toString());
-            }
+            validCheck.checkUserDeleted(ack);
             System.out.println(UserPage.USER_DELETE);
             return true;
         } catch (IOException e) {

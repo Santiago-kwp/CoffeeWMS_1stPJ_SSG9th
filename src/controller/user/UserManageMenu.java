@@ -2,6 +2,9 @@ package controller.user;
 
 import constant.user.UserPage;
 import constant.user.validation.UserManagementValidCheck;
+import exception.user.UnableToReadUserException;
+import exception.user.UserNotDeletedException;
+import exception.user.UserNotUpdatedException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,7 +29,10 @@ public interface UserManageMenu {
                     case "3" -> hasLogout = delete();
                     case "4" -> quitMenu = exitMenu();
                 }
-            } catch (IOException e) {
+            } catch (IOException
+                     | UnableToReadUserException
+                     | UserNotUpdatedException
+                     | UserNotDeletedException e) {
                 System.out.println(e.getMessage());
             }
         }

@@ -195,7 +195,7 @@ public class ManagerManageMenu implements UserManageMenu {
         }
         User newUserInfo = inputNewManagerInfo();
         boolean ack = dao.updateUserInfo(newUserInfo);
-        validCheck.checkUserUpdated(ack, false);
+        validCheck.checkUserUpdated(ack);
 
         currentManager.setPwd(newUserInfo.getPwd());
         currentManager.setName(newUserInfo.getName());
@@ -221,7 +221,7 @@ public class ManagerManageMenu implements UserManageMenu {
         newInfo.setPhone(phone);
         newInfo.setEmail(email);
 
-        inputValidCheck.checkManagerData(newInfo);
+        inputValidCheck.checkManagerData(newInfo, true);
         return newInfo;
     }
 
@@ -239,7 +239,7 @@ public class ManagerManageMenu implements UserManageMenu {
                 ack = dao.approve(targetID, false);
             }
         }
-        validCheck.checkUserApproved(ack);
+        validCheck.checkUserApproved(ack, false);
         System.out.println(ManagerPage.APPROVE_COMPLETE);
     }
 
@@ -270,7 +270,7 @@ public class ManagerManageMenu implements UserManageMenu {
         System.out.print(ManagerPage.INPUT_ID_FOR_RESTORE);
         String targetID = input.readLine();
         boolean ack = dao.approve(targetID, true);
-        validCheck.checkUserUpdated(ack, true);
+        validCheck.checkUserApproved(ack, true);
         System.out.println(ManagerPage.RESTORE_COMPLETE);
     }
 

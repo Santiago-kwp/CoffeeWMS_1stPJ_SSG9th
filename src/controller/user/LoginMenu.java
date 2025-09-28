@@ -119,7 +119,7 @@ public class LoginMenu {
         newUser.setCompanyCode(companyCode);
         newUser.setAddress(address);
 
-        inputValidCheck.checkMemberData(newUser);
+        inputValidCheck.checkMemberData(newUser, false);
         return newUser;
     }
 
@@ -145,7 +145,7 @@ public class LoginMenu {
         }
 
         User newUser = new User(userID, userPwd, name, phone, email, position);
-        inputValidCheck.checkManagerData(newUser);
+        inputValidCheck.checkManagerData(newUser, false);
         return newUser;
     }
 
