@@ -114,7 +114,7 @@ public class LoginDAO {
     }
 
     public boolean register(User user) {
-        String sql = "call register(?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "call register(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DBUtil.getConnection();
                 CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, user.getId());
@@ -128,7 +128,8 @@ public class LoginDAO {
 
             call.execute();
 
-            return true;
+            int affected = call.getInt(9);
+            return affected > 0;
         } catch (SQLException e) {
             throw new UserNotRegisteredException(LoginPage.REGISTER_FAILED.toString());
         }

@@ -85,25 +85,38 @@ CREATE PROCEDURE register(
     IN email varchar(30),
     IN company_code char(12),
     IN address varchar(255),
-    IN register_type varchar(10)
+    IN register_type varchar(10),
+    OUT affected BOOLEAN
 )
 BEGIN
     DECLARE approval varchar(10);
+    DECLARE found_count int;
+    DECLARE admin_count int;
 
     -- 중복된 아이디가 있는지 확인
-    IF EXISTS(select users.user_id from users where user_approval = '승인완료' and (user_id = id or user_type = '총관리자')) THEN
-        SET approval = '미승인';
-    ELSE
-        SET approval = '승인완료';
-    END IF;
+    select count(user_id) into found_count from users where user_id = id and user_approval = '승인완료';
+    select count(user_id) into admin_count from users where user_type = '총관리자';
+
+    if (found_count > 0 or (register_type = '총관리자' and admin_count > 0)) then
+        set approval = '미승인';		-- 이미 승인완료된 아이디가 존재하면 미승인 처리
+    else
+        set approval = '승인완료';	-- 사용가능한 아이디면 승인완료처리
+    end if;
 
     -- 회원정보 추가
-    insert into users
-    values(id, approval, pwd, name, phone,
-           email, company_code, address, now(), register_type)
-    on duplicate key update
-                         user_pwd = pwd, user_name = name, user_phone = phone, user_email = email,
-                         user_company_code = company_code, user_address = address, user_join_date = now(), user_type = register_type;
+    insert into users(
+        user_id, user_approval, user_pwd, user_name, user_phone, user_email,
+        user_company_code, user_address, user_join_date, user_type
+    ) values(id, approval, pwd, name, phone, email,
+             company_code, address, now(), register_type);
+
+    if exists(select member_id from members where member_id = (select user_id from users where user_id = id and user_approval = '승인완료')) then
+        set affected = 1;
+    elseif exists(select manager_id from managers where manager_id = (select user_id from users where user_id = id and user_approval = '승인완료')) then
+        set affected = 1;
+    else
+        set affected = 0;
+    end if;
 END $$
 DELIMITER ;
 
