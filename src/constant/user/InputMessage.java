@@ -6,7 +6,8 @@ public enum InputMessage {
     INVALID_PASSWORD("유효하지 않은 비밀번호입니다."),
     INVALID_PHONE_FORMAT("유효하지 않은 핸드폰번호 형식입니다."),
     INVALID_COMPANY_CODE_FORMAT("유효하지 않은 사업자등록번호 형식입니다."),
-    INVALID_EMAIL_FORMAT("유효하지 않은 이메일 형식입니다.");
+    INVALID_EMAIL_FORMAT("유효하지 않은 이메일 형식입니다."),
+    INVALID_MENU_NUMBER("유효하지 않은 메뉴 번호입니다.");
 
     private final String msg;
 
