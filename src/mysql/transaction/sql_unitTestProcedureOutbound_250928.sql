@@ -137,7 +137,6 @@ DROP PROCEDURE IF EXISTS process_outbound_request;
 
 DELIMITER @@
 CREATE PROCEDURE process_outbound_request(
-    IN p_member_id CHAR(12),
     IN p_outbound_request_id CHAR(12),
     IN p_items_json JSON
 )
@@ -164,11 +163,11 @@ BEGIN
     -- 2. JSON 배열을 순회하며 각 품목의 재고를 업데이트
     WHILE v_index < JSON_LENGTH(p_items_json) DO
         -- JSON 배열에서 coffee_id와 quantity 추출
-        SET v_coffee_id = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].coffee_id')));
+        SET v_coffee_id = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].coffeeId')));
         SET v_quantity = JSON_UNQUOTE(JSON_EXTRACT(p_items_json, CONCAT('$[', v_index, '].quantity')));
         
         -- 3. 재고 수량 확인
-        IF (SELECT inventory_quantity FROM inventory WHERE coffee_id = v_coffee_id) >= v_quantity THEN
+        IF (SELECT SUM(inventory_quantity) FROM inventory WHERE coffee_id = v_coffee_id) >= v_quantity THEN
             -- 재고가 충분하면 재고 수량을 감소시킴
             UPDATE inventory
             SET inventory_quantity = inventory_quantity - v_quantity
@@ -179,7 +178,17 @@ BEGIN
             SET MESSAGE_TEXT = '현재 해당 품목의 재고가 부족합니다.';
         END IF;
 
-        -- 4. 입고 완료 현황도 업데이트
+        -- 4. 입고 완료 현황도 업데이트해야 하는데... 현재의 DB 구조로는 불가함 ㅠㅠ
+#         IF (SELECT coffe_quantity FROM inbound_request_items WHERE coffee_id = v_coffee_id) >= v_quantity THEN
+#             -- 입고가 충분하면 입고 현황의 수량을 감소시킴
+#             UPDATE inventory
+#             SET inventory_quantity = inventory_quantity - v_quantity
+#             WHERE coffee_id = v_coffee_id;
+#         ELSE
+#             -- 재고가 부족하면 오류 발생
+#             SIGNAL SQLSTATE '45000'
+#                 SET MESSAGE_TEXT = '현재 해당 품목의 재고가 부족합니다.';
+#         END IF;
 
 
 
@@ -396,6 +405,83 @@ ALTER TABLE outbound_request_items
     ADD CONSTRAINT FK_outbound_request_TO_outbound_request_items_1 FOREIGN KEY (outbound_request_id, member_id, manager_id) REFERENCES outbound_request (outbound_request_id, member_id, manager_id);
 ALTER TABLE outbound_request_items
     ADD CONSTRAINT FK_coffees_TO_outbound_request_items_1 FOREIGN KEY (coffee_id) REFERENCES coffees (coffee_id);
+
+
+drop procedure if exists get_unapproved_outbound_requests;
+delimiter @@
+create procedure get_unapproved_outbound_requests()
+begin
+    -- 회원 ID, 미승인 건수 출력
+    select member_id, count(member_id) as unapproved_request_num
+    from outbound_request
+    where outbound_request_approved = 0
+    group by member_id
+    order by count(member_id) desc;
+end @@
+delimiter ;
+
+drop procedure if exists get_approved_outbound_requests;
+delimiter @@
+create procedure get_approved_outbound_requests()
+begin
+    -- 회원 ID, 승인 건수 출력
+    select member_id, count(member_id) as approved_request_num
+    from outbound_request
+    where outbound_request_approved = 1
+    group by member_id
+    order by count(member_id) desc;
+end @@
+delimiter ;
+
+
+-- 회원의 미승인된 입고 요청을 회원 정보로 조회하는 프로시저
+drop procedure if exists get_unapproved_outbounds_by_member;
+delimiter @@
+create procedure get_unapproved_outbounds_by_member(
+    IN c_member_id varchar(15))
+begin
+    select O.member_id, O.coffee_id, C.coffee_name, O.outbound_request_id, O.outbound_request_item_id, O.outbound_request_quantity, O.outbound_request_date
+    from outbound_request_items O
+             join outbound_request R on O.member_id = R.member_id and O.outbound_request_id = R.outbound_request_id
+             join coffees C on C.coffee_id = O.coffee_id
+    where R.outbound_request_approved = 0 AND O.member_id = c_member_id
+    order by O.outbound_request_date;
+end @@
+delimiter ;
+
+
+drop procedure if exists get_one_outbound_by_member_requestId;
+delimiter @@
+create procedure get_one_outbound_by_member_requestId(
+    IN c_member_id varchar(15),
+    IN c_outbound_request_id char(12))
+begin
+    select O.member_id, O.coffee_id, C.coffee_name, O.outbound_request_id, O.outbound_request_item_id, O.outbound_request_quantity, O.outbound_request_date
+    from outbound_request_items O
+             join outbound_request R on O.member_id = R.member_id and O.outbound_request_id = R.outbound_request_id
+             join coffees C on C.coffee_id = O.coffee_id
+    where O.outbound_request_id = c_outbound_request_id AND O.member_id = c_member_id
+    order by O.outbound_request_date;
+end @@
+delimiter ;
+
+
+-- 회원의 승인된 출고 완료 현황을 회원 id로 조회하는 프로시저
+drop procedure if exists get_approved_outbounds_by_member;
+delimiter @@
+create procedure get_approved_outbounds_by_member(
+    IN c_member_id varchar(15))
+begin
+    select O.member_id, C.coffee_id, C.coffee_name, O.outbound_request_id, O.outbound_request_item_id, O.outbound_request_quantity, O.outbound_request_date
+    from outbound_request_items O
+             join outbound_request R on O.member_id = R.member_id and O.outbound_request_id = R.outbound_request_id
+             join coffees C on C.coffee_id = O.coffee_id
+    where R.outbound_request_approved = 1 AND O.member_id = c_member_id -- AND outbound_request_date < now()
+    order by O.outbound_request_date;
+end @@
+delimiter ;
+
+
 
 
 

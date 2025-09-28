@@ -2,6 +2,8 @@ package controller.transaction;
 
 import view.transaction.OutboundView;
 
+import java.sql.SQLException;
+
 public class OutboundMenu {
 
 
@@ -20,7 +22,11 @@ public class OutboundMenu {
     // 뷰 객체에 컨트롤러 연결
     view.setController(controller);
     // 컨트롤러의 회원 메소드
-    controller.runManager(managerId);
+      try {
+          controller.runManager(managerId);
+      } catch (SQLException e) {
+          throw new RuntimeException(e);
+      }
   }
 
 }

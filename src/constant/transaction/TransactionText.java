@@ -28,7 +28,7 @@ public enum TransactionText {
   MANAGER_INBOUND_HEADER("-".repeat(55)+"<< 입고 (관리자) >>" + "-".repeat(55)),
   MANAGER_INBOUND("1.회원 입고요청 내역 조회 | 2.입고 고지서 조회 | 3.입고완료 현황 조회 | 4.뒤로가기"),
   MANAGER_INBOUND_LIST_HEADER("-".repeat(55)+"<< 회원 입고요청 내역 조회 (관리자) >>" + "-".repeat(55)),
-  MANAGER_INBOUND_LIST("1. 회원 입고 요청 승인 | 2. 입고 요청 수정 | 3. 입고 요청 취소 | 4. 뒤로가가"),
+  MANAGER_INBOUND_LIST("1. 회원 입고 요청 승인 | 2. 입고 요청 수정 | 3. 입고 요청 취소 | 4. 뒤로가기"),
   MANAGER_INBOUND_COMPLETION_LIST_HEADER("-".repeat(55)+"<< 입고 완료 현황 조회 (관리자) >>" + "-".repeat(55)),
   MANAGER_INBOUND_COMPLETION_LIST("1. 기간별 입고 현황 | 2. 월별 입고 현황 | 3. 뒤로가기"),
   WMSADMIN("wmsAdmin"),
@@ -58,13 +58,14 @@ public enum TransactionText {
   MANAGER_OUTBOUND("1.회원 출고요청내역 조회 | 2.출고완료 현황 조회 | 3.뒤로가기"),
   MANAGER_OUTBOUND_COMPLETION_HEADER("-".repeat(55)+"<< 출고완료 현황 조회 (관리자) >>" + "-".repeat(55)),
   MANAGER_OUTBOUND_COMPLETION("1. 출고지시서 조회 | 2. 출고리스트 조회 | 3. 출고상품 검색 | 4. 뒤로가기"),
+  MANAGER_OUTBOUND_LIST("1. 회원 출고 요청 승인 | 2. 출고 요청 수정 | 3. 출고 요청 취소 | 4. 뒤로가기"),
 
 
   EMPTY_UNAPPROVED_INBOUND("미승인된 입고 요청 내역이 없습니다."),
   UNAPPROVED_INBOUNDS_LIST("-".repeat(50)+"<< 입고요청 내역 >>" + "-".repeat(50)),
   UNAPPROVED_INBOUND_LIST_HEADER(String.format("%-12s | %-5s |%-15s| %-15s | %-10s | %-15s\n", "입고요청 ID", "입고상세ID" ,"회원 ID", "커피 이름", "수량", "입고 요청 날짜")),
 
-
+  APPROVED_OUTBOUNDS_LIST("-".repeat(50)+"<< 승인된 출고요청 내역 >>" + "-".repeat(50)),
 
   EMPTY_APPROVED_INBOUND("승인된 입고 요청 내역이 없습니다."),
   APPROVED_INBOUNDS_LIST("-".repeat(50)+"<< 승인된 입고요청 내역 >>" + "-".repeat(50)),
@@ -74,11 +75,20 @@ public enum TransactionText {
   MEMBER_UNAPPROVED_INBOUNDS_HEADER("-".repeat(50)+"<< 입고 승인 요청 회원 ID 목록 >>" + "-".repeat(50)),
   MEMBER_UNAPPROVED_INBOUNDS_LIST(String.format("%-15s | %-15s\n", "회원 ID", "입고 요청 건수")),
 
+  EMPTY_MEMBER_UNAPPROVED_OUTBOUND("미승인된 출고 요청이 있는 회원이 없습니다."),
+  MEMBER_UNAPPROVED_OUTBOUNDS_HEADER("-".repeat(50)+"<< 출고 승인 요청 회원 ID 목록 >>" + "-".repeat(50)),
+  MEMBER_UNAPPROVED_OUTBOUNDS_LIST(String.format("%-15s | %-15s\n", "회원 ID", "출고 요청 건수")),
+
+
+  MEMBER_APPROVED_OUTBOUNDS_HEADER("-".repeat(50)+"<< 출고 승인 완료 회원 ID 목록 >>" + "-".repeat(50)),
+  MEMBER_APPROVED_OUTBOUNDS_LIST(String.format("%-15s | %-15s\n", "회원 ID", "출고 승인 건수")),
+
 
   // ===================== 공통 ===================
   COMMON_INBOUND_REQUESTS_HEADER("-".repeat(55)+"<< 입고 요청 내역 조회 >>" + "-".repeat(55)),
   COMMON_INBOUND_REQUESTS_LIST("1. 입고 요청 수정 | 2. 입고 요청 취소 | 3. 뒤로가기"),
   COMMON_APPROVED_INBOUND_LIST("1. 기간별 입고 현황 | 2. 월별 입고 현황 | 3. 뒤로가기"),
+  COMMON_APPROVED_OUTBOUND_LIST("1. 기간별 출고 현황 | 2. 월별 출고 현황 | 3. 뒤로가기"),
 
   REQUEST_UPDATE("(수정)"),
   CHECK_MENU("보조 메뉴: 1.OK | 2. Cancel"),
@@ -87,8 +97,7 @@ public enum TransactionText {
   EMPTY_MEMBER_APPROVED_INBOUND("현재 승인된 입고 내역이 없습니다."),
   MEMBER_APPROVED_INBOUNDS_HEADER("-".repeat(50)+"<< 입고 승인 완료 회원 ID 목록 >>" + "-".repeat(50)),
   MEMBER_APPROVED_INBOUNDS_LIST(String.format("%-15s | %-15s\n", "회원 ID", "입고 승인 건수")),
-  COMMON_OUTBOUND_REQUESTS_HEADER("-".repeat(55)+"<< 출고 요청 >>" + "-".repeat(55)),
-  ;
+  COMMON_OUTBOUND_REQUESTS_HEADER("-".repeat(55)+"<< 출고 요청 >>" + "-".repeat(55));
 
 
   private final String text;

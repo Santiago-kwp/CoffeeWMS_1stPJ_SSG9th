@@ -46,6 +46,13 @@ public class OutboundView {
     System.out.println(TransactionText.BORDER_LINE.getText());
   }
 
+  public void displayManagerOutboundRequestsMenu() {
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.COMMON_OUTBOUND_REQUESTS_HEADER.getText());
+    System.out.println(TransactionText.BORDER_LINE.getText());
+    System.out.println(TransactionText.MANAGER_OUTBOUND_LIST.getText());
+  }
+
   public void displayManagerOutboundMenu() {
     System.out.println(TransactionText.BORDER_LINE.getText());
     System.out.println(TransactionText.MANAGER_OUTBOUND_HEADER.getText());
@@ -247,5 +254,142 @@ public class OutboundView {
       });
 
     }
+  }
+
+  public void displayMemberUnapprovedOutboundRequests(Map<String, Integer> requests) {
+    if (requests.isEmpty()) {
+      System.out.println(TransactionText.EMPTY_MEMBER_UNAPPROVED_OUTBOUND.getText());
+    } else {
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.println(TransactionText.MEMBER_UNAPPROVED_OUTBOUNDS_HEADER.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.println(TransactionText.MEMBER_UNAPPROVED_OUTBOUNDS_LIST.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      requests.keySet().stream().forEach(
+              key -> System.out.printf("%-15s | %-15s\n",
+                      key, requests.get(key)));
+
+    }
+
+  }
+
+  public String getMemberId(Map<String, Integer> requests, String prompt) {
+    String input;
+    while (true) {
+      System.out.print(prompt);
+      input = scanner.nextLine().trim();
+      try {
+        validCheck.isValidMemberId(requests, input); // 새로운 유효성 검사 메소드 호출
+      } catch (TransactionException e) {
+        System.out.println(e.getMessage());
+        // 유효하지 않은 회원ID를 입력한 경우 다시 받음
+        if (e.error == ErrorCode.INVALID_MEMBER_ID) {
+          continue;
+        }
+      }
+      break;
+    }
+    return input;
+  }
+
+  // 한 회원의 여러 건의 입고 요청 중 한 건의 입고 요청을 받음.
+  public String getOneRequestId(List<String> unapprovedRequestIds, String prompt) {
+    String requestId;
+    while (true) {
+      try {
+        System.out.println(prompt);
+        requestId = scanner.nextLine().trim();
+        requestId = validCheck.isValidRequestId(requestId, unapprovedRequestIds);
+        return requestId;
+      } catch (TransactionException e) {
+        System.out.println(e.getMessage());
+        if (e.error == ErrorCode.INVALID_REQUEST_ID) {
+          getOneRequestId(unapprovedRequestIds, prompt);
+        }
+      }
+    }
+  }
+
+  public long getOutboundRequestItemIdByMember(String memberId, List<Long> unapprovedRequestIds, String prompt) {
+    String input;
+    long outboundRequestItemId = 0;
+    while (true) {
+      System.out.print(prompt);
+      input = scanner.nextLine().trim();
+      try {
+        outboundRequestItemId = validCheck.isValidRequestItemId(input, unapprovedRequestIds); // 새로운 유효성 검사 메소드 호출
+      } catch (TransactionException e) {
+        System.out.println(e.getMessage());
+        // 유효하지 않은 입고 요청ID를 입력한 경우 다시 받음
+        if (e.error == ErrorCode.INVALID_REQUEST_ID) {
+          continue;
+        }
+      }
+      break;
+    }
+    return outboundRequestItemId;
+  }
+
+  public int getOutboundRequestGrant(String memberId, String requestId) {
+
+    try {
+      while (true) {
+        // 사용자에게 출고 승인 여부 확인 요청
+        System.out.printf("선택하신 회원 ID : %s 의 출고 요청 ID : %s을 최종 승인하시겠습니까? (y/n)\n", memberId, requestId);
+        System.out.print(">> ");
+        String confirm = scanner.nextLine().trim();
+        if ("y".equalsIgnoreCase(confirm)) {
+          return 1;
+        } else if ("n".equalsIgnoreCase(confirm)) {
+          return 0;
+        } else {
+          System.out.println("유효하지 않은 입력입니다.");
+        }
+      }
+    } catch (TransactionException e) {
+      System.out.println(e.getMessage());
+      // 예외가 발생할 경우 다시 승인 여부 재귀 호출
+      getOutboundRequestGrant(memberId, requestId);
+    }
+    return 0;
+  }
+
+  public void displayMemberApprovedOutboundRequests(Map<String, Integer> requests) {
+    if (requests.isEmpty()) {
+      System.out.println(TransactionText.EMPTY_MEMBER_APPROVED_INBOUND.getText());
+    } else {
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.println(TransactionText.MEMBER_APPROVED_OUTBOUNDS_HEADER.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.println(TransactionText.MEMBER_APPROVED_OUTBOUNDS_LIST.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      requests.keySet().stream().forEach(
+              key -> System.out.printf("%-15s | %-15s\n",
+                      key, requests.get(key)));
+
+    }
+  }
+
+  public void displayOutboundApprovedItems(List<OutboundItem> outboundItems) {
+    if (outboundItems.isEmpty()) {
+      System.out.println(TransactionText.EMPTY_CURRENT_OUTBOUND.getText());
+    } else {
+      System.out.println(TransactionText.APPROVED_OUTBOUNDS_LIST.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      System.out.printf(TransactionText.APPROVED_OUTBOUND_LIST_HEADER.getText());
+      System.out.println(TransactionText.BORDER_LINE.getText());
+      outboundItems.forEach(inboundItem -> {
+        System.out.printf("%-12s | %-5d | %-15s | %-15s | %-10s | %-15s\n",
+                inboundItem.getOutboundRequestId(),
+                inboundItem.getOutboundRequestItemId(),
+                inboundItem.getMemberId(),
+                inboundItem.getCoffeeName(),
+                inboundItem.getQuantity(),
+                inboundItem.getOutboundRequestDate());
+
+      });
+
+    }
+    System.out.println(TransactionText.COMMON_APPROVED_OUTBOUND_LIST.getText());
   }
 }

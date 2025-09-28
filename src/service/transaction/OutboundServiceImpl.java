@@ -1,11 +1,15 @@
 package service.transaction;
 
+import constant.transaction.ErrorCode;
 import domain.transaction.OutboundItem;
 import domain.transaction.OutboundRequest;
+import exception.transaction.OutboundRequestException;
+import exception.transaction.TransactionException;
 import model.transaction.OutboundDao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public class OutboundServiceImpl implements OutboundService{
 
@@ -38,4 +42,41 @@ public class OutboundServiceImpl implements OutboundService{
         // DAO 메서드를 호출하여 미승인 요청 목록을 가져옵니다.
         return outboundDao.getUnapprovedRequestsByMember(memberId);
     }
+
+    @Override
+    public List<OutboundItem> getApprovedRequestsByMember(String memberId) {
+        // DAO 메서드를 호출하여 미승인 요청 목록을 가져옵니다.
+        return outboundDao.getApprovedRequestsByMember(memberId);
+    }
+
+    @Override
+    public Map<String, Integer> getUnapprovedRequests() {
+        return outboundDao.getUnapprovedRequests();
+
+    }
+
+    @Override
+    public void processOutboundRequest(String outboundRequestId, String jsonItems) {
+        try {
+            outboundDao.processOutboundRequest(outboundRequestId, jsonItems);
+        } catch (SQLException e) {
+            throw new OutboundRequestException("출고 요청 승인 중 예외 발생!", e);
+        }
+    }
+
+    @Override
+    public List<OutboundItem> getOutboundRequestItems(String memberId, String requestId) {
+        try {
+            return outboundDao.getOutboundRequestItems(memberId, requestId);
+        } catch (SQLException e) {
+            throw new OutboundRequestException("출고 요청 건 조회 중 예외 발생!", e);
+        }
+    }
+
+    @Override
+    public Map<String, Integer> getMemberApprovedOutboundRequests() {
+        return outboundDao.getMemberApprovedOutboundRequests();
+    }
+
+
 }

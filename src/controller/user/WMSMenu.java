@@ -87,7 +87,7 @@ public class WMSMenu {
                 inboundMenu.menuManager(manager.getId());
                 break;
             case "6":   // 출고
-                outboundMenu.menuMember(manager.getId());
+                outboundMenu.menuManager(manager.getId());
                 break;
             case "7":   // 로그아웃
                 logout(manager.getId());
