@@ -35,6 +35,12 @@ public class MemberManageMenu implements UserManageMenu {
 
     @Override
     public void update() throws IOException {
+        System.out.print(UserPage.USER_UPDATE_TITLE);
+        String yesOrNo = input.readLine();
+        if (!yesOrNo.equalsIgnoreCase("Y")) {
+            System.out.println(UserPage.TO_PREVIOUS_MENU);
+            return;
+        }
         User newUserInfo = inputNewMemberInfo();
         boolean ack = dao.updateUserInfo(newUserInfo);
         if (!ack) {
@@ -45,6 +51,7 @@ public class MemberManageMenu implements UserManageMenu {
 
     private User inputNewMemberInfo() throws IOException {
         System.out.println(MemberPage.MEMBER_UPDATE_TITLE);
+
         System.out.println(LoginPage.INPUT_PWD);
         String userPwd = input.readLine();
         System.out.println(LoginPage.INPUT_COMPANY_NAME);

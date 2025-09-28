@@ -199,6 +199,12 @@ public class ManagerManageMenu implements UserManageMenu {
     }
 
     public void updateCurrentUser() throws IOException {
+        System.out.print(UserPage.USER_UPDATE_TITLE);
+        String yesOrNo = input.readLine();
+        if (!yesOrNo.equalsIgnoreCase("Y")) {
+            System.out.println(UserPage.TO_PREVIOUS_MENU);
+            return;
+        }
         User newUserInfo = inputNewManagerInfo();
         boolean ack = dao.updateUserInfo(newUserInfo);
         if (!ack) {
@@ -235,7 +241,7 @@ public class ManagerManageMenu implements UserManageMenu {
         String targetID = input.readLine();
         String userType = dao.searchUserTypeBy(targetID);
         if (userType == null) {
-            throw new UserRoleNotUpdatedException(UserPage.CANNOT_SEARCH_USER.toString());
+            throw new UserRoleNotUpdatedException(ManagerPage.ALREADY_DELETED_OR_NOT_EXIST.toString());
         }
         boolean ack = false;
         switch (userType) {
@@ -306,6 +312,9 @@ public class ManagerManageMenu implements UserManageMenu {
                         isUserDeleted = deleteCurrentUser();
                         break;
                     case "2":
+                        if (!currentManager.getPosition().equals("총관리자")) {
+                            throw new UserNotHavePermissionException(ManagerPage.NOT_HAVE_PERMISSION.toString());
+                        }
                         deleteUserRole();
                         break;
                     case "3":
@@ -336,22 +345,16 @@ public class ManagerManageMenu implements UserManageMenu {
         return true;
     }
 
-    // 권한이 부여된 회원의 권한을 삭제
-    // 창고관리자는 일반회원 권한만 삭제 가능
     public void deleteUserRole() throws IOException {
         System.out.print(ManagerPage.INPUT_ID_FOR_DELETE_ROLE);
         String targetID = input.readLine();
         String targetType = dao.searchUserTypeBy(targetID);
 
-        // 총관리자는 창고관리자, 일반회원 권한 삭제 가능, 창고관리자는 일반회원만 삭제 가능
         if (targetType == null) {
             throw new UserRoleNotDeletedException(ManagerPage.ALREADY_DELETED_OR_NOT_EXIST.toString());
         }
         if (targetType.equals("총관리자")) {
             throw new UserNotHavePermissionException(ManagerPage.CHIEF_MANAGER_CANNOT_DELETE.toString());
-        }
-        if (!currentManager.getPosition().equals("총관리자") && targetType.equals("창고관리자")) {
-            throw new UserNotHavePermissionException(ManagerPage.NOT_HAVE_PERMISSION.toString());
         }
         boolean ack = dao.deleteRole(targetID, targetType);
         if (!ack) {
