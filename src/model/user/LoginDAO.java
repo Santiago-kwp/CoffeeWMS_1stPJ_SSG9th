@@ -6,7 +6,6 @@ import constant.user.UserPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-import exception.user.LoginException;
 import exception.user.UserNotFoundException;
 import exception.user.UserNotRegisteredException;
 import java.sql.CallableStatement;
@@ -45,7 +44,8 @@ public class LoginDAO {
             }
             return loginMember(userID, userPwd, userType);
         } catch (UserNotFoundException e) {
-            throw new LoginException(LoginPage.CANNOT_LOGIN.toString(), e);
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 

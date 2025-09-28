@@ -1,7 +1,10 @@
 package controller.user;
 
 import constant.user.LoginPage;
+import constant.user.validation.InputValidCheck;
+import constant.user.validation.LoginValidCheck;
 import domain.user.User;
+import exception.user.InvalidUserDataException;
 import exception.user.LoginException;
 import exception.user.UserNotFoundException;
 import exception.user.UserNotRegisteredException;
@@ -20,9 +23,13 @@ public class LoginMenu {
     private static boolean quitLogin;
 
     private final LoginDAO dao;
+    private final InputValidCheck inputValidCheck;
+    private final LoginValidCheck loginValidCheck;
 
     private LoginMenu() {
-        dao = new LoginDAO();
+        this.dao = new LoginDAO();
+        this.inputValidCheck = new InputValidCheck();
+        this.loginValidCheck = new LoginValidCheck();
     }
 
     // 컨트롤러에 싱글톤 패턴 적용
@@ -35,6 +42,7 @@ public class LoginMenu {
             try {
                 System.out.print(LoginPage.LOGIN_MENU_TITLE);
                 String menuNum = input.readLine();
+                loginValidCheck.checkMenuNumber(menuNum);
                 switch (menuNum) {
                     case "1" -> login();
                     case "2" -> register();
@@ -42,11 +50,10 @@ public class LoginMenu {
                     case "4" -> updatePassword();
                     case "5" -> exitLoginMenu();
                 }
-            } catch (IOException
-                     | LoginException
-                     | UserNotRegisteredException
-                     | UserNotFoundException
-                     | UserNotUpdatedException e) {
+            } catch (IllegalArgumentException
+                     | IOException | LoginException
+                     | InvalidUserDataException | UserNotRegisteredException
+                     | UserNotFoundException | UserNotUpdatedException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -57,12 +64,14 @@ public class LoginMenu {
         String userID = input.readLine();
         System.out.println(LoginPage.INPUT_PWD);
         String userPwd = input.readLine();
+
         User loginUser = dao.login(userID, userPwd);
+        loginValidCheck.checkLoginSuccess(loginUser);
         WMSMenu wmsMenu = new WMSMenu(loginUser);
         wmsMenu.run();
     }
 
-    public void register() throws IOException, UserNotRegisteredException {
+    public void register() throws IOException, InvalidUserDataException, UserNotRegisteredException {
         LoginPage.print(LoginPage.SIGN_UP);
         System.out.print(LoginPage.REGISTER_OR_NOT);
         String yesOrNo = input.readLine();
@@ -84,13 +93,11 @@ public class LoginMenu {
                 ack = dao.register(newManager);
             }
         }
-        if (!ack) {
-            throw new UserNotRegisteredException(LoginPage.REGISTER_FAILED.toString());
-        }
+        loginValidCheck.checkUserRegistered(ack);
         System.out.println(LoginPage.REGISTER_SUCCESS);
     }
 
-    public User inputMemberInfo() throws IOException {
+    public User inputMemberInfo() throws IOException, InvalidUserDataException {
         LoginPage.print(LoginPage.MEMBER_REGISTER);
 
         System.out.println(LoginPage.INPUT_ID);
@@ -111,10 +118,12 @@ public class LoginMenu {
         User newUser = new User(userID, userPwd, companyName, phone, email, "일반회원");
         newUser.setCompanyCode(companyCode);
         newUser.setAddress(address);
+
+        inputValidCheck.checkMemberData(newUser);
         return newUser;
     }
 
-    public User inputManagerInfo() throws IOException {
+    public User inputManagerInfo() throws IOException, InvalidUserDataException {
         LoginPage.print(LoginPage.MANAGER_REGISTER);
         System.out.println(LoginPage.INPUT_ID);
         String userID = input.readLine();
@@ -127,23 +136,26 @@ public class LoginMenu {
         System.out.println(LoginPage.INPUT_EMAIL);
         String email = input.readLine();
         System.out.println(LoginPage.INPUT_MANAGER_POSITION);
+
         String option = input.readLine();
         String position = null;
         switch (option) {
             case "1" -> position = "창고관리자";
             case "2" -> position = "총관리자";
         }
-        return new User(userID, userPwd, name, phone, email, position);
+
+        User newUser = new User(userID, userPwd, name, phone, email, position);
+        inputValidCheck.checkManagerData(newUser);
+        return newUser;
     }
 
     public void searchID() throws IOException {
         LoginPage.print(LoginPage.FIND_ID);
         System.out.println(LoginPage.INPUT_EMAIL);
         String userEmail = input.readLine();
+
         String foundID = dao.findID(userEmail);
-        if (foundID == null) {
-            throw new UserNotFoundException(LoginPage.NOT_FOUND_ID.toString());
-        }
+        loginValidCheck.checkIDFound(dao.isExistID(foundID));
         System.out.printf(LoginPage.FOUND_ID.toString(), foundID);
     }
 
@@ -151,17 +163,11 @@ public class LoginMenu {
         LoginPage.print(LoginPage.FIND_PWD);
         System.out.println(LoginPage.INPUT_ID);
         String userID = input.readLine();
-
-        if (!dao.isExistID(userID)) {
-            throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString());
-        }
         System.out.println(LoginPage.NEW_PASSWORD);
         String newPassword = input.readLine();
 
         boolean ack = dao.updatePassword(userID, newPassword);
-        if (!ack) {
-            throw new UserNotUpdatedException(LoginPage.NOT_UPDATE_PASSWORD.toString());
-        }
+        loginValidCheck.checkPwdUpdated(ack);
         System.out.println(LoginPage.UPDATE_PASSWORD);
     }
 
