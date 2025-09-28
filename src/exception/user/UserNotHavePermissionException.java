@@ -6,7 +6,4 @@ public class UserNotHavePermissionException extends IllegalStateException {
         super(message);
     }
 
-    public UserNotHavePermissionException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

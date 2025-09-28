@@ -6,7 +6,4 @@ public class UserNotApprovedException extends IllegalStateException {
         super(message);
     }
 
-    public UserNotApprovedException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

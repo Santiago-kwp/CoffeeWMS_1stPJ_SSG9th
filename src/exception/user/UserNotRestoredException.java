@@ -6,7 +6,4 @@ public class UserNotRestoredException extends IllegalStateException {
         super(message);
     }
 
-    public UserNotRestoredException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

@@ -228,6 +228,18 @@ END $$
 DELIMITER ;
 
 -- 회원 승인: 같은 아이디로 승인완료된 계정이 없으면, 미승인된 아이디를 승인한다.
+DROP PROCEDURE IF EXISTS not_approved_user_type;
+DELIMITER $$
+CREATE PROCEDURE not_approved_user_type(IN targetID varchar(15), OUT userRole varchar(10))
+BEGIN
+    IF EXISTS(select user_id from users where user_id = targetID and user_approval = '미승인') THEN
+        select user_type into userRole
+        from users
+        where user_id = targetID and user_approval = '미승인';
+    END IF;
+END $$
+DELIMITER ;
+
 DROP PROCEDURE IF EXISTS approve_user;
 DELIMITER $$
 CREATE PROCEDURE approve_user(IN targetID varchar(15), OUT affected INT)

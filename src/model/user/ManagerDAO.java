@@ -68,8 +68,10 @@ public class ManagerDAO implements UserDAO {
         return false;
     }
 
-    public String searchUserTypeBy(String targetID) {
-        String sql = "{call other_user_type(?, ?)}";
+    public String searchUserTypeBy(String targetID, boolean isApproved) {
+        String sql = isApproved
+                ? "{call other_user_type(?, ?)}"
+                : "{call not_approved_user_type(?, ?)}";
         try (Connection conn = DBUtil.getConnection();
                 CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, targetID);

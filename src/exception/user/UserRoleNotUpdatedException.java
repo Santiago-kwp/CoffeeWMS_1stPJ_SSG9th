@@ -5,7 +5,4 @@ public class UserRoleNotUpdatedException extends RuntimeException {
         super(message);
     }
 
-    public UserRoleNotUpdatedException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }

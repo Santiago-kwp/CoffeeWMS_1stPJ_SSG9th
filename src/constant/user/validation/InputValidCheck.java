@@ -7,7 +7,7 @@ import exception.user.InvalidUserDataException;
 public class InputValidCheck {
 
     private static final String ID_FORMAT = "^[a-zA-Z0-9]{8,15}$";
-    private static final String PASSWORD_FORMAT = "^[^a-zA-Z0-9\\s]{7,20}$";
+    private static final String PASSWORD_FORMAT = "^[a-zA-Z0-9\\s]{7,20}$";
     private static final String PHONE_FORMAT = "^\\d{3}-\\d{3,4}-\\d{4}$";
     private static final String COMPANY_CODE_FORMAT = "^\\d{3}-\\d{2}-\\d{5}$";
     private static final String EMAIL_FORMAT = "^[a-zA-Z0-9]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";

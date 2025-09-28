@@ -88,7 +88,7 @@ public class ManagerManageMenu implements UserManageMenu {
     private void readOtherUser() throws IOException {
         System.out.print(ManagerPage.INPUT_ID_FOR_SEARCH);
         String targetID = input.readLine();
-        String userType = dao.searchUserTypeBy(targetID);
+        String userType = dao.searchUserTypeBy(targetID, true);
         validCheck.checkUserType(userType);
 
         User foundUser = dao.searchUser(targetID, userType);
@@ -228,7 +228,7 @@ public class ManagerManageMenu implements UserManageMenu {
     private void approveUser() throws IOException {
         System.out.print(ManagerPage.INPUT_ID_FOR_APPROVE);
         String targetID = input.readLine();
-        String userRole = dao.searchUserTypeBy(targetID);
+        String userRole = dao.searchUserTypeBy(targetID, false);
         validCheck.checkRoleExist(userRole);
 
         boolean ack = false;
@@ -248,7 +248,7 @@ public class ManagerManageMenu implements UserManageMenu {
     public void restoreUserRole() throws IOException {
         System.out.print(ManagerPage.INPUT_ID_FOR_UPDATE_ROLE);
         String targetID = input.readLine();
-        String userRole = dao.searchUserTypeBy(targetID);
+        String userRole = dao.searchUserTypeBy(targetID, true);
         validCheck.checkRoleDeleted(userRole);
 
         System.out.print(ManagerPage.ROLE_UPDATE_OPTION);
@@ -320,7 +320,7 @@ public class ManagerManageMenu implements UserManageMenu {
     public void deleteUserRole() throws IOException {
         System.out.print(ManagerPage.INPUT_ID_FOR_DELETE_ROLE);
         String targetID = input.readLine();
-        String targetType = dao.searchUserTypeBy(targetID);
+        String targetType = dao.searchUserTypeBy(targetID, true);
         validCheck.checkDeleteRoleAvailable(targetType);
 
         boolean ack = dao.deleteRole(targetID, targetType);

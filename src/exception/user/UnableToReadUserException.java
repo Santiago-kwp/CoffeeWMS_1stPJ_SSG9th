@@ -6,7 +6,4 @@ public class UnableToReadUserException extends IllegalStateException {
         super(message);
     }
 
-    public UnableToReadUserException(String message, Throwable cause) {
-        super(message, cause);
-    }
 }
