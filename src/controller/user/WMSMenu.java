@@ -2,6 +2,7 @@ package controller.user;
 
 import constant.user.WMSPage;
 import controller.cargo.CargoController;
+import constant.user.validation.WMSValidCheck;
 import controller.support.CSMenu;
 import domain.user.Manager;
 import domain.user.Member;
@@ -18,6 +19,7 @@ public class WMSMenu {
     private static final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     private final User currentLoginUser;
+    private final WMSValidCheck validCheck;
 
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
@@ -25,6 +27,7 @@ public class WMSMenu {
     private CargoController cargoController;
     public WMSMenu(User loginUser) {
         this.currentLoginUser = loginUser;
+        this.validCheck = new WMSValidCheck();
     }
 
     public void run() {
@@ -45,6 +48,7 @@ public class WMSMenu {
     public void memberMenuList(Member member) throws IOException {
         System.out.print(WMSPage.MEMBER_MENU_TITLE);
         String menuNum = input.readLine();
+        validCheck.checkMemberMenu(menuNum);
         switch (menuNum) {
             case "1":   // 회원관리
                 userManagement(member);
@@ -71,6 +75,7 @@ public class WMSMenu {
         // 창고관리 기능은 관리자 전용 기능이므로, memberMenu(), managerMenu()를 구분
         System.out.print(WMSPage.MANAGER_MENU_TITLE);
         String menuNum = input.readLine();
+        validCheck.checkManagerMenu(menuNum);
         switch (menuNum) {
             case "1":   // 회원관리
                 userManagement(manager);

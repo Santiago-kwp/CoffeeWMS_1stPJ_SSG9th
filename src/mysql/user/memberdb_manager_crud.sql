@@ -1,3 +1,5 @@
+use railway;
+# use testdb1;
 ##########################################################
 # 2. 관리자 전용 회원관리 기능
 ##########################################################
@@ -72,23 +74,26 @@ DROP PROCEDURE IF EXISTS manager_delete;
 DELIMITER $$
 CREATE PROCEDURE manager_delete(IN currentID varchar(15), OUT deleteCount int)
 BEGIN
-    -- 회원 정보 삭제: 삭제 시 아이디 중복으로 인해 미승인된 건까지 모두 삭제
+    -- 회원 정보 삭제: 삭제 시 해당 아이디로는 더 이상 로그인 불가
     SET @loginID = currentID;
-    SET @deleteCount = 0;
-    
-    SET @deleteManager = 'update managers set manager_id = concat(\'del_\', ?), manager_login = false where manager_id = ? and manager_login = true';
-    PREPARE deleteQuery FROM @deleteManager;
-    EXECUTE deleteQuery USING @loginID, @loginID;
-    
-    SET @deleteInfo = 'delete from users where user_id = ?';
+
+    SET @deleteMember = 'update managers set manager_login = null where manager_id = ? and manager_login = true';
+    PREPARE deleteQuery FROM @deleteMember;
+    EXECUTE deleteQuery USING @loginID;
+
+    SET @deleteInfo = 'update users set user_approval = \'삭제됨\', user_type = null where user_id = ? and user_approval = \'승인완료\'';
     PREPARE deleteQuery FROM @deleteInfo;
     EXECUTE deleteQuery USING @loginID;
-    
+
     DEALLOCATE PREPARE deleteQuery;
-    
-    select count(manager_id) into deleteCount from managers where manager_id = concat('del_', @loginID);
+
+    select count(manager_id) into deleteCount
+    from managers
+    where manager_id = currentID and manager_login is null;
+    commit;
 END $$
 DELIMITER ;
+
 
 DROP PROCEDURE IF EXISTS other_user_type;
 DELIMITER $$
@@ -158,3 +163,200 @@ BEGIN
     DEALLOCATE PREPARE searchByRole;
 END $$
 DELIMITER ;
+
+# 회원 권한 복구(완료)
+-- 권한 복구는 아무 권한이 없는 회원을 대상으로 진행하며, 총관리자와 창고관리자 모두 수행할 수 있다.
+-- 단, 창고관리자는 일반회원 권한만 부여할 수 있다.
+DROP PROCEDURE IF EXISTS restore_role;
+DELIMITER $$
+CREATE PROCEDURE restore_role(IN targetID varchar(15), IN newRole varchar(10), OUT updateCount INT)
+BEGIN
+    SET @targetID = targetID;
+    SET @newRole = newRole;
+    SET @updateRole = 'update users set user_type = ? where user_id = ? and user_approval = \'승인완료\' and user_type is null';
+    SET updateCount = 0;
+
+    PREPARE updateRole from @updateRole;
+    EXECUTE updateRole USING @newRole, @targetID;
+    DEALLOCATE PREPARE updateRole;
+
+    IF (newRole = '일반회원') THEN
+        select count(member_id) into updateCount
+        from members
+        where member_id = (
+            select user_id from users
+            where user_id = targetID and user_approval = '승인완료' and user_type = newRole
+        );
+    ELSEIF (newRole = '창고관리자') THEN
+        select count(manager_id) into updateCount
+        from managers
+        where manager_id = (
+            select user_id from users
+            where user_id = targetID and user_approval = '승인완료' and user_type = newRole
+        );
+    END IF;
+END $$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS update_to_member_trigger;
+DELIMITER $$
+CREATE TRIGGER update_to_member_trigger
+    AFTER UPDATE ON users
+    FOR EACH ROW
+BEGIN
+    IF (OLD.user_type is null and NEW.user_type = '일반회원') THEN
+        IF EXISTS(select members.member_id from members where members.member_id = NEW.user_id) THEN
+            update members set member_login = false where member_id = NEW.user_id;
+        END IF;
+    END IF;
+END $$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS update_to_manager_trigger;
+DELIMITER $$
+CREATE TRIGGER update_to_manager_trigger
+    AFTER UPDATE ON users
+    FOR EACH ROW
+    FOLLOWS update_to_member_trigger
+BEGIN
+    IF (OLD.user_type is null and NEW.user_type = '창고관리자') THEN
+        IF EXISTS(select managers.manager_id from managers where managers.manager_id = NEW.user_id) THEN
+            update managers set manager_login = false, manager_position = NEW.user_type where manager_id = NEW.user_id;
+        END IF;
+    END IF;
+END $$
+DELIMITER ;
+
+-- 회원 승인: 같은 아이디로 승인완료된 계정이 없으면, 미승인된 아이디를 승인한다.
+DROP PROCEDURE IF EXISTS not_approved_user_type;
+DELIMITER $$
+CREATE PROCEDURE not_approved_user_type(IN targetID varchar(15), OUT userRole varchar(10))
+BEGIN
+    IF EXISTS(select user_id from users where user_id = targetID and user_approval = '미승인') THEN
+        select user_type into userRole
+        from users
+        where user_id = targetID and user_approval = '미승인';
+    END IF;
+END $$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS approve_user;
+DELIMITER $$
+CREATE PROCEDURE approve_user(IN targetID varchar(15), OUT affected INT)
+BEGIN
+   IF NOT EXISTS(select user_id from users
+                 where user_id = targetID and user_approval = '승인완료') THEN
+       IF EXISTS(select user_id from users where user_id = targetID and user_approval = '미승인') THEN
+           update users set user_approval = '승인완료' where user_id = targetID and user_approval = '미승인';
+           SET affected = 1;
+       ELSE
+           SET affected = 0;
+       END IF;
+   ELSE
+       SET affected = 0;
+   END IF;
+END $$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS grant_role_trigger;
+DELIMITER $$
+CREATE TRIGGER grant_role_trigger
+    AFTER UPDATE ON users FOR EACH ROW
+BEGIN
+    IF (old.user_approval = '미승인' and new.user_approval = '승인완료') then
+        IF (new.user_type = '일반회원') THEN
+            insert into members
+            values(
+                      new.user_id, new.user_pwd, new.user_name, new.user_phone,
+                      new.user_email, new.user_company_code, new.user_address,
+                      false, now(), date_add(now(), interval 1 year)
+            );
+-- 가입승인된 회원의 가입유형이 창고관리자 또는 총관리자면 관리자 권한을 부여
+        ELSEIF (new.user_type like '%관리자') then
+            insert into managers
+            values(
+                      new.user_id, new.user_pwd, new.user_name, new.user_phone,
+                      new.user_email, false, now(), new.user_type
+            );
+        END IF;
+    END IF;
+END $$
+DELIMITER ;
+commit;
+
+-- 회원탈퇴 철회: 삭제된 회원을 승인완료 상태로 복구(단, 권한은 복구되지 않음)
+DROP PROCEDURE IF EXISTS restore_user;
+DELIMITER $$
+CREATE PROCEDURE restore_user(IN targetID varchar(15), OUT affected INT)
+BEGIN
+    IF NOT EXISTS(select user_id
+                  from users
+                  where user_id = targetID and user_approval = '승인완료') THEN
+        IF EXISTS(select user_id from users where user_id = targetID and user_approval = '삭제됨') THEN
+            update users set user_approval = '승인완료' where user_id = targetID and user_approval = '삭제됨';
+            SET affected = 1;
+        ELSE
+            SET affected = 0;
+        END IF;
+    ELSE
+        SET affected = 0;
+    END IF;
+END $$
+DELIMITER ;
+
+DROP PROCEDURE IF EXISTS delete_role;
+DELIMITER $$
+CREATE PROCEDURE delete_role(IN targetID varchar(15), IN targetType varchar(10), OUT affected INT)
+BEGIN
+    IF (targetType = '일반회원') THEN
+        update members set member_login = null where member_id = targetID;
+        update users set user_type = null where user_id = targetID;
+        SET affected = 1;
+    ELSEIF (targetType = '창고관리자') THEN
+        update managers set manager_login = null where manager_id = targetID and manager_position = targetType;
+        update users set user_type = null where user_id = targetID;
+        delete from cargo_management where manager_id = targetID;
+        SET affected = 1;
+    ELSE
+        SET affected = 0;
+    END IF;
+END $$
+DELIMITER ;
+
+-- 창고 배정
+drop procedure add_cargo_to_manager;
+delimiter $$
+create procedure add_cargo_to_manager(
+    in managerID varchar(15),
+    in cargoID int,
+    in cargoLimit int,
+    out ok boolean
+)
+begin
+    -- 현재 관리자가 담당하는 창고의 개수를 저장할 변수
+    declare current_cargo_count int default 0;
+    declare managerExists boolean;
+    declare cargoExists boolean;
+
+    -- 1. 관리자와 창고 ID가 실존하는지 확인
+    set managerExists = exists(select manager_id from managers where manager_id = managerID and manager_login is not null);
+    set cargoExists = exists(select cargo_id from cargoes where cargo_id = cargoID);
+
+    -- 2. cargo_management 테이블에서 현재 관리자의 창고 개수를 확인
+    -- 데이터가 없으면 COUNT(*)는 0을 반환하므로 안전함
+    select count(*) into current_cargo_count
+    from cargo_management
+    where manager_id = managerID;
+
+    -- 3. 모든 조건을 만족하는지 최종 확인
+    if (managerExists and cargoExists and current_cargo_count < cargoLimit) then
+        insert into cargo_management(manager_id, cargo_id) values(managerID, cargoID);
+        set ok = true;
+    else
+        set ok = false;
+    end if;
+end $$
+delimiter ;
+
+call add_cargo_to_manager('manager4821', 4, 10, @result);
+select @result;

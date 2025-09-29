@@ -1,7 +1,10 @@
 package controller.user;
 
 import constant.user.UserPage;
-
+import constant.user.validation.UserManagementValidCheck;
+import exception.user.UnableToReadUserException;
+import exception.user.UserNotDeletedException;
+import exception.user.UserNotUpdatedException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,39 +12,36 @@ import java.io.InputStreamReader;
 public interface UserManageMenu {
 
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    UserManagementValidCheck validCheck = new UserManagementValidCheck();
 
     default boolean run() {
         boolean quitMenu = false;
-        boolean isUserDeleted = false;
+        boolean hasLogout = false;
 
-        while (!quitMenu && !isUserDeleted) {
+        while (!quitMenu && !hasLogout) {
             try {
                 printMenu();
                 String menuNum = input.readLine();
+                validCheck.checkMenuNum("^[1-4]", menuNum);
                 switch (menuNum) {
-                    case "1":
-                        read();
-                        break;
-                    case "2":
-                        update();
-                        break;
-                    case "3":
-                        isUserDeleted = delete();
-                        break;
-                    case "4":
-                        quitMenu = exitMenu();
-                        break;
+                    case "1" -> read();
+                    case "2" -> update();
+                    case "3" -> hasLogout = delete();
+                    case "4" -> quitMenu = exitMenu();
                 }
-            } catch (IOException e) {
+            } catch (IOException
+                     | UnableToReadUserException
+                     | UserNotUpdatedException
+                     | UserNotDeletedException e) {
                 System.out.println(e.getMessage());
             }
         }
-        return isUserDeleted;
+        return hasLogout;
     }
 
     default boolean exitMenu() {
         boolean quitMenu = true;
-        System.out.println(UserPage.USER_MENU_PREVIOUS);
+        System.out.println(UserPage.TO_PREVIOUS_MENU);
         return quitMenu;
     }
 

@@ -1,9 +1,11 @@
 package model.user;
 
 import config.DBUtil;
+import constant.user.UserPage;
 import domain.user.Member;
 import domain.user.User;
-
+import exception.user.UserNotDeletedException;
+import exception.user.UserNotUpdatedException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -47,9 +49,8 @@ public class MemberDAO implements UserDAO {
 
             return true;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new UserNotUpdatedException(UserPage.USER_UPDATE_FAILED.toString(), e);
         }
-        return false;
     }
 
     @Override
@@ -58,14 +59,13 @@ public class MemberDAO implements UserDAO {
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, member.getId());
-            call.setInt(2, Types.INTEGER);
+            call.registerOutParameter(2, Types.INTEGER);
             call.execute();
 
             int affected = call.getInt(2);
             return affected > 0;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new UserNotDeletedException(UserPage.USER_DELETE_FAILED.toString(), e);
         }
-        return false;
     }
 }
