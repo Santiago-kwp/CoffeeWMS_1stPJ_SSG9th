@@ -8,6 +8,8 @@ import domain.user.User;
 import exception.support.InputException;
 import exception.support.NotFoundException;
 
+import static java.lang.Character.toUpperCase;
+
 public class ValidCheck {
 
     public void isTwoMenuValid(String menu) {
@@ -84,5 +86,10 @@ public class ValidCheck {
         if (!manager.getPosition().equals("총관리자")) {
             throw new InputException(BoardErrorCode.YOU_ARE_NOT.getMessage());
         }
+    }
+
+    public void yCheck (String y){
+        if (y == null || y.trim().isEmpty()) throw new InputException(BoardErrorCode.NOT_INPUT_EMPTY.getMessage());
+        if (!y.trim().equalsIgnoreCase("Y")) throw new InputException(BoardErrorCode.NOT_INPUT_OPTION.getMessage());
     }
 }

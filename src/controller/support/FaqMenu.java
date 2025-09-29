@@ -10,7 +10,9 @@ import exception.support.NotFoundException;
 import model.support.dao.FaqDAO;
 import model.support.dao.daoImpl.FaqDaoImpl;
 import service.support.inputService.FaqInput;
+import service.support.inputService.NoticeInput;
 import service.support.inputService.inputImpl.FaqInputImpl;
+import service.support.inputService.inputImpl.NoticeInputImpl;
 import service.support.readService.FaqRead;
 import service.support.readService.readImpl.FaqReadImpl;
 
@@ -23,6 +25,7 @@ public class FaqMenu {
     FaqDAO faqDAO = new FaqDaoImpl();
     FaqInput faqInput = new FaqInputImpl();
     FaqRead faqRead = new FaqReadImpl();
+    NoticeInput noticeInput = new NoticeInputImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 회원 <FAQ> 메뉴 ------------------------------------------------------------------------------------------------------
@@ -72,6 +75,8 @@ public class FaqMenu {
                     }
 
                     faqRead.faqReadOne(oneFaq);
+
+                    noticeInput.backOption();
 
                     break;
 

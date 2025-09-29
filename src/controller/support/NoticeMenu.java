@@ -74,6 +74,8 @@ public class NoticeMenu {
 
                     noticeRead.noticeReadOne(oneNotice);
 
+                    noticeInput.backOption();
+
                     break;
 
                 case "2":

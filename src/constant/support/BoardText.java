@@ -169,6 +169,7 @@ public enum BoardText {
     REPLY_STATUS("답변상태"),
     REPLY_PENDING("[대기]"),
     REPLY_DONE("[완료]"),
+    BACK_OPTION("[뒤로가시려면 'Y'를 입력해주세요]"),
 
 
     ;
