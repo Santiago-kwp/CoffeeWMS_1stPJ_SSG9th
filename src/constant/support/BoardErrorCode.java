@@ -24,8 +24,9 @@ public enum BoardErrorCode {
 
     NOT_INPUT_EMPTY ("[값를 입력해 주세요]"),
 
+    NOT_INPUT_ERROR ("[에러가 발생했습니다]"),
 
-    NOT_INPUT_ERROR ("[에러가 발생했습니다]")
+    YOU_ARE_NOT ("[해당 권한이 없습니다]")
 
 
     ;

@@ -2,33 +2,24 @@ package model.cargo.cargoDaoImpl;
 
 import java.sql.*;
 
-import config.cargo.DBUtil;
+import config.DBUtil;
 import domain.cargo.cargoVo.Cargo;
-
 import model.cargo.CargoDao;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CargoDaoImpl implements CargoDao {
-    //데이터 베이스 연결 객체
     private final Connection conn;
-    // 창고 데이터 관리 리스트
-    private final List<Cargo> cargoList = new ArrayList<>();
 
-    // 생성자에서 DB 연결 초기화
     public CargoDaoImpl() throws SQLException {
         this.conn = DBUtil.getConnection();
     }
 
-
-    // 창고 추가
     @Override
     public List<Cargo> addCargo(Cargo cargo) throws SQLException {
-        String sql = "call cargo_add(?,?,?,?,?,?,?)";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
+        String sql = "CALL cargo_add(?, ?, ?, ?, ?, ?, ?)";
+        try (CallableStatement pstmt = conn.prepareCall(sql)) {
             pstmt.setString(1, cargo.getCargoCode());
             pstmt.setString(2, cargo.getCargoName());
             pstmt.setString(3, cargo.getCargoAddress());
@@ -37,27 +28,22 @@ public class CargoDaoImpl implements CargoDao {
             pstmt.setInt(6, cargo.getCargoTotalCapa());
             pstmt.setInt(7, cargo.getCargoUseCapa());
 
-            //서버로 전송 후 결과값
-            pstmt.executeUpdate();
-
-            try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                if (rs.next()) {
-                    cargo.setCargoId(rs.getInt(1)); // 생성된 ID 설정
-                }
-
+            boolean hasResult = pstmt.execute();
+            if (hasResult || pstmt.getUpdateCount() > 0) {
                 return getAllCargos();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } else {
                 return null;
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
-    // 창고 수정
     @Override
     public List<Cargo> modifyCargo(Cargo cargo) throws SQLException {
-        String sql = "call cargo_modify(?,?,?,?,?,?,?,?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String sql = "CALL cargo_modify(?, ?, ?, ?, ?, ?, ?, ?)";
+        try (CallableStatement pstmt = conn.prepareCall(sql)) {
             pstmt.setInt(1, cargo.getCargoId());
             pstmt.setString(2, cargo.getCargoCode());
             pstmt.setString(3, cargo.getCargoName());
@@ -67,41 +53,45 @@ public class CargoDaoImpl implements CargoDao {
             pstmt.setInt(7, cargo.getCargoTotalCapa());
             pstmt.setInt(8, cargo.getCargoUseCapa());
 
-            //서버로 전송 후 결과값
             pstmt.executeUpdate();
-
             return getAllCargos();
-
-
-
-
-
-            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
+    }
 
-
-    // 삭제
     @Override
     public int removeCargo(Cargo cargo) throws SQLException {
-        String sql = "call cargo_remove(?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String sql = "CALL cargo_remove(?)";
+        try (CallableStatement pstmt = conn.prepareCall(sql)) {
             pstmt.setInt(1, cargo.getCargoId());
             return pstmt.executeUpdate();
         } catch (SQLException e) {
+            e.printStackTrace();
             return 0;
         }
-
     }
 
-    // 전체조회
+    @Override
+    public int removeCargoName(String cargoName) throws SQLException {
+        String sql = "DELETE FROM cargoes WHERE cargo_name = ?";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, cargoName);
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
     @Override
     public List<Cargo> getAllCargos() throws SQLException {
         List<Cargo> cargoList = new ArrayList<>();
-        String sql = "call cargo_total_get";
-
-        try (PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
+        String sql = "CALL cargo_total_get()";
+        try (CallableStatement pstmt = conn.prepareCall(sql)) {
+            pstmt.execute();
+            ResultSet rs = pstmt.getResultSet();
             while (rs.next()) {
                 Cargo cargo = new Cargo();
                 cargo.setCargoId(rs.getInt("cargo_id"));
@@ -113,22 +103,19 @@ public class CargoDaoImpl implements CargoDao {
                 cargo.setCargoTotalCapa(rs.getInt("cargo_total_capa"));
                 cargo.setCargoUseCapa(rs.getInt("cargo_use_capa"));
                 cargo.setUtilization(rs.getDouble("utilization"));
-
                 cargoList.add(cargo);
             }
-
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
         return cargoList;
     }
 
-
-    // 이름별 조회
     @Override
     public List<Cargo> getCargoByCargoName(String cargoName) throws SQLException {
         List<Cargo> cargoList = new ArrayList<>();
-        String sql = "call cargo_name_get(?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String sql = "CALL cargo_name_get(?)";
+        try (CallableStatement pstmt = conn.prepareCall(sql)) {
             pstmt.setString(1, cargoName);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -145,16 +132,17 @@ public class CargoDaoImpl implements CargoDao {
                     cargoList.add(cargo);
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return cargoList;
     }
 
-    // 주소별 조회
     @Override
     public List<Cargo> getCargoByCargoAddress(String cargoAddress) throws SQLException {
         List<Cargo> cargoList = new ArrayList<>();
-        String sql = "call cargo_address_get(?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String sql = "CALL cargo_address_get(?)";
+        try (CallableStatement pstmt = conn.prepareCall(sql)) {
             pstmt.setString(1, cargoAddress);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -169,19 +157,19 @@ public class CargoDaoImpl implements CargoDao {
                     cargo.setCargoUseCapa(rs.getInt("cargo_use_capa"));
                     cargo.setUtilization(rs.getDouble("utilization"));
                     cargoList.add(cargo);
-
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
         return cargoList;
     }
 
-    // 등급별 조회
     @Override
     public List<Cargo> getCargoByCargoGrade(String cargoGrade) throws SQLException {
         List<Cargo> cargoList = new ArrayList<>();
-        String sql = "call cargo_grade_get(?)";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        String sql = "CALL cargo_grade_get(?)";
+        try (CallableStatement pstmt = conn.prepareCall(sql)) {
             pstmt.setString(1, cargoGrade);
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -196,11 +184,33 @@ public class CargoDaoImpl implements CargoDao {
                     cargo.setCargoUseCapa(rs.getInt("cargo_use_capa"));
                     cargo.setUtilization(rs.getDouble("utilization"));
                     cargoList.add(cargo);
-
                 }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            try {
+
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
             }
         }
         return cargoList;
     }
-}
 
+    @Override
+    public boolean addCargoToManager(String manangerId, int cargoId) throws SQLException {
+        String sql = "Call add_cargo_to_manager(?, ?, ?, ?)";
+        try (CallableStatement pstmt = conn.prepareCall(sql)) {
+            pstmt.setString(1, manangerId);
+            pstmt.setInt(2, cargoId);
+            pstmt.setInt(3, 10); // 한 사람당 관리하는 최대 창고 갯수
+            pstmt.registerOutParameter(4, Types.BOOLEAN);
+            pstmt.execute();
+            return pstmt.getBoolean(4);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+
+    }
+}

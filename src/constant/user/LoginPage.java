@@ -27,12 +27,19 @@ public enum LoginPage {
     INPUT_EMAIL("이메일을 입력해주세요."),
     INPUT_COMPANY_CODE("사업자등록번호를 입력해주세요.(형식은 XXX-XX-XXXXX)"),
     INPUT_ADDRESS("주소지를 입력해주세요."),
-    INPUT_MANAGER_POSITION("관리자 직급을 입력하세요.(창고관리자, 총관리자 중 택1)"),
+    INPUT_MANAGER_POSITION("""
+            ---------------------<< 회원가입 >>--------------------------
+            1.창고관리자 | 2.총관리자
+            ------------------------------------------------------------
+            등록할 관리자의 직급을 선택하세요.(1,2 중 택1)
+            """),
     INPUT_MEMBERSHIP_TYPE("""
-            1.일반회원     2.관리자
+            ---------------------<< 회원가입 >>--------------------------
+            1.일반회원 | 2.관리자
             ------------------------------------------------------------
             회원가입유형을 선택해주세요.
             """),
+    REGISTER_OR_NOT("회원가입을 진행하시겠습니까?(Y 입력 시 진행)\n"),
 
     REGISTER_SUCCESS("회원가입이 완료되었습니다."),
     REGISTER_FAILED("회원가입에 실패했습니다."),
@@ -45,7 +52,7 @@ public enum LoginPage {
     NEW_PASSWORD("새로운 비밀번호를 입력해주세요."),
     UPDATE_PASSWORD("비밀번호 재설정이 완료되었습니다.\n"),
     NOT_UPDATE_PASSWORD("비밀번호 변경에 실패했습니다."),
-
+    TO_PREVIOUS_MENU("이전 메뉴로 돌아갑니다."),
     EXIT_LOGIN_MENU("로그인 메뉴를 종료합니다.");
 
     private final String page;

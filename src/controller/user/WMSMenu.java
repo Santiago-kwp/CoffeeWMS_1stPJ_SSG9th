@@ -1,23 +1,28 @@
 package controller.user;
 
 import constant.user.WMSPage;
+import controller.cargo.CargoController;
+import constant.user.validation.WMSValidCheck;
 import controller.support.CSMenu;
 import controller.transaction.InboundMenu;
 import controller.transaction.OutboundMenu;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
+import exception.support.InputException;
 import model.user.LoginDAO;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 
 public class WMSMenu {
 
     private static final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     private final User currentLoginUser;
+    private final WMSValidCheck validCheck;
 
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
@@ -25,8 +30,10 @@ public class WMSMenu {
     private InboundMenu inboundMenu = new InboundMenu();
     private OutboundMenu outboundMenu = new OutboundMenu();
 
+    private CargoController cargoController;
     public WMSMenu(User loginUser) {
         this.currentLoginUser = loginUser;
+        this.validCheck = new WMSValidCheck();
     }
 
     public void run() {
@@ -47,14 +54,16 @@ public class WMSMenu {
     public void memberMenuList(Member member) throws IOException {
         System.out.print(WMSPage.MEMBER_MENU_TITLE);
         String menuNum = input.readLine();
+        validCheck.checkMemberMenu(menuNum);
         switch (menuNum) {
             case "1":   // 회원관리
                 userManagement(member);
                 break;
             case "2":   // 고객센터
-                csMenu.csMenu();
+                csMenu.memberCSMenu(member);
                 break;
             case "3":   // 재고관리
+
                 break;
             case "4":   // 입고
                 inboundMenu.menuMember(member.getId());
@@ -68,18 +77,22 @@ public class WMSMenu {
         }
     }
 
+
+
     public void managerMenuList(Manager manager) throws IOException {
         // 창고관리 기능은 관리자 전용 기능이므로, memberMenu(), managerMenu()를 구분
         System.out.print(WMSPage.MANAGER_MENU_TITLE);
         String menuNum = input.readLine();
+        validCheck.checkManagerMenu(menuNum);
         switch (menuNum) {
             case "1":   // 회원관리
                 userManagement(manager);
                 break;
             case "2":   // 고객센터
-                csMenu.csMenu();
+                csMenu.managerCSMenu(manager);
                 break;
             case "3":   // 창고관리
+                cargoConnect(manager);
                 break;
             case "4":   // 재고관리
                 break;
@@ -108,6 +121,14 @@ public class WMSMenu {
 
     // WMS의 나머지 기능에 관한 컨트롤러를 실행할 메서드를 여기서부터 작성해주시면 됩니다.
 
+    private void cargoConnect(Manager manager) {
+       try {
+           cargoController = new CargoController(manager);
+           cargoController.start();
+       }catch (SQLException e){
+           System.out.println(e.getMessage());
+       }
+    }
 
 
     public void logout(String userID) {

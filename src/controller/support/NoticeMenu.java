@@ -4,14 +4,15 @@ import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.ValidCheck;
 import domain.support.Notice;
+import domain.user.Manager;
 import exception.support.InputException;
 import exception.support.NotFoundException;
-import model.support.service.dao.NoticeDAO;
-import model.support.service.dao.daoImpl.NoticeDaoImpl;
-import model.support.service.inputService.NoticeInput;
-import model.support.service.inputService.inputImpl.NoticeInputImpl;
-import model.support.service.readService.NoticeRead;
-import model.support.service.readService.readImpl.NoticeReadImpl;
+import model.support.dao.NoticeDAO;
+import model.support.dao.daoImpl.NoticeDaoImpl;
+import service.support.inputService.NoticeInput;
+import service.support.inputService.inputImpl.NoticeInputImpl;
+import service.support.readService.NoticeRead;
+import service.support.readService.readImpl.NoticeReadImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class NoticeMenu {
     NoticeRead noticeRead = new NoticeReadImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-    // 메인 & 창고 관리자 & 회원 <공지사항> 메뉴 ---------------------------------------------------------------------------------------------
+    // 회원 <공지사항> 메뉴 ---------------------------------------------------------------------------------------------
     public void memberNoticeMenu() {
         KI:
         while (true) {
@@ -71,10 +72,10 @@ public class NoticeMenu {
                         break;
                     }
 
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                            BoardText.CREATE_DATE.getMessage(), oneNotice.getNoticeDate(),
-                            BoardText.TITLE_.getMessage(), oneNotice.getNoticeTitle(),
-                            BoardText.CONTENT_.getMessage(), oneNotice.getNoticeContent());
+                    noticeRead.noticeReadOne(oneNotice);
+
+                    noticeInput.backOption();
+
                     break;
 
                 case "2":
@@ -84,10 +85,11 @@ public class NoticeMenu {
         }
     }
 
-    // 총관리자 <공지사항> 메뉴 ----------------------------------------------------------------------------------------------
-    public void managerNoticeMenu(String managerId) {
+    // 관리자 <공지사항> 메뉴 ----------------------------------------------------------------------------------------------
+    public void managerNoticeMenu(Manager manager) {
         KIKI:
         while (true) {
+            String managerId = manager.getId();
             noticeRead.noticeReadAll();
 
             System.out.print(BoardText.NOTICE_MENU.getMessage());
@@ -104,6 +106,12 @@ public class NoticeMenu {
 
             switch (choice) {
                 case "1":
+                    try {
+                        validCheck.managerCheck(manager);
+                    } catch (InputException e) {
+                        System.out.println(e.getMessage());
+                        break;
+                    }
                     Notice notice = noticeInput.noticeDataInput(managerId);
 
                     boolean pass = noticeDAO.createNotice(notice);
@@ -141,12 +149,9 @@ public class NoticeMenu {
                         break;
                     }
 
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                            BoardText.CREATE_DATE.getMessage(), oneNotice.getNoticeDate(),
-                            BoardText.TITLE_.getMessage(), oneNotice.getNoticeTitle(),
-                            BoardText.CONTENT_.getMessage(), oneNotice.getNoticeContent());
+                    noticeRead.noticeReadOne(oneNotice);
 
-                    noticeDetailMenu(readChoice, managerId);
+                    noticeDetailMenu(readChoice, manager);
                     break;
 
                 case "3":
@@ -157,8 +162,9 @@ public class NoticeMenu {
     }
 
     // 총관리자 공지사항 상세 메뉴 --------------------------------------------------------------------------------------------
-    public void noticeDetailMenu(Integer readChoice, String managerId) {
+    public void noticeDetailMenu(Integer readChoice, Manager manager) {
         System.out.print(BoardText.NOTICE_DETAIL_MENU.getMessage());
+        String managerId = manager.getId();
 
         String choice = null;
         try {
@@ -174,6 +180,12 @@ public class NoticeMenu {
 
         switch (choice) {
             case "1":
+                try {
+                    validCheck.managerCheck(manager);
+                } catch (InputException e) {
+                    System.out.println(e.getMessage());
+                    break;
+                }
                 Notice notice = noticeInput.noticeDataUpdate(readChoice, managerId);
 
                 boolean update = noticeDAO.updateNotice(notice);
@@ -183,6 +195,12 @@ public class NoticeMenu {
                 break;
 
             case "2":
+                try {
+                    validCheck.managerCheck(manager);
+                } catch (InputException e) {
+                    System.out.println(e.getMessage());
+                    break;
+                }
                 boolean delete = noticeDAO.deleteNotice(readChoice, managerId);
 
                 if (delete) System.out.println(BoardText.NOTICE_DELETE_SUCCESS.getMessage());
