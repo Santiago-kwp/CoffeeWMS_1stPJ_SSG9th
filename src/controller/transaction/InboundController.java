@@ -46,7 +46,7 @@ public class InboundController {
    * 이 메서드는 뷰(View)가 입고 가능한 커피 목록을 표시하도록 요청하는 역할
    * @return 입고 가능한 커피 목록
    */
-  private List<Coffee> showAvailableCoffees() {
+  public List<Coffee> showAvailableCoffees() {
     return inboundService.getAllCoffees();
   }
 
