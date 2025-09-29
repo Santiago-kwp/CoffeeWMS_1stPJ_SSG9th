@@ -1,6 +1,7 @@
 package controller.user;
 
 import constant.user.WMSPage;
+import controller.cargo.CargoController;
 import controller.support.CSMenu;
 import domain.user.Manager;
 import domain.user.Member;
@@ -10,6 +11,7 @@ import model.user.LoginDAO;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.sql.SQLException;
 
 public class WMSMenu {
 
@@ -20,7 +22,7 @@ public class WMSMenu {
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
     private CSMenu csMenu = new CSMenu();
-
+    private CargoController cargoController;
     public WMSMenu(User loginUser) {
         this.currentLoginUser = loginUser;
     }
@@ -51,6 +53,7 @@ public class WMSMenu {
                 csMenu.csMenu();
                 break;
             case "3":   // 재고관리
+
                 break;
             case "4":   // 입고
                 break;
@@ -61,6 +64,8 @@ public class WMSMenu {
                 break;
         }
     }
+
+
 
     public void managerMenuList(Manager manager) throws IOException {
         // 창고관리 기능은 관리자 전용 기능이므로, memberMenu(), managerMenu()를 구분
@@ -74,6 +79,7 @@ public class WMSMenu {
                 csMenu.csMenu();
                 break;
             case "3":   // 창고관리
+                cargoConnect(manager);
                 break;
             case "4":   // 재고관리
                 break;
@@ -100,6 +106,14 @@ public class WMSMenu {
 
     // WMS의 나머지 기능에 관한 컨트롤러를 실행할 메서드를 여기서부터 작성해주시면 됩니다.
 
+    private void cargoConnect(Manager manager) {
+       try {
+           cargoController = new CargoController(manager);
+           cargoController.start();
+       }catch (SQLException e){
+           System.out.println(e.getMessage());
+       }
+    }
 
 
     public void logout(String userID) {
