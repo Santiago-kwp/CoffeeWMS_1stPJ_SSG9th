@@ -1,10 +1,10 @@
-package model.support.service.dao.daoImpl;
+package model.support.dao.daoImpl;
 
 import config.DBUtil;
 import constant.support.BoardErrorCode;
 import domain.support.Notice;
 import exception.support.NotFoundException;
-import model.support.service.dao.NoticeDAO;
+import model.support.dao.NoticeDAO;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -79,16 +79,16 @@ public class NoticeDaoImpl implements NoticeDAO {
         conn = DBUtil.getConnection();
 
         String sql = "CALL read_notice_all()";
-
         try (CallableStatement cStmt = conn.prepareCall(sql)) {
-            ResultSet rs = cStmt.executeQuery();
+            cStmt.execute();
+            ResultSet rs = cStmt.getResultSet();
             if (rs != null) {
                 while (rs.next()) {
                     Notice notice = new Notice();
-                    notice.setNoticeId(rs.getInt(1));
-                    notice.setNoticeDate(rs.getDate(2));
-                    notice.setNoticeTitle(rs.getString(3));
-                    notice.setNoticeContent(rs.getString(4));
+                    notice.setNoticeId(rs.getInt("notice_id"));
+                    notice.setNoticeDate(rs.getDate("notice_date"));
+                    notice.setNoticeTitle(rs.getString("notice_title"));
+                    notice.setNoticeContent(rs.getString("notice_content"));
                     noticeList.add(notice);
                 }
             }

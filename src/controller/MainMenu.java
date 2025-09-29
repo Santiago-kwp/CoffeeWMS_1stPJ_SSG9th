@@ -4,12 +4,13 @@ import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.MainMenuText;
 import constant.support.ValidCheck;
-import controller.support.CSMenu;
 import controller.support.NoticeMenu;
 import controller.user.LoginMenu;
 import domain.support.Notice;
 import exception.support.InputException;
-import model.support.service.dao.daoImpl.NoticeDaoImpl;
+import model.support.dao.daoImpl.NoticeDaoImpl;
+import service.support.readService.NoticeRead;
+import service.support.readService.readImpl.NoticeReadImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,6 +21,7 @@ public class MainMenu {
     ValidCheck validCheck = new ValidCheck();
     LoginMenu loginMenu = LoginMenu.getInstance();
     NoticeMenu noticeMenu = new NoticeMenu();
+    NoticeRead noticeRead = new NoticeReadImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     // 메인 페이지
     public void mainMenu() {
@@ -28,15 +30,9 @@ public class MainMenu {
             System.out.print(MainMenuText.MAIN_MENU.getMessage());
             NoticeDaoImpl noticeDAO = new NoticeDaoImpl();
 
-            // -- 공지사항 메인화면 출력
             List<Notice> noticeListMain = noticeDAO.readNoticeMain();
 
-            for (Notice notice : noticeListMain) {
-                notice.setNoticeDate(notice.getNoticeDate());
-                notice.setNoticeTitle(notice.getNoticeTitle());
-                System.out.printf("%S %S", notice.getNoticeDate(), notice.getNoticeTitle());
-                System.out.println();
-            }
+            noticeRead.noticeReadAllMain(noticeListMain);
 
             System.out.print(MainMenuText.MAIN_MENU_OPTION.getMessage());
 

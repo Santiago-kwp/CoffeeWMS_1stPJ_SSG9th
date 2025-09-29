@@ -1,4 +1,4 @@
-package model.support.service.inputService.inputImpl;
+package service.support.inputService.inputImpl;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
@@ -6,9 +6,8 @@ import constant.support.ValidCheck;
 import domain.support.Faq;
 import domain.support.Category;
 import exception.support.InputException;
-import model.support.service.dao.daoImpl.FaqDaoImpl;
-import model.support.service.inputService.FaqInput;
-import org.w3c.dom.ls.LSOutput;
+import model.support.dao.daoImpl.FaqDaoImpl;
+import service.support.inputService.FaqInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;
