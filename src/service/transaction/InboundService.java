@@ -1,8 +1,11 @@
 package service.transaction;
 
 import domain.transaction.Coffee;
+import domain.transaction.InboundItem;
 import domain.transaction.InboundRequest;
+import domain.transaction.LocationPlace;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import view.transaction.InboundView;
@@ -13,16 +16,25 @@ import view.transaction.InboundView;
  */
 public interface InboundService {
   void submitInboundRequest(InboundRequest request);
-  // Add other methods for processing, viewing, etc.
+  void updateInboundRequest(InboundRequest request);
+  void deleteInboundRequest(String requestId, String memberId);
+
   List<Coffee> getAllCoffees();
 
-  /**
-   * 특정 회원의 미승인 입고 요청 목록을 조회합니다.
-   * @param memberId 입고 요청을 조회할 회원의 ID
-   * @return 미승인 입고 요청 목록 (입고 상품, 수량, 입고 날짜 포함)
-   * @throws SQLException 데이터베이스 접근 중 오류 발생 시
-   */
-  List<Map<String, Object>> getUnapprovedRequestsByMember(String memberId) throws SQLException;
-  List<Map<String, Object>> getApprovedRequestsByMember(String memberId) throws SQLException;
+  List<LocationPlace> getAvailableLocationPlaces();
+
+  List<InboundItem> getInboundRequestItems(String memberId, String requestId) throws SQLException;
+
+  List<InboundItem> getUnapprovedRequestsByMember(String memberId) throws SQLException;
+
+  List<InboundItem> getApprovedRequestsByMember(String memberId) throws SQLException;
+
   Map<String, Integer> getMemberUnapprovedInboundRequests();
+  Map<String, Integer> getMemberApprovedInboundRequests();
+
+  void processInboundRequest(String inboundRequestId, List<InboundItem> items) throws SQLException;
+
+  List<InboundItem> showInboundPeriod(String memberId, Date startDate, Date endDate) throws SQLException;
+  List<InboundItem> showInboundMonth(String memberId, int month) throws SQLException;
+
 }

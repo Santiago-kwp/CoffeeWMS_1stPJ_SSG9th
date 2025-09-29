@@ -28,6 +28,8 @@
         <SOURCES />
       </library>
     </orderEntry>
+
+    <orderEntry type="library" name="jackson-annotations-2.20" level="project" />
     <orderEntry type="module-library" scope="PROVIDED">
       <library>
         <CLASSES>

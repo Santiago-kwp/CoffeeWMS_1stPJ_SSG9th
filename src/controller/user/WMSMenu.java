@@ -4,6 +4,8 @@ import constant.user.WMSPage;
 import controller.cargo.CargoController;
 import constant.user.validation.WMSValidCheck;
 import controller.support.CSMenu;
+import controller.transaction.InboundMenu;
+import controller.transaction.OutboundMenu;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
@@ -25,6 +27,9 @@ public class WMSMenu {
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
     private CSMenu csMenu = new CSMenu();
+    private InboundMenu inboundMenu = new InboundMenu();
+    private OutboundMenu outboundMenu = new OutboundMenu();
+
     private CargoController cargoController;
     public WMSMenu(User loginUser) {
         this.currentLoginUser = loginUser;
@@ -61,8 +66,10 @@ public class WMSMenu {
 
                 break;
             case "4":   // 입고
+                inboundMenu.menuMember(member.getId());
                 break;
             case "5":   // 출고
+                outboundMenu.menuMember(member.getId());
                 break;
             case "6":   // 로그아웃
                 logout(member.getId());
@@ -90,8 +97,10 @@ public class WMSMenu {
             case "4":   // 재고관리
                 break;
             case "5":   // 입고
+                inboundMenu.menuManager(manager.getId());
                 break;
             case "6":   // 출고
+                outboundMenu.menuManager(manager.getId());
                 break;
             case "7":   // 로그아웃
                 logout(manager.getId());

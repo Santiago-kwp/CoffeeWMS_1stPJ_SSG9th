@@ -1,26 +1,19 @@
 package model.transaction;
 
+import config.DBUtil;
 import domain.transaction.Coffee;
 import domain.transaction.InboundItem;
+import domain.transaction.LocationPlace;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /*
   DB의 저장 프로시저를 호출하는 입고 Dao
  */
 public class InboundDao {
-
-  private Connection connection;
-
-  public InboundDao(Connection connection) {
-    this.connection = connection;
-  }
 
   /**
    * 관리자가 회원의 미승인된 요청 건수를 확인합니다.
@@ -29,8 +22,9 @@ public class InboundDao {
   public Map<String, Integer> getAllMemberHasUnapprovedInboundRequest() {
     Map<String, Integer> memberHasUnapprovedInboundRequest = new HashMap<>();
     String sql = "{CALL get_all_member_has_unapproved_inbound_request()}";
-    try (CallableStatement callableStatement = connection.prepareCall(sql);
-         ResultSet rs = callableStatement.executeQuery()) {
+    try (Connection conn = DBUtil.getConnection();
+        CallableStatement cs = conn.prepareCall(sql);
+         ResultSet rs = cs.executeQuery()) {
 
       while (rs.next()) {
         memberHasUnapprovedInboundRequest.put(rs.getString("member_id"), rs.getInt("unapproved_request_num"));
@@ -48,8 +42,9 @@ public class InboundDao {
   public List<Coffee> getAllCoffees() {
     List<Coffee> coffeeList = new ArrayList<>();
     String sql = "SELECT * FROM coffees";
-    try (CallableStatement callableStatement = connection.prepareCall(sql);
-        ResultSet rs = callableStatement.executeQuery()) {
+    try (Connection conn = DBUtil.getConnection();
+        CallableStatement cs = conn.prepareCall(sql);
+        ResultSet rs = cs.executeQuery()) {
 
       while (rs.next()) {
         Coffee coffee = new Coffee();
@@ -76,14 +71,15 @@ public class InboundDao {
       String requestId, String memberId, String managerId, String itemsJson, java.sql.Date requestDate) {
 
     String sql = "{CALL submit_member_inbound_request(?, ?, ?, ?, ?)}";
-    try (CallableStatement callableStatement = connection.prepareCall(sql)) {
-      callableStatement.setString(1, requestId);
-      callableStatement.setString(2, memberId);
-      callableStatement.setString(3, managerId);
-      callableStatement.setString(4, itemsJson);
-      callableStatement.setDate(5, requestDate);
+    try (Connection conn = DBUtil.getConnection();
+        CallableStatement cs = conn.prepareCall(sql)) {
+      cs.setString(1, requestId);
+      cs.setString(2, memberId);
+      cs.setString(3, managerId);
+      cs.setString(4, itemsJson);
+      cs.setDate(5, requestDate);
 
-      callableStatement.execute();
+      cs.execute();
 
       System.out.println("입고 요청이 정상적으로 완료되었습니다!");
       return true;
@@ -95,20 +91,76 @@ public class InboundDao {
   }
 
   /**
+   * `update_member_inbound_request` 프로시저 호출
+   */
+  public boolean updateInboundRequestProcedure(
+          String requestId, String memberId, String managerId, String itemsJson, java.sql.Date requestDate) {
+
+    String sql = "{CALL update_member_inbound_request(?, ?, ?, ?, ?, ?)}";
+    try (Connection conn = DBUtil.getConnection();
+         CallableStatement cs = conn.prepareCall(sql)) {
+      // Register the OUT parameter first
+      cs.registerOutParameter(6, java.sql.Types.INTEGER);
+
+      cs.setString(1, requestId);
+      cs.setString(2, memberId);
+      cs.setString(3, managerId);
+      cs.setString(4, itemsJson);
+      cs.setDate(5, requestDate);
+
+      cs.execute();
+
+      // Retrieve the value of the OUT parameter
+      int resultCode = cs.getInt(6);
+      if (resultCode > 0) {
+        return true;
+      }
+    } catch (SQLException e) {
+      System.out.println("입고 수정 요청에 문제 발생!");
+      e.printStackTrace();
+      return false;
+    }
+    return false;
+  }
+
+  public boolean deleteInboundRequestProcedure(String requestId, String memberId) {
+    String sql = "{CALL delete_inbound_request(?, ?, ?)}";
+    try(Connection conn = DBUtil.getConnection();
+    CallableStatement cs = conn.prepareCall(sql);) {
+      cs.registerOutParameter(3, java.sql.Types.INTEGER);
+      cs.setString(1, requestId);
+      cs.setString(2, memberId);
+
+      cs.execute();
+      // Retrieve the value of the OUT parameter
+      int resultCode = cs.getInt(3);
+      if (resultCode > 0) {
+        return true;
+      }
+
+    } catch (SQLException e) {
+      System.out.println("입고 삭제 요청에 문제 발생!");
+      System.out.println(e.getMessage());
+      return false;
+    }
+    return false;
+
+  }
+
+  /**
    * 특정 회원의 미승인된 입고 요청 목록을 데이터베이스에서 조회합니다.
-   * CallableStatement를 사용하여 스토어드 프로시저를 호출합니다.
-   * `try-with-resources` 구문을 사용하여 리소스를 자동으로 해제합니다.
    *
    * @param memberId 입고 요청을 조회할 회원의 ID
    * @return 미승인된 입고 요청 목록 (입고 상품, 수량, 입고 날짜 포함)
    * @throws SQLException 데이터베이스 접근 중 오류 발생 시
    */
-  public List<Map<String, Object>> getUnapprovedRequestsByMember(String memberId) throws SQLException {
-    List<Map<String, Object>> requests = new ArrayList<>();
+  public List<InboundItem> getUnapprovedRequestsByMember(String memberId) throws SQLException {
+    List<InboundItem> inboundItems = new ArrayList<>();
 
     String sql = "{call get_unapproved_inbounds_by_member(?)}";
 
-    try (CallableStatement cstmt = connection.prepareCall(sql)) {
+    try (Connection conn = DBUtil.getConnection();
+        CallableStatement cstmt = conn.prepareCall(sql)) {
       cstmt.setString(1, memberId);
 
       boolean hasResultSet = cstmt.execute();
@@ -116,26 +168,63 @@ public class InboundDao {
         try (ResultSet rs = cstmt.getResultSet()) {
           // 결과 집합 순회
           while (rs.next()) {
-            Map<String, Object> request = new HashMap<>();
-            request.put("memberId", rs.getString("member_id")); // 요청 ID
-            request.put("coffeeName", rs.getString("coffee_name")); // 입고 상품명
-            request.put("quantity", rs.getInt("inbound_request_quantity")); // 수량
-            request.put("inboundDate", rs.getDate("inbound_request_date")); // 입고 요청 날짜
-            request.put("inboundRequestItemId", rs.getString("inbound_request_item_id")); // 입고 상품의 ID
-            requests.add(request);
+            InboundItem inboundItem = new InboundItem(
+                    rs.getString("member_id"),
+                    rs.getString("coffee_id"),
+                    rs.getString("coffee_name"),
+                    rs.getString("inbound_request_id"),
+                    rs.getLong("inbound_request_item_id"),
+                    rs.getInt("inbound_request_quantity"),
+                    rs.getDate("inbound_request_date")
+            );
+            inboundItems.add(inboundItem);
           }
         }
       }
     }
-    return requests;
+    return inboundItems;
   }
 
-  public List<Map<String, Object>> getApprovedRequestsByMember(String memberId) throws SQLException {
-    List<Map<String, Object>> requests = new ArrayList<>();
+  public List<InboundItem> getInboundRequestItems(String memberId, String requestId) throws SQLException {
+    List<InboundItem> inboundItems = new ArrayList<>();
+
+    String sql = "{call get_one_inbound_by_member_requestId(?, ?)}";
+
+    try (Connection conn = DBUtil.getConnection();
+         CallableStatement cstmt = conn.prepareCall(sql)) {
+      cstmt.setString(1, memberId);
+      cstmt.setString(2, requestId);
+
+      boolean hasResultSet = cstmt.execute();
+      if (hasResultSet) {
+        try (ResultSet rs = cstmt.getResultSet()) {
+          // 결과 집합 순회
+          while (rs.next()) {
+            InboundItem inboundItem = new InboundItem(
+                    rs.getString("member_id"),
+                    rs.getString("coffee_id"),
+                    rs.getString("coffee_name"),
+                    rs.getString("inbound_request_id"),
+                    rs.getLong("inbound_request_item_id"),
+                    rs.getInt("inbound_request_quantity"),
+                    rs.getDate("inbound_request_date")
+            );
+            inboundItems.add(inboundItem);
+          }
+        }
+      }
+    }
+    return inboundItems;
+  }
+
+
+  public List<InboundItem> getApprovedRequestsByMember(String memberId) throws SQLException {
+    List<InboundItem> inboundItems = new ArrayList<>();
 
     String sql = "{call get_approved_inbounds_by_member(?)}";
 
-    try (CallableStatement cstmt = connection.prepareCall(sql)) {
+    try (Connection conn = DBUtil.getConnection();
+        CallableStatement cstmt = conn.prepareCall(sql)) {
       cstmt.setString(1, memberId);
 
       boolean hasResultSet = cstmt.execute();
@@ -143,17 +232,21 @@ public class InboundDao {
         try (ResultSet rs = cstmt.getResultSet()) {
           // 결과 집합 순회
           while (rs.next()) {
-            Map<String, Object> request = new HashMap<>();
-            request.put("memberId", rs.getString("member_id")); // 요청 ID
-            request.put("coffeeName", rs.getString("coffee_name")); // 입고 상품명
-            request.put("quantity", rs.getInt("inbound_request_quantity")); // 수량
-            request.put("inboundDate", rs.getDate("inbound_request_date")); // 입고 요청 날짜
-            requests.add(request);
+            InboundItem inboundItem = new InboundItem(
+                    rs.getString("member_id"),
+                    rs.getString("coffee_id"),
+                    rs.getString("coffee_name"),
+                    rs.getString("inbound_request_id"),
+                    rs.getLong("inbound_request_item_id"),
+                    rs.getInt("inbound_request_quantity"),
+                    rs.getDate("inbound_request_date")
+            );
+            inboundItems.add(inboundItem);
           }
         }
       }
     }
-    return requests;
+    return inboundItems;
   }
 
   /**
@@ -165,10 +258,12 @@ public class InboundDao {
    * @throws SQLException 데이터베이스 오류 발생 시
    */
   public void processInboundRequest(String inboundRequestId, List<InboundItem> items) throws SQLException {
+    // DTO 객체를 json 으로 변환하여 DB에 전달
     String jsonItems = convertListToJson(items);
     String sql = "{call process_inbound_request(?, ?)}";
 
-    try (CallableStatement cs = connection.prepareCall(sql)) {
+    try (Connection conn = DBUtil.getConnection();
+        CallableStatement cs = conn.prepareCall(sql)) {
 
       // 첫 번째 파라미터: 입고 요청 ID
       cs.setString(1, inboundRequestId);
@@ -222,7 +317,124 @@ public class InboundDao {
     return jsonBuilder.toString();
   }
 
+  /*
+  관리자가 위치를 지정하기 위해 창고위치(location_places 테이블의 데이터를 조회합니다.)
+   */
+  public List<LocationPlace> getAvailableLocationPlaces () {
+    List<LocationPlace> locationPlaces = new ArrayList<>();
 
+    String sql = "SELECT * FROM location_places";
+    try (Connection conn = DBUtil.getConnection();
+        CallableStatement cs = conn.prepareCall(sql);
+        ResultSet rs = cs.executeQuery()) {
+
+      while (rs.next()) {
+        LocationPlace locationPlace = new LocationPlace(
+            rs.getString("location_place_id"),
+            rs.getString("zone_id"),
+            rs.getString("zone_name"),
+            rs.getString("rack_id"),
+            rs.getString("rack_name"),
+            rs.getString("cell_id"),
+            rs.getString("cell_name")
+        );
+        locationPlaces.add(locationPlace);
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return locationPlaces;
+  }
+
+
+  public List<InboundItem> showInboundPeriod(String memberId, java.sql.Date startDate, java.sql.Date endDate) throws SQLException {
+    List<InboundItem> inboundItems = new ArrayList<>();
+
+    String sql = "{call show_inbound_period(?, ?, ?)}";
+
+    try (Connection conn = DBUtil.getConnection();
+         CallableStatement cs = conn.prepareCall(sql)) {
+
+      // 첫 번째 파라미터: 입고 요청 ID
+      cs.setString(1, memberId);
+      // 두 번째 파라미터: 품목 목록을 JSON 문자열로 변환
+      cs.setDate(2, startDate);
+      cs.setDate(3, endDate);
+
+      // 프로시저 실행
+      boolean hasResultSet = cs.execute();
+      if (hasResultSet) {
+        try (ResultSet rs = cs.getResultSet()) {
+          // 결과 집합 순회
+          while (rs.next()) {
+            InboundItem inboundItem = new InboundItem(
+                    rs.getString("member_id"),
+                    rs.getString("coffee_id"),
+                    rs.getString("coffee_name"),
+                    rs.getString("inbound_request_id"),
+                    rs.getLong("inbound_request_item_id"),
+                    rs.getInt("inbound_request_quantity"),
+                    rs.getDate("inbound_request_date")
+            );
+            inboundItems.add(inboundItem);
+          }
+        }
+      }
+    }
+    return inboundItems;
+  }
+
+  public List<InboundItem> showInboundMonth(String memberId, int month) throws SQLException {
+    List<InboundItem> inboundItems = new ArrayList<>();
+
+    String sql = "{call show_inbound_month(?, ?)}";
+
+    try (Connection conn = DBUtil.getConnection();
+         CallableStatement cs = conn.prepareCall(sql)) {
+
+      // 첫 번째 파라미터: 입고 요청 ID
+      cs.setString(1, memberId);
+      // 두 번째 파라미터: 품목 목록을 JSON 문자열로 변환
+      cs.setInt(2, month);
+
+      // 프로시저 실행
+      boolean hasResultSet = cs.execute();
+      if (hasResultSet) {
+        try (ResultSet rs = cs.getResultSet()) {
+          // 결과 집합 순회
+          while (rs.next()) {
+            InboundItem inboundItem = new InboundItem(
+                    rs.getString("member_id"),
+                    rs.getString("coffee_id"),
+                    rs.getString("coffee_name"),
+                    rs.getString("inbound_request_id"),
+                    rs.getLong("inbound_request_item_id"),
+                    rs.getInt("inbound_request_quantity"),
+                    rs.getDate("inbound_request_date")
+            );
+            inboundItems.add(inboundItem);
+          }
+        }
+      }
+    }
+    return inboundItems;
+  }
+
+  public Map<String, Integer> getMemberApprovedInboundRequests() {
+    Map<String, Integer> memberHasApprovedInboundRequests = new HashMap<>();
+    String sql = "{CALL get_all_member_has_approved_inbound_requests()}";
+    try (Connection conn = DBUtil.getConnection();
+         CallableStatement cs = conn.prepareCall(sql);
+         ResultSet rs = cs.executeQuery()) {
+
+      while (rs.next()) {
+        memberHasApprovedInboundRequests.put(rs.getString("member_id"), rs.getInt("approved_request_num"));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return memberHasApprovedInboundRequests;
+  }
 }
 
 

@@ -4,6 +4,8 @@ import command.Command;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+
+import domain.transaction.InboundItem;
 import service.transaction.InboundService;
 
 /**
@@ -14,7 +16,7 @@ public class ShowUnapprovedRequestsCommand implements Command {
 
   private final InboundService inboundService;
   private final String memberId;
-  private List<Map<String, Object>> result;
+  private List<InboundItem> inboundItems;
 
   /**
    * ShowUnapprovedRequestsCommand의 생성자.
@@ -34,14 +36,14 @@ public class ShowUnapprovedRequestsCommand implements Command {
   @Override
   public void execute() {
     try {
-      this.result = inboundService.getUnapprovedRequestsByMember(memberId);
+      this.inboundItems = inboundService.getUnapprovedRequestsByMember(memberId);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public List<Map<String, Object>> getResult() {
-    return this.result;
+  public List<InboundItem> getResult() {
+    return this.inboundItems;
   }
 
 }

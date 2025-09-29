@@ -4,6 +4,8 @@ import command.Command;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+
+import domain.transaction.InboundItem;
 import service.transaction.InboundService;
 
 /**
@@ -14,7 +16,7 @@ public class ShowApprovedRequestsCommand implements Command {
 
   private final InboundService inboundService;
   private final String memberId;
-  private List<Map<String, Object>> result;
+  private List<InboundItem> result;
 
   /**
    * ShowUnapprovedRequestsCommand의 생성자.
@@ -28,7 +30,7 @@ public class ShowApprovedRequestsCommand implements Command {
   }
 
   /**
-   * 커맨드를 실행하여 미승인 입고 요청 목록을 조회합니다.
+   * 커맨드를 실행하여 승인 입고 요청 목록을 조회합니다.
    *
    */
   @Override
@@ -40,7 +42,7 @@ public class ShowApprovedRequestsCommand implements Command {
     }
   }
 
-  public List<Map<String, Object>> getResult() {
+  public List<InboundItem> getResult() {
     return this.result;
   }
 
