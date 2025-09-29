@@ -11,6 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Manager extends User {
 
+    public static final int CARGO_LIMIT = 3;
+
     private boolean login;
     private Date hireDate;
     private String position;

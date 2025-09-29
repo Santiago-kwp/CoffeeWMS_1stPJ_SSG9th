@@ -8,15 +8,8 @@ import constant.user.validation.InputValidCheck;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-import exception.user.InvalidUserDataException;
-import exception.user.UnableToReadUserException;
-import exception.user.UserNotApprovedException;
-import exception.user.UserNotDeletedException;
-import exception.user.UserNotHavePermissionException;
-import exception.user.UserNotRestoredException;
-import exception.user.UserNotUpdatedException;
-import exception.user.UserRoleNotDeletedException;
-import exception.user.UserRoleNotUpdatedException;
+import exception.user.*;
+
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.List;
@@ -164,7 +157,7 @@ public class ManagerManageMenu implements UserManageMenu {
             try {
                 System.out.print(ManagerPage.MANAGER_UPDATE_TITLE);
                 String menuNum = input.readLine();
-                validCheck.checkMenuNum("^[1-5]", menuNum);
+                validCheck.checkMenuNum("^[1-6]", menuNum);
                 switch (menuNum) {
                     case "1" -> updateCurrentUser();
                     case "2" -> approveUser();
@@ -173,14 +166,19 @@ public class ManagerManageMenu implements UserManageMenu {
                         validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
                         restoreUser();
                     }
-                    case "5" -> quitUpdate = quit();
+                    case "5" -> {
+                        validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
+                        addCargoToManager();
+                    }
+                    case "6" -> quitUpdate = quit();
                 }
             } catch (InvalidUserDataException
                      | UserNotUpdatedException
                      | UserRoleNotUpdatedException
                      | UserNotHavePermissionException
                      | UserNotApprovedException
-                     | UserNotRestoredException e) {
+                     | UserNotRestoredException
+                     | CargoNotAddedException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -272,6 +270,20 @@ public class ManagerManageMenu implements UserManageMenu {
         boolean ack = dao.approve(targetID, true);
         validCheck.checkUserApproved(ack, true);
         System.out.println(ManagerPage.RESTORE_COMPLETE);
+    }
+
+    public void addCargoToManager() throws IOException {
+        System.out.println("창고를 배정할 창고관리자의 아이디를 입력해주세요.");
+        String targetID = input.readLine();
+        System.out.println("관리자에게 배정할 창고의 아이디를 입력해주세요.");
+        int cargoID = Integer.parseInt(input.readLine());
+
+        // 창고를 배정할 아이디에 해당하는 회원의 권한이 관리자인지 확인
+        String userType = dao.searchUserTypeBy(targetID, true);
+        validCheck.checkPermission(!userType.contains("관리자"));  // 창고관리자, 총관리자가 아니면 예외 처리
+        boolean isAdded = dao.insertCargoToManager(targetID, cargoID);
+        validCheck.checkCargoAdded(isAdded);
+        System.out.printf(ManagerPage.CARGO_ADD_SUCCESS.toString(), cargoID);
     }
 
     @Override

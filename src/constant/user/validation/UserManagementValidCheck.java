@@ -4,14 +4,8 @@ import constant.user.InputMessage;
 import constant.user.ManagerPage;
 import constant.user.UserPage;
 import domain.user.User;
-import exception.user.UnableToReadUserException;
-import exception.user.UserNotApprovedException;
-import exception.user.UserNotDeletedException;
-import exception.user.UserNotHavePermissionException;
-import exception.user.UserNotRestoredException;
-import exception.user.UserNotUpdatedException;
-import exception.user.UserRoleNotDeletedException;
-import exception.user.UserRoleNotUpdatedException;
+import exception.user.*;
+
 import java.util.List;
 
 public class UserManagementValidCheck {
@@ -89,6 +83,12 @@ public class UserManagementValidCheck {
     public void checkRoleUpdated(boolean isRoleUpdated) {
         if (!isRoleUpdated) {
             throw new UserRoleNotUpdatedException(ManagerPage.ROLE_UPDATE_FAILED.toString());
+        }
+    }
+
+    public void checkCargoAdded(boolean isAdded) {
+        if (!isAdded) {
+            throw new CargoNotAddedException(ManagerPage.CARGO_ADD_FAILED.toString());
         }
     }
 

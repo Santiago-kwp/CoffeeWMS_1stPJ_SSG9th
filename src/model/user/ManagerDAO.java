@@ -225,6 +225,24 @@ public class ManagerDAO implements UserDAO {
         }
     }
 
+    public boolean insertCargoToManager(String targetID, int cargoID) {
+        String sql = "call add_cargo_to_manager(?, ?, ?, ?)";
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, targetID);
+            call.setInt(2, cargoID);
+            call.setInt(3, Manager.CARGO_LIMIT);
+            call.registerOutParameter(4, Types.BOOLEAN);
+
+            call.execute();
+
+            return call.getBoolean(4);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+
     public boolean deleteRole(String targetID, String targetType) {
         String sql = "{call delete_role(?, ?, ?)}";
         try (Connection conn = DBUtil.getConnection();

@@ -315,9 +315,48 @@ BEGIN
     ELSEIF (targetType = '창고관리자') THEN
         update managers set manager_login = null where manager_id = targetID and manager_position = targetType;
         update users set user_type = null where user_id = targetID;
+        delete from cargo_management where manager_id = targetID;
         SET affected = 1;
     ELSE
         SET affected = 0;
     END IF;
 END $$
 DELIMITER ;
+
+-- 창고 배정
+drop procedure add_cargo_to_manager;
+delimiter $$
+create procedure add_cargo_to_manager(
+    in managerID varchar(15),
+    in cargoID int,
+    in cargoLimit int,
+    out ok boolean
+)
+begin
+    -- 현재 관리자가 담당하는 창고의 개수를 저장할 변수
+    declare current_cargo_count int default 0;
+    declare managerExists boolean;
+    declare cargoExists boolean;
+
+    -- 1. 관리자와 창고 ID가 실존하는지 확인
+    set managerExists = exists(select manager_id from managers where manager_id = managerID and manager_login is not null);
+    set cargoExists = exists(select cargo_id from cargoes where cargo_id = cargoID);
+
+    -- 2. cargo_management 테이블에서 현재 관리자의 창고 개수를 확인
+    -- 데이터가 없으면 COUNT(*)는 0을 반환하므로 안전함
+    select count(*) into current_cargo_count
+    from cargo_management
+    where manager_id = managerID;
+
+    -- 3. 모든 조건을 만족하는지 최종 확인
+    if (managerExists and cargoExists and current_cargo_count < cargoLimit) then
+        insert into cargo_management(manager_id, cargo_id) values(managerID, cargoID);
+        set ok = true;
+    else
+        set ok = false;
+    end if;
+end $$
+delimiter ;
+
+call add_cargo_to_manager('manager4821', 4, 10, @result);
+select @result;
