@@ -74,7 +74,7 @@ public class OutboundController {
 
 
   /**
-   * 1번 메뉴: 입고 요청
+   * 1번 메뉴: 출고 요청
    * 사용자로부터 입고 요청에 필요한 데이터를 받아 커맨드 객체를 생성하고 실행합니다.
    */
   private void submitNewOutboundRequest(String memberId) {
