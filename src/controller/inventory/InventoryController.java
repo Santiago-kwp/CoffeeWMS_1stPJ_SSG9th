@@ -64,7 +64,7 @@ public class InventoryController {
 
     inventoryView.printMessage(InventoryMessage.INVENTORY_SEARCH_MENU_TITLE);
 
-    // [핵심 변경 1] 검색 필터를 반복문 시작 전에 딱 한 번만 입력받습니다.
+
     // 역할에 따라 View가 알아서 필요한 질문만 하도록 호출
     String cargoName = inventoryView.inputCargoName(user);
     String companyName = inventoryView.inputCompanyName(user);
