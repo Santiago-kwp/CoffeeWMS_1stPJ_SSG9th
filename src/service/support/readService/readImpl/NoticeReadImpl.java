@@ -38,4 +38,13 @@ public class NoticeReadImpl implements NoticeRead {
                 BoardText.TITLE_.getMessage(), oneNotice.getNoticeTitle(),
                 BoardText.CONTENT_.getMessage(), oneNotice.getNoticeContent());
     }
+
+    public void noticeReadAllMain(List<Notice> noticeListMain) {
+        for (Notice notice : noticeListMain) {
+            notice.setNoticeDate(notice.getNoticeDate());
+            notice.setNoticeTitle(notice.getNoticeTitle());
+            System.out.printf("%S %S", notice.getNoticeDate(), notice.getNoticeTitle());
+            System.out.println();
+        }
+    }
 }

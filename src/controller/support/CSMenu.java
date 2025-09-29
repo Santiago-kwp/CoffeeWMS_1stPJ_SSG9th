@@ -32,7 +32,6 @@ public class CSMenu {
             } catch (IOException e) {
                 System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
             }
-//            String choice = exceptionHandler.csMenuExp();
 
             switch (choice) {
                 case "1":

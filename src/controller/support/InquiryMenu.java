@@ -129,7 +129,6 @@ public class InquiryMenu {
 
                     System.out.println(BoardText.INQUIRY_CHOICE.getMessage());
 
-
                     Inquiry oneInquiry = inquiryDAO.readInquiryMemberOne(memberId, readChoice);
 
                     try {
