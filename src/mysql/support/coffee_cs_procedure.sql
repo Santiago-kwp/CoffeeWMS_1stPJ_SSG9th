@@ -1,5 +1,4 @@
-SELECT * FROM notice;
-
+USE railway;
 ########################################################################################################################
 -- 프로시져
 #공지사항 입력
@@ -34,7 +33,6 @@ BEGIN
     ORDER BY notice_fixed DESC, notice_date DESC;
 END @@
 DELIMITER ;
-DROP PROCEDURE read_notice_all;
 #-----------------------------------------------------------------------------------------------------------------------
 #상세 공지사항 조회
 DELIMITER @@
@@ -119,7 +117,6 @@ BEGIN
 END @@
 DELIMITER ;
 #-----------------------------------------------------------------------------------------------------------------------
-    DROP PROCEDURE read_inquiry_member_one;
 #1:1문의 조회(회원) -> 로그인한 본인이 작성한 질문만 조회 가능
 DELIMITER @@
 CREATE PROCEDURE read_inquiry_member_one(IN p_member_id VARCHAR(15),
@@ -242,7 +239,6 @@ BEGIN
     ORDER BY faq_date DESC, faq_id DESC;
 END @@
 DELIMITER ;
-DROP PROCEDURE read_faq_one;
 #-----------------------------------------------------------------------------------------------------------------------
 #FAQ 수정
 DELIMITER @@
@@ -267,7 +263,7 @@ DELIMITER ;
 DELIMITER @@
 CREATE PROCEDURE read_faq_category()
 BEGIN
-    SELECT faq_category_id, faq_category_name FROM faq_category;
+    SELECT faq_category_id, faq_category_name FROM faq_category ORDER BY faq_category_id;
 END @@
 DELIMITER ;
 #-----------------------------------------------------------------------------------------------------------------------
@@ -275,14 +271,7 @@ DELIMITER ;
 DELIMITER @@
 CREATE PROCEDURE read_inquiry_category()
 BEGIN
-    SELECT inquiry_category_id, inquiry_category_name FROM inquiry_category;
+    SELECT inquiry_category_id, inquiry_category_name FROM inquiry_category ORDER BY inquiry_category_id;
 END @@
 DELIMITER ;
 #-----------------------------------------------------------------------------------------------------------------------
-DESC notice;
-DESC inquiry;
-DESC faq;
-ALTER TABLE inquiry
-    MODIFY inquiry_id INT NOT NULL AUTO_INCREMENT;
-ALTER TABLE faq
-    MODIFY faq_id INT NOT NULL AUTO_INCREMENT;

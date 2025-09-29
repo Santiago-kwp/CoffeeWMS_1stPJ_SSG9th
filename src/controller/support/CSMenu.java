@@ -2,16 +2,14 @@ package controller.support;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
-import constant.support.MainMenuText;
 import constant.support.ValidCheck;
-import domain.support.Notice;
+import domain.user.Manager;
+import domain.user.Member;
 import exception.support.InputException;
-import model.support.service.dao.daoImpl.NoticeDaoImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 public class CSMenu {
     ValidCheck validCheck = new ValidCheck();
@@ -20,10 +18,7 @@ public class CSMenu {
     FaqMenu faqMenu = new FaqMenu();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-    // 고객센터 ------------------------------------------------------------------------------------------------------
-    public void csMenu() {
-        String managerId = "manager1"; // -> String userId = User.getUserId()
-        String memberId = "member1"; // -> String userId = User.getUserId()
+    public void memberCSMenu(Member member) {
         TheEndCS:
         while (true) {
             System.out.print(BoardText.CS_MENU.getMessage());
@@ -41,15 +36,50 @@ public class CSMenu {
             switch (choice) {
                 case "1":
                     noticeMenu.memberNoticeMenu();
-//                    noticeMenu.managerNoticeMenu(managerId);
                     break;
                 case "2":
-                    inquiryMenu.memberInquiryMenu(memberId);
-//                    inquiryMenu.managerInquiryMenu(managerId);
+                    inquiryMenu.memberInquiryMenu(member.getId());
                     break;
                 case "3":
                     faqMenu.memberFaqMenu();
-//                    faqMenu.managerFaqMenu(managerId);
+                    break;
+                case "4":
+                    System.out.println(BoardText.BACK.getMessage());
+                    break TheEndCS;
+            }
+        }
+    }
+
+    public void managerCSMenu(Manager manager) {
+        TheEndCS:
+        while (true) {
+            System.out.print(BoardText.CS_MENU.getMessage());
+
+            String choice = null;
+            try {
+                choice = input.readLine();
+                validCheck.isFourMenuValid(choice);
+            } catch (InputException e) {
+                System.out.println(e.getMessage());
+            } catch (IOException e) {
+                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
+            }
+
+            switch (choice) {
+                case "1":
+                    noticeMenu.managerNoticeMenu(manager);
+                    break;
+                case "2":
+                    try {
+                        validCheck.managerCheck(manager);
+                    } catch (InputException e) {
+                        System.out.println(e.getMessage());
+                        break;
+                    }
+                    inquiryMenu.managerInquiryMenu(manager.getId());
+                    break;
+                case "3":
+                    faqMenu.managerFaqMenu(manager);
                     break;
                 case "4":
                     System.out.println(BoardText.BACK.getMessage());

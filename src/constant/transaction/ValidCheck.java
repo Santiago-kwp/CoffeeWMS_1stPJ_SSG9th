@@ -34,7 +34,7 @@ public class ValidCheck {
   }
 
 
-  public void isValidCoffeeNumber(String coffeeNumber, int coffeeProductsSize) {
+  public int isValidCoffeeNumber(String coffeeNumber, int coffeeProductsSize) {
     // read 입력값이 비어 있는 경우
     if(coffeeNumber.isEmpty()) {
       throw new TransactionException(ErrorCode.INVALID_COFFEE_NUMBER);
@@ -45,20 +45,27 @@ public class ValidCheck {
       int num = Integer.parseInt(coffeeNumber);
       if(num<1 || num > coffeeProductsSize)
         throw new TransactionException(ErrorCode.INVALID_COFFEE_SIZE_NUMBER);
+      return num-1;
     } catch (NumberFormatException e) {
       throw new TransactionException(ErrorCode.INVALID_COFFEE_NUMBER);
     }
-
-
   }
 
 
   public int isValidCoffeeQuantity(String quantityInput) {
     int num = Integer.parseInt(quantityInput);
-    if(num < 1 || num > 100)
+    if(num < 1 || num > 2000)
       throw new TransactionException(ErrorCode.INVALID_COFFEE_QUANTITY_NUMBER);
     return num;
   }
+
+  public int isValidOutboundCoffeeQuantity(String quantityInput, int maxQuantity) {
+    int num = Integer.parseInt(quantityInput);
+    if(num < 1 || num > maxQuantity)
+      throw new TransactionException(ErrorCode.INVALID_COFFEE_QUANTITY_NUMBER);
+    return num;
+  }
+
 
   /**
    * 입고 요청 날짜가 유효한지 검사합니다.
@@ -95,9 +102,44 @@ public class ValidCheck {
     }
   }
 
+  public void isValidOutboundDate(Date date, Date inboundDate) {
+
+    // 입력된 날짜가 입고 날짜 이전이면 예외를 던집니다.
+    if (date.before(inboundDate)) {
+      throw new TransactionException(ErrorCode.INVALID_OUTBOUND_DATE);
+    }
+  }
+
   // 유효한 회원 ID 입력인지 검사하는 메소드
   public void isValidMemberId(Map<String, Integer> requests, String memberId) {
     if (!requests.containsKey(memberId))
       throw new TransactionException(ErrorCode.INVALID_MEMBER_ID);
+  }
+
+  public String isValidRequestId(String requestId, List<String> unapprovedRequestIds) {
+    if (!unapprovedRequestIds.contains(requestId))
+      throw new TransactionException(ErrorCode.INVALID_REQUEST_ID);
+    return requestId;
+  }
+
+  // 유효한 요청 상품의 ID 입력인지 검사하고, 상품의 ID를 정수로 반환
+  public long isValidRequestItemId(String input, List<Long> unapprovedRequestItemIds) {
+    if (!unapprovedRequestItemIds.stream().anyMatch(num -> num == Long.parseLong(input)))
+      throw new TransactionException(ErrorCode.INVALID_REQUEST_ITEM_ID);
+    return Long.parseLong(input);
+  }
+
+  public int isValidLocationPlaceNum(String locationPlaceNum, int size) {
+    int num = Integer.parseInt(locationPlaceNum);
+    if(num < 1 || num > size)
+      throw new TransactionException(ErrorCode.INVALID_LOCATION_PLACE_NUMBER);
+    return num-1; // 1번 부터 시작
+  }
+
+  public int isValidMonth(String numberInput) {
+    int num = Integer.parseInt(numberInput);
+    if(num < 1 || num > 12)
+      throw new TransactionException(ErrorCode.INVALID_MONTH_NUMBER);
+    return num;
   }
 }

@@ -1,10 +1,10 @@
 package domain.user;
 
+import constant.user.MemberPage;
+import java.util.Date;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
@@ -23,18 +23,7 @@ public class Member extends User {
 
     @Override
     public String toString() {
-        return "Member{" +
-                "companyCode='" + companyCode + '\'' +
-                ", address='" + address + '\'' +
-                ", login=" + login +
-                ", start_date=" + start_date +
-                ", expired_date=" + expired_date +
-                ", id='" + getId() + '\'' +
-                ", pwd='" + getPwd() + '\'' +
-                ", name='" + getName() + '\'' +
-                ", phone='" + getPhone() + '\'' +
-                ", email='" + getEmail() + '\'' +
-                ", type='" + getType() + '\'' +
-                '}';
+        return super.toString()
+                + String.format(MemberPage.SEARCHED_MEMBER_INFO.toString(), companyCode, address, start_date, expired_date);
     }
 }

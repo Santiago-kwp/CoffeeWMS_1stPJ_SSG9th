@@ -1,6 +1,7 @@
 package controller.cargo;
 
 import domain.cargo.cargoVo.Cargo;
+import domain.user.Manager;
 import model.cargo.cargoDaoImpl.CargoDaoImpl;
 
 import java.sql.SQLException;
@@ -10,18 +11,17 @@ import java.util.Scanner;
 public class CargoController {
     private final CargoDaoImpl dao;
     private final Scanner scanner;
-//    private Manager manager;
+    private Manager manager;
 
-//    public CargoController(Manager manager) throws SQLException {
-//        this.dao = new CargoDaoImpl();
-//        this.scanner = new Scanner(System.in);
-//        this.manager = manager;
-//    }
+    public CargoController(Manager manager) throws SQLException {
+        this.dao = new CargoDaoImpl();
+        this.scanner = new Scanner(System.in);
+        this.manager = manager;
+    }
 
     public CargoController() throws SQLException {
         this.dao = new CargoDaoImpl();
         this.scanner = new Scanner(System.in);
-
     }
 
     private void showMenu() {
@@ -32,7 +32,6 @@ public class CargoController {
                 --------------------------------------------------------------------------------
                 
                 """);
-
     }
 
     private void printf(String format, Object... args) {
@@ -46,57 +45,40 @@ public class CargoController {
     public void start() {
         while (true) {
             showMenu();
-
             println("번호를 입력하세요");
-            int choice = Integer.parseInt(scanner.nextLine());
+            int choice;
+
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                println("숫자만 입력해주세요.");
+                continue;
+            }
 
             try {
                 switch (choice) {
-                    case 1 -> {
-
-                        addCargo();
-                        break;
-                    }
-                    case 2 -> {
-                        modifyCargo();
-                        break;
-                    }
-                    case 3 -> {
-                        removeCargo();
-                        break;
-                    }
-                    case 4 -> {
-                        getAllCargos();
-                        break;
-                    }
-                    case 5 -> {
-                        getCargoByName();
-                        break;
-                    }
-                    case 6 -> {
-                        getCargoByAddress();
-                        break;
-                    }
-                    case 7 -> {
-                        getCargoByGrade();
-                        break;
-                    }
+                    case 1 -> addCargo();
+                    case 2 -> modifyCargo();
+                    case 3 -> removeCargoName();
+                    case 4 -> getAllCargos();
+                    case 5 -> getCargoByName();
+                    case 6 -> getCargoByAddress();
+                    case 7 -> getCargoByGrade();
                     case 0 -> {
                         println("종료합니다.");
                         return;
                     }
                     default -> println("잘못된 선택입니다.");
                 }
-            } catch (Exception e) {
+            } catch (SQLException e) {
                 println("오류 발생: " + e.getMessage());
             }
         }
     }
 
-
     private void addCargo() throws SQLException {
         println("------------------------------------<<창고 등록>>------------------------------");
-//        checkAdmin();
+
         Cargo cargo = new Cargo(
                 0,
                 read("창고 코드"),
@@ -107,33 +89,33 @@ public class CargoController {
                 Integer.parseInt(read("총 용량")),
                 Integer.parseInt(read("사용 용량"))
         );
-        List<Cargo> result = dao.addCargo(cargo);
-        result.forEach(System.out::println);
 
+        List<Cargo> result = dao.addCargo(cargo);
+        println("=============================================================================");
+        println(result != null && !result.isEmpty() ? "등록이 완료되었습니다." : "등록에 실패했습니다.");
     }
 
     private void modifyCargo() throws SQLException {
         println("창고 수정:");
         Cargo cargo = new Cargo(
-                Integer.parseInt(read("ID")),
-                read("코드"),
-                read("이름"),
-                read("주소"),
-                read("등급"),
+                Integer.parseInt(read("창고 ID")),
+                read("창고 코드"),
+                read("창고 이름"),
+                read("창고 주소"),
+                read("창고 등급"),
                 Integer.parseInt(read("평수")),
                 Integer.parseInt(read("총 용량")),
                 Integer.parseInt(read("사용 용량"))
         );
+
         List<Cargo> result = dao.modifyCargo(cargo);
-        result.forEach(System.out::println);
+        println("수정이 완료되었습니다.");
     }
 
-    private void removeCargo() throws SQLException {
-        int id = Integer.parseInt(read("삭제할 창고 ID"));
-        Cargo cargo = new Cargo();
-        cargo.setCargoId(id);
-        int deleted = dao.removeCargo(cargo);
-        println(deleted > 0 ? "삭제 성공" : "삭제 실패");
+    private void removeCargoName() throws SQLException {
+        String name = read("삭제할 창고 이름");
+        int deleted = dao.removeCargoName(name);
+        println(deleted > 0 ? "삭제 성공" : "삭제 실패 (중복 또는 존재하지 않음)");
     }
 
     private void getAllCargos() throws SQLException {
@@ -164,7 +146,14 @@ public class CargoController {
         System.out.print(label + ": ");
         return scanner.nextLine();
     }
-    //private boolean login = false; // 로그인 시 설정
+
+    private void addCargoToManager() throws SQLException{
+        String managerId = read("관리자의 아이디를 입력해주세요");
+        int managerIdInt = Integer.parseInt(managerId);
+    }
+}
+
+//private boolean login = false; // 로그인 시 설정
 
 //    private void checkAdmin() throws SQLException {
 //        if (!manager.getPositon().equals("총관리자")) {
@@ -174,4 +163,4 @@ public class CargoController {
 //    }
 
 
-}
+

@@ -21,7 +21,6 @@ public class CreateInboundRequestCommand implements Command {
 
   @Override
   public void execute() {
-    System.out.println("회원의 입고 요청 생성 커맨드 실행");
     inboundService.submitInboundRequest(inboundRequest);
   }
 }

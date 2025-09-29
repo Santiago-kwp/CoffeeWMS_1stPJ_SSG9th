@@ -1,4 +1,5 @@
 use railway;
+# use testdb1;
 
 #########################################################
 # 1. 로그인 메뉴의 주요 기능 구현
@@ -77,35 +78,45 @@ call login_manager('wmscargoman', 'wms123456', @userType);
 DROP PROCEDURE IF EXISTS register;
 DELIMITER $$
 CREATE PROCEDURE register(
-	IN id varchar(15), 
-    IN pwd varchar(20), 
+    IN id varchar(15),
+    IN pwd varchar(20),
     IN name varchar(10),
     IN phone varchar(13),
-    IN email varchar(30), 
-	IN company_code char(12), 
+    IN email varchar(30),
+    IN company_code char(12),
     IN address varchar(255),
-    IN register_type varchar(10)
+    IN register_type varchar(10),
+    OUT affected BOOLEAN
 )
 BEGIN
-	DECLARE approval varchar(10);
+    DECLARE approval varchar(10);
     DECLARE found_count int;
     DECLARE admin_count int;
-    
+
     -- 중복된 아이디가 있는지 확인
     select count(user_id) into found_count from users where user_id = id and user_approval = '승인완료';
     select count(user_id) into admin_count from users where user_type = '총관리자';
-    
+
     if (found_count > 0 or (register_type = '총관리자' and admin_count > 0)) then
-		set approval = '미승인';		-- 이미 승인완료된 아이디가 존재하면 미승인 처리
+        set approval = '미승인';		-- 이미 승인완료된 아이디가 존재하면 미승인 처리
     else
-		set approval = '승인완료';	-- 사용가능한 아이디면 승인완료처리
+        set approval = '승인완료';	-- 사용가능한 아이디면 승인완료처리
     end if;
-    
+
     -- 회원정보 추가
     insert into users(
-		user_id, user_approval, user_pwd, user_name, user_phone, user_email, 
-		user_company_code, user_address, user_join_date, user_type
-	) values(id, approval, pwd, name, phone, email, company_code, address, now(), register_type);
+        user_id, user_approval, user_pwd, user_name, user_phone, user_email,
+        user_company_code, user_address, user_join_date, user_type
+    ) values(id, approval, pwd, name, phone, email,
+             company_code, address, now(), register_type);
+
+    if exists(select member_id from members where member_id = (select user_id from users where user_id = id and user_approval = '승인완료')) then
+        set affected = 1;
+    elseif exists(select manager_id from managers where manager_id = (select user_id from users where user_id = id and user_approval = '승인완료')) then
+        set affected = 1;
+    else
+        set affected = 0;
+    end if;
 END $$
 DELIMITER ;
 
@@ -116,26 +127,25 @@ CREATE TRIGGER authorize
 	AFTER INSERT ON users FOR EACH ROW
 BEGIN
 	IF (new.user_approval = '승인완료' and new.user_type = '일반회원') then
-		insert into members(
-				member_id, member_pwd, member_company_name, member_phone, 
-				member_email, member_company_code, member_address,
-				member_start_date, member_expired_date
-		)
+		insert into members
 		values(
 			new.user_id, new.user_pwd, new.user_name, new.user_phone, 
 			new.user_email, new.user_company_code, new.user_address,
-			now(), date_add(now(), interval 1 year)
-		);
+			false, now(), date_add(now(), interval 1 year))
+		on duplicate key update
+		    member_pwd = NEW.user_pwd, member_company_name = NEW.user_name, member_phone = NEW.user_phone,
+		    member_email = new.user_email, member_company_code = NEW.user_email, member_address = NEW.user_address,
+		    member_login = false, member_start_date = now(), member_expired_date = date_add(now(), interval 1 year);
 	-- 가입승인된 회원의 가입유형이 창고관리자 또는 총관리자면 관리자 권한을 부여
 	ELSEIF (new.user_approval = '승인완료' and new.user_type like '%관리자') then
-		insert into managers(
-			manager_id, manager_pwd, manager_name, manager_phone, 
-			manager_email, manager_hire_date, manager_position
-		) 
+		insert into managers
 		values(
 			new.user_id, new.user_pwd, new.user_name, new.user_phone, 
-			new.user_email, now(), new.user_type
-		);
+			new.user_email, false, now(), new.user_type
+		)
+		on duplicate key update
+             manager_pwd = NEW.user_pwd, manager_name = NEW.user_name, manager_phone = NEW.user_phone,
+             manager_email = new.user_email, manager_login = false, manager_hire_date = now(), manager_position = NEW.user_type;
 	END IF;
 END $$
 DELIMITER ;
@@ -224,13 +234,14 @@ BEGIN
     end if;
 END $$
 DELIMITER ;
+
 call has_userID('wmsAdmin', @result);
 select @result;
 
 -- 비밀번호 변경: users 테이블의 비밀번호 변경
 DROP PROCEDURE IF EXISTS update_pwd;
 DELIMITER $$
-CREATE PROCEDURE update_pwd(IN targetID varchar(15), IN newPwd varchar(20))
+CREATE PROCEDURE update_pwd(IN targetID varchar(15), IN newPwd varchar(20), OUT affected INT)
 BEGIN
 	set @targetID = targetID;
     set @newPwd = newPwd;
@@ -240,6 +251,8 @@ BEGIN
     execute updateQuery using @newPwd, @targetID;
     
     deallocate prepare updateQuery;
+
+	SELECT COUNT(user_id) INTO affected FROM users WHERE user_id = targetID AND user_pwd = newPwd;
     commit;
 END $$
 DELIMITER ;
@@ -308,7 +321,7 @@ END $$
 DELIMITER ;
 
 call login_manager('wmscargoman', 'wms123456', '창고관리자');
-call logout('wmscargoman', @result);
+call logout('manager2', @result);
 call logout('wmsAdmin', @result);
 call logout('member12350', @result);
 select @result;
