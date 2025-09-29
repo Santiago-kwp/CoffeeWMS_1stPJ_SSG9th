@@ -87,12 +87,23 @@ public class DueDiligenceView {
   }
 
   public String inputApprovalStatus() {
-    System.out.print("승인 상태 필터 (1.승인요청 | 2.승인완료 | 3.승인반려 | 미입력 시 전체): ");
-    String input = sc.nextLine();
-    if ("1".equals(input)) return "승인요청";
-    if ("2".equals(input)) return "승인완료";
-    if ("3".equals(input)) return "승인반려";
-    return null;
+    while (true) { // 유효한 입력이 들어올 때까지 무한 반복
+      System.out.print("승인 상태 필터 (1.승인요청 | 2.승인완료 | 3.승인반려 | 미입력 시 전체): ");
+      String input = sc.nextLine();
+
+      // 1. '미입력'(전체 조회)은 유효한 입력이므로 먼저 처리
+      if (input.isEmpty()) {
+        return null;
+      }
+
+      // 2. '1', '2', '3'도 유효한 입력이므로 처리
+      if ("1".equals(input)) return "승인요청";
+      if ("2".equals(input)) return "승인완료";
+      if ("3".equals(input)) return "승인반려";
+
+      // 3. 여기까지 왔다면 유효하지 않은 입력이므로 오류 메시지 출력 후 루프 계속
+      ErrorMessageView.printError(ErrorMessage.INVALID_GENERAL_CHOICE);
+    }
   }
 
   // ======================== 메뉴 출력 (신규 추가) ========================

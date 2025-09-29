@@ -11,7 +11,7 @@ public enum InventoryMessage {
 
   // === 재고 조회 메뉴 ===
   INVENTORY_SEARCH_MENU_TITLE("<< 재고 조회 >>"),
-  INPUT_WAREHOUSE_CHOICE("[총관리자/일반회원] 창고 선택 (1.부산신항창고 | 2.곤지암 창고 | 3.대덕창고 | 미입력 시 전체): "),
+  INPUT_WAREHOUSE_CHOICE("[총관리자/일반회원] 창고 선택 (1.부산신항창고 | 2.곤지암창고 | 3.대덕창고 | 미입력 시 전체): "),
   INPUT_MEMBER_CHOICE("[총관리자/창고관리자] 회원사 선택 (1.스타벅스 | 2.투썸플레이스 | 미입력 시 전체): "),
   INPUT_COFFEE_NAME("상품명으로 검색 (미입력 시 전체): "),
   INPUT_BEAN_TYPE("로스팅 상태 (1.원두 | 2.생두 | 미입력 시 전체): "),

@@ -2,7 +2,7 @@ package model.inventory;
 
 
 
-import config.inventory.DBUtil;
+import config.DBUtil;
 
 import constant.inventory.ErrorMessage;
 import domain.inventory.DueDiligenceVO;
