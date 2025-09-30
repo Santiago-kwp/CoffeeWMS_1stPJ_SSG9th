@@ -9,7 +9,9 @@ import exception.support.InputException;
 import exception.support.NotFoundException;
 import model.support.dao.NoticeDAO;
 import model.support.dao.daoImpl.NoticeDaoImpl;
+import service.support.inputService.CSOption;
 import service.support.inputService.NoticeInput;
+import service.support.inputService.inputImpl.CSOptionImpl;
 import service.support.inputService.inputImpl.NoticeInputImpl;
 import service.support.readService.NoticeRead;
 import service.support.readService.readImpl.NoticeReadImpl;
@@ -24,6 +26,7 @@ public class NoticeMenu {
     NoticeDAO noticeDAO = new NoticeDaoImpl();
     NoticeInput noticeInput = new NoticeInputImpl();
     NoticeRead noticeRead = new NoticeReadImpl();
+    CSOption csOption = new CSOptionImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 회원 <공지사항> 메뉴 ---------------------------------------------------------------------------------------------
@@ -74,7 +77,7 @@ public class NoticeMenu {
 
                     noticeRead.noticeReadOne(oneNotice);
 
-                    noticeInput.backOption();
+                    csOption.backOption();
 
                     break;
 

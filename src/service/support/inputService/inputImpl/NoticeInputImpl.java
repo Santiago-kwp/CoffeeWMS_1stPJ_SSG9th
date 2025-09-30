@@ -5,6 +5,7 @@ import constant.support.BoardText;
 import constant.support.ValidCheck;
 import domain.support.Notice;
 import exception.support.InputException;
+import service.support.inputService.CSOption;
 import service.support.inputService.NoticeInput;
 
 import java.io.BufferedReader;
@@ -15,7 +16,7 @@ import static java.lang.Character.toUpperCase;
 
 public class NoticeInputImpl implements NoticeInput {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-    ValidCheck validCheck = new ValidCheck();
+    CSOption csOption = new CSOptionImpl();
 
     // 공지사항 데이터 입력 (총관리자)------------------------------------------------------------------------------------------
     public Notice noticeDataInput(String managerId) {
@@ -36,7 +37,7 @@ public class NoticeInputImpl implements NoticeInput {
                 System.out.print(BoardText.FIXED.getMessage());
                 Character C = input.readLine().charAt(0);
                 if (toUpperCase(C) == 'Y' || toUpperCase(C) == 'N') {
-                    boolean fixed = yesOrNo(C);
+                    boolean fixed = csOption.yesOrNo(C);
                     notice.setNoticeFixed(fixed);
                     break;
                 } else {
@@ -75,7 +76,7 @@ public class NoticeInputImpl implements NoticeInput {
                 System.out.print(BoardText.FIXED.getMessage());
                 char C = input.readLine().charAt(0);
                 if (toUpperCase(C) == 'Y' || toUpperCase(C) == 'N') {
-                    boolean fixed = yesOrNo(C);
+                    boolean fixed = csOption.yesOrNo(C);
                     notice.setNoticeFixed(fixed);
                     break;
                 } else {
@@ -91,33 +92,5 @@ public class NoticeInputImpl implements NoticeInput {
         notice.setNoticeManagerId(managerId);
 
         return notice;
-    }
-
-    // 뒤로가기 옵션--------------------------------------------------------------------------------------------------------
-    public void backOption () {
-            while (true) {
-                System.out.println(BoardText.LINE.getMessage());
-
-                System.out.println(BoardText.BACK_OPTION.getMessage());
-
-                try {
-                    String y = input.readLine();
-                    validCheck.yCheck(y);
-                    break;
-                } catch (InputException e) {
-                    System.out.println(e.getMessage());;
-                } catch (IOException e){
-                    System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-                }
-            }
-    }
-
-    // 예, 아니오 --------------------------------------------------------------------------------------------------------
-    public boolean yesOrNo(Character c) {
-        return switch (c) {
-            case 'y', 'Y' -> true;
-            case 'n', 'N' -> false;
-            default -> false;
-        };
     }
 }
