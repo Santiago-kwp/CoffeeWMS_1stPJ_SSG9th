@@ -18,6 +18,7 @@ public class CSMenu {
     FaqMenu faqMenu = new FaqMenu();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
+    // 일반회원의 고객센터 메뉴
     public void memberCSMenu(Member member) {
         TheEndCS:
         while (true) {
@@ -50,6 +51,7 @@ public class CSMenu {
         }
     }
 
+    // 관리자의 고객센터 메뉴
     public void managerCSMenu(Manager manager) {
         TheEndCS:
         while (true) {

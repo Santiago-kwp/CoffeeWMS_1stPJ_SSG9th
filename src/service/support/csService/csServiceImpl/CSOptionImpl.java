@@ -5,7 +5,6 @@ import constant.support.BoardText;
 import constant.support.ValidCheck;
 import exception.support.InputException;
 import service.support.csService.CSOption;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,7 +13,7 @@ public class CSOptionImpl implements CSOption {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     ValidCheck validCheck = new ValidCheck();
 
-    // 뒤로가기 옵션--------------------------------------------------------------------------------------------------------
+    // 뒤로가기 옵션
     public void backOption () {
         while (true) {
             System.out.println(BoardText.LINE.getMessage());
@@ -33,7 +32,7 @@ public class CSOptionImpl implements CSOption {
         }
     }
 
-    // 예, 아니오 --------------------------------------------------------------------------------------------------------
+    // 예, 아니오
     public boolean yesOrNo(Character c) {
         return switch (c) {
             case 'y', 'Y' -> true;

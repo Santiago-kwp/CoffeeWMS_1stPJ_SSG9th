@@ -24,6 +24,7 @@ public class InquiryInputImpl implements InquiryInput {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     List<Category> inquiryCategoryList = new ArrayList<>();
 
+    // 1:1 문의 데이터 입력
     @Override
     public Board dataInput(String memberId) {
         Inquiry inquiry = new Inquiry();
@@ -76,6 +77,7 @@ public class InquiryInputImpl implements InquiryInput {
         return inquiry;
     }
 
+    // 1:1 문의 데이터 수정
     @Override
     public Board dataUpdate(Integer readChoice, String memberId) {
         Inquiry inquiry = new Inquiry();
@@ -130,6 +132,7 @@ public class InquiryInputImpl implements InquiryInput {
         return inquiry;
     }
 
+    // 총관리자의 1:1 문의 답변 입력(수정)
     @Override
     public Inquiry dataReplyUpdate(Integer readChoice, String managerId) {
         Inquiry inquiry = new Inquiry();

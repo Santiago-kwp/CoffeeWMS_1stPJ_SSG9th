@@ -17,6 +17,7 @@ import service.support.inputService.BoardInput;
 import service.support.csService.csServiceImpl.CSOptionImpl;
 import service.support.inputService.inputImpl.NoticeInputImpl;
 import service.support.readService.NoticeRead;
+import service.support.readService.Read;
 import service.support.readService.readImpl.NoticeReadImpl;
 
 import java.io.BufferedReader;
@@ -32,11 +33,11 @@ public class NoticeMenu {
     CSOption csOption = new CSOptionImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-    // 회원 <공지사항> 메뉴 ---------------------------------------------------------------------------------------------
+    // 회원의 공지사항 메뉴
     public void memberNoticeMenu() {
         KI:
         while (true) {
-            noticeRead.noticeReadAll();
+            noticeRead.readAll();
 
             System.out.print(BoardText.NOTICE_MENU_SIMPLE.getMessage());
 
@@ -78,7 +79,7 @@ public class NoticeMenu {
                         break;
                     }
 
-                    noticeRead.noticeReadOne(oneNotice);
+                    noticeRead.readOne(oneNotice);
 
                     csOption.backOption();
 
@@ -91,12 +92,12 @@ public class NoticeMenu {
         }
     }
 
-    // 관리자 <공지사항> 메뉴 ----------------------------------------------------------------------------------------------
+    // 관리자의 공지사항 메뉴
     public void managerNoticeMenu(Manager manager) {
         KIKI:
         while (true) {
             String managerId = manager.getId();
-            noticeRead.noticeReadAll();
+            noticeRead.readAll();
 
             System.out.print(BoardText.NOTICE_MENU.getMessage());
 
@@ -163,7 +164,7 @@ public class NoticeMenu {
                         break;
                     }
 
-                    noticeRead.noticeReadOne(oneNotice);
+                    noticeRead.readOne(oneNotice);
 
                     noticeDetailMenu(readChoice, manager);
                     break;
@@ -175,7 +176,7 @@ public class NoticeMenu {
         }
     }
 
-    // 총관리자 공지사항 상세 메뉴 --------------------------------------------------------------------------------------------
+    // 관리자의 공지사항 상세 메뉴
     public void noticeDetailMenu(Integer readChoice, Manager manager) {
         System.out.print(BoardText.NOTICE_DETAIL_MENU.getMessage());
         String managerId = manager.getId();

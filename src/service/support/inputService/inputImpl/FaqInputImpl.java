@@ -23,7 +23,7 @@ public class FaqInputImpl implements BoardInput {
     FaqDaoImpl faqDAO = new FaqDaoImpl();
     List<Category> faqCategoryList = new ArrayList<>();
 
-    // FAQ 데이터 입력 (총관리자)--------------------------------------------------------------------------------------------
+    // FAQ 데이터 입력
     @Override
     public Board dataInput(String managerId) {
         Faq faq = new Faq();
@@ -79,7 +79,7 @@ public class FaqInputImpl implements BoardInput {
         return faq;
     }
 
-    // FAQ 데이터 수정 (총관리자)--------------------------------------------------------------------------------------------
+    // FAQ 데이터 수정
     @Override
     public Board dataUpdate(Integer readChoice, String managerId) {
         Faq faq = new Faq();

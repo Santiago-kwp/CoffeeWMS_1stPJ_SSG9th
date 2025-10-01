@@ -26,66 +26,7 @@ public class InquiryMenu {
     InquiryRead inquiryRead = new InquiryReadImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-    // 총관리자 1:1문의 메뉴 -------------------------------------------------------------------------------------------------
-    public void managerInquiryMenu(String managerId) {
-        KI:
-        while (true) {
-            inquiryRead.managerInquiryReadAll();
-
-            System.out.print(BoardText.INQUIRY_MENU_SIMPLE.getMessage());
-
-            String choice = null;
-            try {
-                choice = input.readLine();
-                validCheck.isTwoMenuValid(choice);
-            } catch (InputException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-            }
-
-            switch (choice) {
-                case "1":
-                    System.out.print(BoardText.INQUIRY_INSERT_ID.getMessage());
-
-                    int readChoice = 0;
-                    try {
-                        readChoice = Integer.parseInt(input.readLine());
-                    } catch (IOException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-                        managerInquiryMenu(managerId);
-                    } catch (NumberFormatException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
-                        managerInquiryMenu(managerId);
-                    }
-
-                    System.out.println(BoardText.LINE.getMessage());
-
-                    System.out.println(BoardText.INQUIRY_CHOICE.getMessage());
-
-
-                    Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
-
-                    try {
-                        validCheck.isValidNotFoundInquiry(oneInquiry);
-                    } catch (NotFoundException e) {
-                        System.out.println(e.getMessage());
-                    }
-
-                    inquiryRead.inquiryReadOne(oneInquiry);
-
-                    managerInquiryDetailMenu(readChoice, managerId);
-
-                    break;
-
-                case "2":
-                    System.out.println(BoardText.BACK.getMessage());
-                    break KI;
-            }
-        }
-    }
-
-    // 회원 1:1문의 메뉴 -------------------------------------------------------------------------------------------------
+    // 회원의 1:1 문의 메뉴
     public void memberInquiryMenu(String memberId) {
         KI:
         while (true) {
@@ -149,7 +90,7 @@ public class InquiryMenu {
                         break;
                     }
 
-                    inquiryRead.inquiryReadOne(oneInquiry);
+                    inquiryRead.readOne(oneInquiry);
 
                     memberInquiryDetailMenu(memberId, readChoice);
                     break;
@@ -161,47 +102,66 @@ public class InquiryMenu {
         }
     }
 
-    // 총관리자 1:1 문의 상세 메뉴 ---------------------------------------------------------------------------------------------------
-    public void managerInquiryDetailMenu(Integer readChoice, String managerId) {
-        System.out.print(BoardText.INQUIRY_DETAIL_MENU_MANAGER.getMessage());
+    // 관리자의 1:1 문의 메뉴
+    public void managerInquiryMenu(String managerId) {
+        KI:
+        while (true) {
+            inquiryRead.readAll();
 
-        String choice = null;
-        try {
-            choice = input.readLine();
-            validCheck.isThreeMenuValid(choice);
-        } catch (InputException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-        }
+            System.out.print(BoardText.INQUIRY_MENU_SIMPLE.getMessage());
 
-        System.out.println(BoardText.LINE.getMessage());
+            String choice = null;
+            try {
+                choice = input.readLine();
+                validCheck.isTwoMenuValid(choice);
+            } catch (InputException e) {
+                System.out.println(e.getMessage());
+            } catch (IOException e) {
+                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
+            }
 
-        switch (choice) {
-            case "1":
-                Inquiry inquiry;
-                inquiry = inquiryInput.dataReplyUpdate(readChoice, managerId);
+            switch (choice) {
+                case "1":
+                    System.out.print(BoardText.INQUIRY_INSERT_ID.getMessage());
 
-                boolean update = inquiryDAO.updateInquiryManager(inquiry);
+                    int readChoice = 0;
+                    try {
+                        readChoice = Integer.parseInt(input.readLine());
+                    } catch (IOException e) {
+                        System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
+                        managerInquiryMenu(managerId);
+                    } catch (NumberFormatException e) {
+                        System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
+                        managerInquiryMenu(managerId);
+                    }
 
-                if (update) System.out.println(BoardText.INQUIRY_REPLY_SUCCESS.getMessage());
-                else System.out.println(BoardText.INQUIRY_REPLY_FAILURE.getMessage());
-                break;
+                    System.out.println(BoardText.LINE.getMessage());
 
-            case "2":
-                boolean delete = inquiryDAO.deleteInquiryManager(readChoice);
+                    System.out.println(BoardText.INQUIRY_CHOICE.getMessage());
 
-                if (delete) System.out.println(BoardText.INQUIRY_DELETE_SUCCESS.getMessage());
-                else System.out.println(BoardText.INQUIRY_DELETE_FAILURE.getMessage());
-                break;
 
-            case "3":
-                System.out.println(BoardText.BACK.getMessage());
-                break;
+                    Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
+
+                    try {
+                        validCheck.isValidNotFoundInquiry(oneInquiry);
+                    } catch (NotFoundException e) {
+                        System.out.println(e.getMessage());
+                    }
+
+                    inquiryRead.readOne(oneInquiry);
+
+                    managerInquiryDetailMenu(readChoice, managerId);
+
+                    break;
+
+                case "2":
+                    System.out.println(BoardText.BACK.getMessage());
+                    break KI;
+            }
         }
     }
 
-    // 회원 1:1 문의 상세 메뉴 ---------------------------------------------------------------------------------------------------
+    // 회원의 1:1 문의 상세 메뉴
     public void memberInquiryDetailMenu(String memberIdEx, Integer readChoice) {
         System.out.print(BoardText.INQUIRY_DETAIL_MENU_MEMBER.getMessage());
 
@@ -238,6 +198,46 @@ public class InquiryMenu {
 
             case "2":
                 boolean delete = inquiryDAO.deleteInquiryMember(readChoice, memberIdEx);
+
+                if (delete) System.out.println(BoardText.INQUIRY_DELETE_SUCCESS.getMessage());
+                else System.out.println(BoardText.INQUIRY_DELETE_FAILURE.getMessage());
+                break;
+
+            case "3":
+                System.out.println(BoardText.BACK.getMessage());
+                break;
+        }
+    }
+
+    // 관리자의 1:1 문의 상세 메뉴
+    public void managerInquiryDetailMenu(Integer readChoice, String managerId) {
+        System.out.print(BoardText.INQUIRY_DETAIL_MENU_MANAGER.getMessage());
+
+        String choice = null;
+        try {
+            choice = input.readLine();
+            validCheck.isThreeMenuValid(choice);
+        } catch (InputException e) {
+            System.out.println(e.getMessage());
+        } catch (IOException e) {
+            System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
+        }
+
+        System.out.println(BoardText.LINE.getMessage());
+
+        switch (choice) {
+            case "1":
+                Inquiry inquiry;
+                inquiry = inquiryInput.dataReplyUpdate(readChoice, managerId);
+
+                boolean update = inquiryDAO.updateInquiryManager(inquiry);
+
+                if (update) System.out.println(BoardText.INQUIRY_REPLY_SUCCESS.getMessage());
+                else System.out.println(BoardText.INQUIRY_REPLY_FAILURE.getMessage());
+                break;
+
+            case "2":
+                boolean delete = inquiryDAO.deleteInquiryManager(readChoice);
 
                 if (delete) System.out.println(BoardText.INQUIRY_DELETE_SUCCESS.getMessage());
                 else System.out.println(BoardText.INQUIRY_DELETE_FAILURE.getMessage());

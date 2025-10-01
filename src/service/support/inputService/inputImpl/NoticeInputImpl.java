@@ -19,7 +19,7 @@ public class NoticeInputImpl implements BoardInput {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     CSOption csOption = new CSOptionImpl();
 
-    // 공지사항 데이터 입력 (총관리자)------------------------------------------------------------------------------------------
+    // 공지사항 데이터 입력
     @Override
     public Board dataInput(String managerId) {
         Notice notice = new Notice();
@@ -57,7 +57,7 @@ public class NoticeInputImpl implements BoardInput {
         return notice;
     }
 
-    // 공지사항 데이터 수정 (총관리자)-----------------------------------------------------------------------------------------
+    // 공지사항 데이터 수정
     @Override
     public Board dataUpdate(Integer readChoice, String managerId) {
         Notice notice = new Notice();

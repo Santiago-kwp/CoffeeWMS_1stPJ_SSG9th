@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface InquiryDAO {
     // 1:1 문의 생성하는 기능으로 '회원' 권한을 가진 유저만 이 기능을 사용할 수 있다.
-    boolean createInquiry(domain.support.Inquiry inquiry);
+    boolean createInquiry(Inquiry inquiry);
 
     // 1:1 문의 목록 전체를 조회하는 기능으로 로그인한 유저가 작성한 문의만 조회할 수 있는 기능이다.
     List<Inquiry> readInquiryMemberAll(String inquiryMemberId);

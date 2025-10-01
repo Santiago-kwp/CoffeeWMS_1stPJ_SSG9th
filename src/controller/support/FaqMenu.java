@@ -12,10 +12,9 @@ import model.support.dao.FaqDAO;
 import model.support.dao.daoImpl.FaqDaoImpl;
 import service.support.csService.CSOption;
 import service.support.inputService.BoardInput;
-//import service.support.inputService.FaqInput;
 import service.support.csService.csServiceImpl.CSOptionImpl;
 import service.support.inputService.inputImpl.FaqInputImpl;
-import service.support.readService.FaqRead;
+import service.support.readService.Read;
 import service.support.readService.readImpl.FaqReadImpl;
 
 import java.io.BufferedReader;
@@ -26,15 +25,15 @@ public class FaqMenu {
     ValidCheck validCheck = new ValidCheck();
     FaqDAO faqDAO = new FaqDaoImpl();
     BoardInput faqInput = new FaqInputImpl();
-    FaqRead faqRead = new FaqReadImpl();
+    Read faqRead = new FaqReadImpl();
     CSOption csOption = new CSOptionImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
-    // 회원 <FAQ> 메뉴 ------------------------------------------------------------------------------------------------------
+    // 회원의 FAQ 메뉴
     public void memberFaqMenu() {
         KIKI:
         while (true) {
-            faqRead.faqReadAll();
+            faqRead.readAll();
 
             System.out.print(BoardText.FAQ_MENU_SIMPLE.getMessage());
 
@@ -76,7 +75,7 @@ public class FaqMenu {
                         break;
                     }
 
-                    faqRead.faqReadOne(oneFaq);
+                    faqRead.readOne(oneFaq);
 
                     csOption.backOption();
 
@@ -89,13 +88,13 @@ public class FaqMenu {
         }
     }
 
-    // 총관리자 <FAQ> 메뉴 ------------------------------------------------------------------------------------------------------
+    // 관리자의 FAQ 메뉴
     public void managerFaqMenu(Manager manager) {
         KIKI:
         while (true) {
             String managerId = manager.getId();
 
-            faqRead.faqReadAll();
+            faqRead.readAll();
 
             System.out.print(BoardText.FAQ_MENU.getMessage());
 
@@ -159,7 +158,7 @@ public class FaqMenu {
                         break;
                     }
 
-                    faqRead.faqReadOne(oneFaq);
+                    faqRead.readOne(oneFaq);
 
                     faqDetailMenu(readChoice, manager);
                     break;
@@ -171,7 +170,7 @@ public class FaqMenu {
         }
     }
 
-    //  총관리자 <FAQ> 상세 메뉴 ---------------------------------------------------------------------------------------------------
+    // 관리자 FAQ 상세 메뉴
     public void faqDetailMenu(Integer readChoice, Manager manager) {
 
         String managerId = manager.getId();

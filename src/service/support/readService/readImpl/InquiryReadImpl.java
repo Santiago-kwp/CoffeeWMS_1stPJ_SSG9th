@@ -1,6 +1,7 @@
 package service.support.readService.readImpl;
 
 import constant.support.BoardText;
+import domain.support.Board;
 import domain.support.Inquiry;
 import model.support.dao.InquiryDAO;
 import model.support.dao.daoImpl.InquiryDaoImpl;
@@ -11,8 +12,9 @@ import java.util.List;
 public class InquiryReadImpl implements InquiryRead {
     InquiryDAO inquiryDAO = new InquiryDaoImpl();
 
-    // 1:1문의 전체 조회 ---------------------------------------------------------------------------------------------------
-    public void managerInquiryReadAll() {
+    // 1:1 문의 전체 출력
+    @Override
+    public void readAll() {
         inquiryDAO = new InquiryDaoImpl();
         System.out.println(BoardText.INQUIRY_READ_ALL.getMessage());
 
@@ -23,7 +25,6 @@ public class InquiryReadImpl implements InquiryRead {
         List<Inquiry> readAll = inquiryDAO.readInquiryManagerAll();
         for (Inquiry inquiry : readAll) {
 
-            // 내용을 30글자만 출력
             String content = inquiry.getInquiryContent();
             if (content.length() > 10) content = content.substring(0, 10);
 
@@ -38,34 +39,10 @@ public class InquiryReadImpl implements InquiryRead {
         }
     }
 
-    // 1:1문의 전체 조회 ---------------------------------------------------------------------------------------------------
-    public void memberInquiryReadAll(String memberId) {
-        inquiryDAO = new InquiryDaoImpl();
-        System.out.println(BoardText.INQUIRY_READ_ALL.getMessage());
-
-        System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "문의날짜", "카테고리", "문의", "답변 상태");
-
-        System.out.println(BoardText.LINE.getMessage());
-
-        List<Inquiry> readAll = inquiryDAO.readInquiryMemberAll(memberId);
-        for (Inquiry inquiry : readAll) {
-
-            // 내용을 30글자만 출력
-            String content = inquiry.getInquiryContent();
-            if (content.length() > 10) content = content.substring(0, 10);
-
-            String status = null;
-            switch (inquiry.getInquiryStatus()) {
-                case PENDING -> status = "답변 대기";
-                case DONE -> status = "답변 완료";
-            }
-            System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t",
-                    inquiry.getInquiryId(), inquiry.getInquiryDate(), inquiry.getInquiryCategoryName(), content, status);
-            System.out.println();
-        }
-    }
-
-    public void inquiryReadOne(Inquiry oneInquiry) {
+    // 한 가지 1:1 문의 출력
+    @Override
+    public void readOne(Board board) {
+        Inquiry oneInquiry = (Inquiry) board;
         String status;
         switch (oneInquiry.getInquiryStatus()) {
             case PENDING -> {
@@ -86,6 +63,32 @@ public class InquiryReadImpl implements InquiryRead {
                         BoardText.REPLY_DATE.getMessage(), oneInquiry.getReplyDate(),
                         BoardText.ANSWER.getMessage(), oneInquiry.getReplyContent());
             }
+        }
+    }
+
+    // 로그인한 일반회원 본인이 작성한 전체 1:1 문의 출력
+    public void memberInquiryReadAll(String memberId) {
+        inquiryDAO = new InquiryDaoImpl();
+        System.out.println(BoardText.INQUIRY_READ_ALL.getMessage());
+
+        System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "문의날짜", "카테고리", "문의", "답변 상태");
+
+        System.out.println(BoardText.LINE.getMessage());
+
+        List<Inquiry> readAll = inquiryDAO.readInquiryMemberAll(memberId);
+        for (Inquiry inquiry : readAll) {
+
+            String content = inquiry.getInquiryContent();
+            if (content.length() > 10) content = content.substring(0, 10);
+
+            String status = null;
+            switch (inquiry.getInquiryStatus()) {
+                case PENDING -> status = "답변 대기";
+                case DONE -> status = "답변 완료";
+            }
+            System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t",
+                    inquiry.getInquiryId(), inquiry.getInquiryDate(), inquiry.getInquiryCategoryName(), content, status);
+            System.out.println();
         }
     }
 }

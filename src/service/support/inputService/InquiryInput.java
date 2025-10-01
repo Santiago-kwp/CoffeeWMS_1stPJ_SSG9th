@@ -10,5 +10,6 @@ public interface InquiryInput extends BoardInput{
     @Override
     Board dataUpdate(Integer readChoice, String memberId);
 
+    // 총관리자의 답변 입력(수정)
     Inquiry dataReplyUpdate(Integer readChoice, String managerId);
 }

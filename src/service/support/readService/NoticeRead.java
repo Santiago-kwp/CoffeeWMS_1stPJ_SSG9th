@@ -1,16 +1,17 @@
 package service.support.readService;
 
+import domain.support.Board;
 import domain.support.Notice;
 
 import java.util.List;
 
-public interface NoticeRead {
-    // 공지사항 전체 목록을 출력하는 기능
-    void noticeReadAll();
+public interface NoticeRead extends Read {
+    @Override
+    void readAll();
 
-    // 공지사항 한 가지 목록을 출력하는 기능
-    void noticeReadOne(Notice oneNotice);
+    @Override
+    void readOne(Board board);
 
-    // 메인화면에서 공지사항 상단 3번째 목록까지 출력하는 기능
+    // 메인화면에서 세 번째 목록까지 출력
     void noticeReadAllMain(List<Notice> noticeListMain);
 }

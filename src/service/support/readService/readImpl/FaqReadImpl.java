@@ -1,17 +1,18 @@
 package service.support.readService.readImpl;
 
 import constant.support.BoardText;
+import domain.support.Board;
 import domain.support.Faq;
 import model.support.dao.daoImpl.FaqDaoImpl;
-import service.support.readService.FaqRead;
-
+import service.support.readService.Read;
 import java.util.List;
 
-public class FaqReadImpl implements FaqRead {
+public class FaqReadImpl implements Read {
     FaqDaoImpl faqDAO = new FaqDaoImpl();
 
-    // FAQ 전체 조회 -----------------------------------------------------------------------------------------------------
-    public void faqReadAll() {
+    // FAQ 전체 출력
+    @Override
+    public void readAll() {
         faqDAO = new FaqDaoImpl();
         System.out.println(BoardText.FAQ_READ_ALL.getMessage());
 
@@ -34,7 +35,10 @@ public class FaqReadImpl implements FaqRead {
         }
     }
 
-    public void faqReadOne(Faq oneFaq) {
+    // 한 가지 FAQ 출력
+    @Override
+    public void readOne(Board board) {
+        Faq oneFaq = (Faq) board;
         System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
                 BoardText.CREATE_DATE.getMessage(), oneFaq.getFaqDate(),
                 BoardText.CATEGORY.getMessage(), oneFaq.getFaqCategoryName(),
