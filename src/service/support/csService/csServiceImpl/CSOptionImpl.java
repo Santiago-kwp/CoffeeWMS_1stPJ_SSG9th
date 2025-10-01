@@ -10,8 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class CSOptionImpl implements CSOption {
-    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-    ValidCheck validCheck = new ValidCheck();
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 뒤로가기 옵션
     public void backOption () {
@@ -22,7 +21,7 @@ public class CSOptionImpl implements CSOption {
 
             try {
                 String y = input.readLine();
-                validCheck.yCheck(y);
+                ValidCheck.yCheck(y);
                 break;
             } catch (InputException e) {
                 System.out.println(e.getMessage());;

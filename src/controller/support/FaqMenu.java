@@ -22,12 +22,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class FaqMenu {
-    ValidCheck validCheck = new ValidCheck();
-    FaqDAO faqDAO = new FaqDaoImpl();
-    BoardInput faqInput = new FaqInputImpl();
-    Read faqRead = new FaqReadImpl();
-    CSOption csOption = new CSOptionImpl();
-    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private static final FaqDAO faqDAO = new FaqDaoImpl();
+    private static final BoardInput faqInput = new FaqInputImpl();
+    private static final Read faqRead = new FaqReadImpl();
+    private static final CSOption csOption = new CSOptionImpl();
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 회원의 FAQ 메뉴
     public void memberFaqMenu() {
@@ -40,7 +39,7 @@ public class FaqMenu {
             String choice = null;
             try {
                 choice = input.readLine();
-                validCheck.isTwoMenuValid(choice);
+                ValidCheck.isTwoMenuValid(choice);
             } catch (InputException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {
@@ -69,7 +68,7 @@ public class FaqMenu {
                     Faq oneFaq = faqDAO.readFaqOne(readChoice);
 
                     try {
-                        validCheck.isValidNotFoundFaq(oneFaq);
+                        ValidCheck.isValidNotFoundFaq(oneFaq);
                     } catch (NotFoundException e) {
                         System.out.println(e.getMessage());
                         break;
@@ -101,7 +100,7 @@ public class FaqMenu {
             String choice = null;
             try {
                 choice = input.readLine();
-                validCheck.isThreeMenuValid(choice);
+                ValidCheck.isThreeMenuValid(choice);
             } catch (InputException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {
@@ -111,7 +110,7 @@ public class FaqMenu {
             switch (choice) {
                 case "1":
                     try {
-                        validCheck.managerCheck(manager);
+                        ValidCheck.managerCheck(manager);
                     } catch (InputException e) {
                         System.out.println(e.getMessage());
                         break;
@@ -152,7 +151,7 @@ public class FaqMenu {
                     Faq oneFaq = faqDAO.readFaqOne(readChoice);
 
                     try {
-                        validCheck.isValidNotFoundFaq(oneFaq);
+                        ValidCheck.isValidNotFoundFaq(oneFaq);
                     } catch (NotFoundException e) {
                         System.out.println(e.getMessage());
                         break;
@@ -180,7 +179,7 @@ public class FaqMenu {
         String choice = null;
         try {
             choice = input.readLine();
-            validCheck.isThreeMenuValid(choice);
+            ValidCheck.isThreeMenuValid(choice);
         } catch (InputException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
@@ -191,7 +190,7 @@ public class FaqMenu {
         switch (choice) {
             case "1":
                 try {
-                    validCheck.managerCheck(manager);
+                    ValidCheck.managerCheck(manager);
                 } catch (InputException e) {
                     System.out.println(e.getMessage());
                     break;
@@ -213,7 +212,7 @@ public class FaqMenu {
 
             case "2":
                 try {
-                    validCheck.managerCheck(manager);
+                    ValidCheck.managerCheck(manager);
                 } catch (InputException e) {
                     System.out.println(e.getMessage());
                     break;

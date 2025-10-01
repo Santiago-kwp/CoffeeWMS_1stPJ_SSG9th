@@ -14,17 +14,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FaqDaoImpl implements FaqDAO {
-    private Connection conn;
-    List<Faq> faqList = new ArrayList<>();
-    List<Category> faqCategoryList = new ArrayList<>();
-
     // FAQ 생성 -------------------------------------------------------------------------------------------------------
     public boolean createFaq(Faq faq) {
-        conn = DBUtil.getConnection();
 
         String sql = "CALL create_faq(?,?,?,?)";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
 
             cStmt.setInt(1, faq.getFaqCategoryId());
             cStmt.setString(2, faq.getFaqQuestion());
@@ -39,9 +35,7 @@ public class FaqDaoImpl implements FaqDAO {
 
             try (ResultSet rs = cStmt.getGeneratedKeys()) {
                 if (rs.next()) {
-                    int newFaqId = rs.getInt("faq_id");
-                    faq.setFaqId(newFaqId);
-                    faqList.add(faq);
+                    faq.setFaqId(rs.getInt("faq_id"));
                 }
             } catch (SQLException e) {
                 System.out.println(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
@@ -55,13 +49,12 @@ public class FaqDaoImpl implements FaqDAO {
 
     // FAQ 전체 조회 -------------------------------------------------------------------------------------------------
     public List<Faq> readFaqAll() {
-        faqList.clear();
-
-        conn = DBUtil.getConnection();
+        List<Faq> faqList = new ArrayList<>();
 
         String sql = "CALL read_faq_all()";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             ResultSet rs = cStmt.executeQuery();
             if (rs != null) {
                 while (rs.next()) {
@@ -84,11 +77,10 @@ public class FaqDaoImpl implements FaqDAO {
     // FAQ 상세 조회 ---------------------------------------------------------------------------------------------------
     public Faq readFaqOne(Integer faqId) {
 
-        conn = DBUtil.getConnection();
-
         String sql = "CALL read_faq_one(?)";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
 
             cStmt.setInt(1, faqId);
 
@@ -109,11 +101,10 @@ public class FaqDaoImpl implements FaqDAO {
     // FAQ 수정 -------------------------------------------------------------------------------------------------------
     public boolean updateFaq(Faq faq) {
 
-        conn = DBUtil.getConnection();
-
         String sql = "CALL update_faq(?,?,?,?)";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             cStmt.setInt(1, faq.getFaqId());
             cStmt.setString(2, faq.getFaqQuestion());
             cStmt.setString(3, faq.getFaqReply());
@@ -132,11 +123,10 @@ public class FaqDaoImpl implements FaqDAO {
     // FAQ 삭제 -------------------------------------------------------------------------------------------------------
     public boolean deleteFaq(Integer faqId, String faqManagerId) {
 
-        conn = DBUtil.getConnection();
-
         String sql = "CALL delete_faq(?,?)";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             cStmt.setInt(1, faqId);
             cStmt.setString(2, faqManagerId);
 
@@ -152,13 +142,12 @@ public class FaqDaoImpl implements FaqDAO {
 
     // FAQ 카테고리 조회 ---------------------------------------------------------------------------------------------------
     public List<Category> readFaqCategory() {
-        faqCategoryList.clear();
-
-        conn = DBUtil.getConnection();
+        List<Category> faqCategoryList = new ArrayList<>();
 
         String sql = "CALL read_faq_category()";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             ResultSet rs = cStmt.executeQuery();
             if (rs != null) {
                 while (rs.next()) {

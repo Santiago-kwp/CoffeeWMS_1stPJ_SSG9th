@@ -18,17 +18,16 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class MainMenu {
-    ValidCheck validCheck = new ValidCheck();
-    LoginMenu loginMenu = LoginMenu.getInstance();
-    NoticeMenu noticeMenu = new NoticeMenu();
-    NoticeRead noticeRead = new NoticeReadImpl();
-    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private static final LoginMenu loginMenu = LoginMenu.getInstance();
+    private static final NoticeMenu noticeMenu = new NoticeMenu();
+    private static final NoticeRead noticeRead = new NoticeReadImpl();
+    private static final NoticeDaoImpl noticeDAO = new NoticeDaoImpl();
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     // 메인 페이지
     public void mainMenu() {
         TheEnd:
         while (true) {
             System.out.print(MainMenuText.MAIN_MENU.getMessage());
-            NoticeDaoImpl noticeDAO = new NoticeDaoImpl();
 
             List<Notice> noticeListMain = noticeDAO.readNoticeMain();
 
@@ -39,7 +38,7 @@ public class MainMenu {
             String choice = null;
             try {
                 choice = input.readLine();
-                validCheck.isThreeMenuValid(choice);
+                ValidCheck.isThreeMenuValid(choice);
             } catch (InputException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {

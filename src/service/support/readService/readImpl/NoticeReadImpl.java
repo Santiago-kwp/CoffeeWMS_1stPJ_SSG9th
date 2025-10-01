@@ -10,12 +10,11 @@ import service.support.readService.NoticeRead;
 import java.util.List;
 
 public class NoticeReadImpl implements NoticeRead {
-    NoticeDAO noticeDAO = new NoticeDaoImpl();
+    private static final NoticeDAO noticeDAO = new NoticeDaoImpl();
 
     // 공지사항 전체 출력
     @Override
     public void readAll() {
-        noticeDAO = new NoticeDaoImpl();
         System.out.println(BoardText.NOTICE_READ_ALL.getMessage());
 
         System.out.printf("%-5S\t | %-10S\t | %-35S\t | %-10S\t\n",

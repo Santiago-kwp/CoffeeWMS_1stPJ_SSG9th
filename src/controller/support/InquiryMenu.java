@@ -20,11 +20,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class InquiryMenu {
-    ValidCheck validCheck = new ValidCheck();
-    InquiryDAO inquiryDAO = new InquiryDaoImpl();
-    InquiryInput inquiryInput = new InquiryInputImpl();
-    InquiryRead inquiryRead = new InquiryReadImpl();
-    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private static final InquiryDAO inquiryDAO = new InquiryDaoImpl();
+    private static final InquiryInput inquiryInput = new InquiryInputImpl();
+    private static final InquiryRead inquiryRead = new InquiryReadImpl();
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 회원의 1:1 문의 메뉴
     public void memberInquiryMenu(String memberId) {
@@ -38,7 +37,7 @@ public class InquiryMenu {
             String choice = null;
             try {
                 choice = input.readLine();
-                validCheck.isThreeMenuValid(choice);
+                ValidCheck.isThreeMenuValid(choice);
             } catch (InputException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {
@@ -84,7 +83,7 @@ public class InquiryMenu {
                     Inquiry oneInquiry = inquiryDAO.readInquiryMemberOne(memberId, readChoice);
 
                     try {
-                        validCheck.isValidNotFoundInquiry(oneInquiry);
+                        ValidCheck.isValidNotFoundInquiry(oneInquiry);
                     } catch (NotFoundException e) {
                         System.out.println(e.getMessage());
                         break;
@@ -113,7 +112,7 @@ public class InquiryMenu {
             String choice = null;
             try {
                 choice = input.readLine();
-                validCheck.isTwoMenuValid(choice);
+                ValidCheck.isTwoMenuValid(choice);
             } catch (InputException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {
@@ -143,7 +142,7 @@ public class InquiryMenu {
                     Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
 
                     try {
-                        validCheck.isValidNotFoundInquiry(oneInquiry);
+                        ValidCheck.isValidNotFoundInquiry(oneInquiry);
                     } catch (NotFoundException e) {
                         System.out.println(e.getMessage());
                     }
@@ -168,7 +167,7 @@ public class InquiryMenu {
         String choice = null;
         try {
             choice = input.readLine();
-            validCheck.isThreeMenuValid(choice);
+            ValidCheck.isThreeMenuValid(choice);
         } catch (InputException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
@@ -216,7 +215,7 @@ public class InquiryMenu {
         String choice = null;
         try {
             choice = input.readLine();
-            validCheck.isThreeMenuValid(choice);
+            ValidCheck.isThreeMenuValid(choice);
         } catch (InputException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {

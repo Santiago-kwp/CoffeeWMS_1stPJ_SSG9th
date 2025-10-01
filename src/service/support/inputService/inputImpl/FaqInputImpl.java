@@ -18,16 +18,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FaqInputImpl implements BoardInput {
-    ValidCheck validCheck = new ValidCheck();
-    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-    FaqDaoImpl faqDAO = new FaqDaoImpl();
-    List<Category> faqCategoryList = new ArrayList<>();
+    private static final FaqDaoImpl faqDAO = new FaqDaoImpl();
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // FAQ 데이터 입력
     @Override
     public Board dataInput(String managerId) {
         Faq faq = new Faq();
-        faqDAO = new FaqDaoImpl();
 
         System.out.println(BoardText.FAQ_CREATE.getMessage());
 
@@ -38,7 +35,7 @@ public class FaqInputImpl implements BoardInput {
 
             System.out.println(BoardText.FAQ_CATEGORY.getMessage());
             System.out.printf("%-3s\t | %-10s\n", "NO", "목록명");
-            faqCategoryList = faqDAO.readFaqCategory();
+            List<Category> faqCategoryList = faqDAO.readFaqCategory();
             int boardNumber = faqCategoryList.size();
             for (Category faqCategory : faqCategoryList) {
                 System.out.printf("%-3s\t | %-10s\n", faqCategory.getCategoryId(), faqCategory.getCategoryName());
@@ -50,7 +47,7 @@ public class FaqInputImpl implements BoardInput {
 
             try {
                 categoryId = input.readLine();
-                validCheck.isValidBoardNumber(categoryId, boardNumber);
+                ValidCheck.isValidBoardNumber(categoryId, boardNumber);
                 check = false;
             } catch (InputException e) {
                 System.out.println(e.getMessage());
@@ -95,7 +92,7 @@ public class FaqInputImpl implements BoardInput {
 
             System.out.println(BoardText.FAQ_CATEGORY.getMessage());
             System.out.printf("%-3s\t | %-10s\n", "NO", "목록명");
-            faqCategoryList = faqDAO.readFaqCategory();
+            List<Category> faqCategoryList = faqDAO.readFaqCategory();
             int boardNumber = faqCategoryList.size();
             for (Category faqCategory : faqCategoryList) {
                 System.out.printf("%-3s\t | %-10s\n", faqCategory.getCategoryId(), faqCategory.getCategoryName());
@@ -107,7 +104,7 @@ public class FaqInputImpl implements BoardInput {
 
             try {
                 categoryId = input.readLine();
-                validCheck.isValidBoardNumber(categoryId, boardNumber);
+                ValidCheck.isValidBoardNumber(categoryId, boardNumber);
                 check = false;
             } catch (InputException e) {
                 System.out.println(e.getMessage());

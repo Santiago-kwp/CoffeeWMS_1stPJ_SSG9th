@@ -16,8 +16,9 @@ import java.io.InputStreamReader;
 import static java.lang.Character.toUpperCase;
 
 public class NoticeInputImpl implements BoardInput {
-    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-    CSOption csOption = new CSOptionImpl();
+    private static final CSOption csOption = new CSOptionImpl();
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+
 
     // 공지사항 데이터 입력
     @Override

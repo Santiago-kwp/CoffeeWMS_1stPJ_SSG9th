@@ -12,7 +12,9 @@ import static java.lang.Character.toUpperCase;
 
 public class ValidCheck {
 
-    public void isTwoMenuValid(String menu) {
+    private ValidCheck() {}
+
+    public static void isTwoMenuValid(String menu) {
         if (menu == null || menu.trim().isEmpty()) {
             throw new InputException(BoardErrorCode.NOT_INPUT_EMPTY.getMessage());
         }
@@ -29,7 +31,7 @@ public class ValidCheck {
         }
     }
 
-    public void isThreeMenuValid(String menu) {
+    public static void isThreeMenuValid(String menu) {
         if (menu == null || menu.trim().isEmpty()) {
             throw new InputException(BoardErrorCode.NOT_INPUT_EMPTY.getMessage());
         }
@@ -46,7 +48,7 @@ public class ValidCheck {
         }
     }
 
-    public void isFourMenuValid(String menu) {
+    public static void isFourMenuValid(String menu) {
         if (menu == null || menu.trim().isEmpty()) {
             throw new InputException(BoardErrorCode.NOT_INPUT_EMPTY.getMessage());
         }
@@ -63,32 +65,32 @@ public class ValidCheck {
         }
     }
 
-    public void isValidBoardNumber(String menu, int boardNumber) {
+    public static void isValidBoardNumber(String menu, int boardNumber) {
         int num = Integer.parseInt(menu);
         if (num < 1 || num > boardNumber) {
             throw new InputException(BoardErrorCode.NOT_INPUT_OPTION.getMessage());
         }
     }
 
-    public void isValidNotFoundNotice(Notice notice) {
+    public static void isValidNotFoundNotice(Notice notice) {
         if (notice == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
     }
 
-    public void isValidNotFoundInquiry(Inquiry inquiry) {
+    public static void isValidNotFoundInquiry(Inquiry inquiry) {
         if (inquiry == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
     }
 
-    public void isValidNotFoundFaq(Faq faq) {
+    public static void isValidNotFoundFaq(Faq faq) {
         if (faq == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
     }
 
-    public void managerCheck(Manager manager) {
+    public static void managerCheck(Manager manager) {
         if (!manager.getPosition().equals("총관리자")) {
             throw new InputException(BoardErrorCode.YOU_ARE_NOT.getMessage());
         }
     }
 
-    public void yCheck (String y){
+    public static void yCheck (String y){
         if (y == null || y.trim().isEmpty()) throw new InputException(BoardErrorCode.NOT_INPUT_EMPTY.getMessage());
         if (!y.trim().equalsIgnoreCase("Y")) throw new InputException(BoardErrorCode.NOT_INPUT_OPTION.getMessage());
     }

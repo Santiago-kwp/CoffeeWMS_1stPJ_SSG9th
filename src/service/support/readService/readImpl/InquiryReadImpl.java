@@ -10,12 +10,11 @@ import service.support.readService.InquiryRead;
 import java.util.List;
 
 public class InquiryReadImpl implements InquiryRead {
-    InquiryDAO inquiryDAO = new InquiryDaoImpl();
+    private static final InquiryDAO inquiryDAO = new InquiryDaoImpl();
 
     // 1:1 문의 전체 출력
     @Override
     public void readAll() {
-        inquiryDAO = new InquiryDaoImpl();
         System.out.println(BoardText.INQUIRY_READ_ALL.getMessage());
 
         System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "문의날짜", "카테고리", "문의", "답변 상태");
@@ -68,7 +67,6 @@ public class InquiryReadImpl implements InquiryRead {
 
     // 로그인한 일반회원 본인이 작성한 전체 1:1 문의 출력
     public void memberInquiryReadAll(String memberId) {
-        inquiryDAO = new InquiryDaoImpl();
         System.out.println(BoardText.INQUIRY_READ_ALL.getMessage());
 
         System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "문의날짜", "카테고리", "문의", "답변 상태");

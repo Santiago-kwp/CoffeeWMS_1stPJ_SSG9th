@@ -11,17 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NoticeDaoImpl implements NoticeDAO {
-    private Connection conn;
-    List<Notice> noticeList = new ArrayList<>();
-
     // 공지사항 생성 (총관리자)-----------------------------------------------------------------------------------------------
     public boolean createNotice(Notice notice) {
-        conn = DBUtil.getConnection();
 
         String sql = "CALL create_notice(?,?,?,?)";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
-
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             cStmt.setString(1, notice.getNoticeTitle());
             cStmt.setString(2, notice.getNoticeContent());
             cStmt.setBoolean(3, notice.isNoticeFixed());
@@ -29,20 +25,23 @@ public class NoticeDaoImpl implements NoticeDAO {
 
             int affected = cStmt.executeUpdate();
 
-            if (affected == 0) return false;
+            if (affected == 0) {
+                conn.rollback();
+                return false;
+            }
 
             boolean pass = affected > 0;
 
             try (ResultSet rs = cStmt.getGeneratedKeys()) {
                 if (rs.next()) {
-                    int newNoticeId = rs.getInt("notice_id");
-                    notice.setNoticeId(newNoticeId);
-                    noticeList.add(notice);
+                    notice.setNoticeId(rs.getInt("notice_id"));
                 }
             } catch (SQLException e) {
                 throw new NotFoundException(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
             }
+
             return pass;
+
         } catch (SQLException e) {
             throw new NotFoundException(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
         }
@@ -50,13 +49,12 @@ public class NoticeDaoImpl implements NoticeDAO {
 
     // 공지사항 조회 (메인화면)-----------------------------------------------------------------------------------------------
     public List<Notice> readNoticeMain() {
-        noticeList.clear();
-
-        conn = DBUtil.getConnection();
+        List<Notice> noticeList = new ArrayList<>();
 
         String sql = "CALL read_notice_main()";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             ResultSet rs = cStmt.executeQuery();
             if (rs != null) {
                 while (rs.next()) {
@@ -74,12 +72,12 @@ public class NoticeDaoImpl implements NoticeDAO {
 
     // 공지사항 전체 조회 ---------------------------------------------------------------------------------------------------
     public List<Notice> readNoticeAll() {
-        noticeList.clear();
-
-        conn = DBUtil.getConnection();
+        List<Notice> noticeList = new ArrayList<>();
 
         String sql = "CALL read_notice_all()";
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             cStmt.execute();
             ResultSet rs = cStmt.getResultSet();
             if (rs != null) {
@@ -101,14 +99,12 @@ public class NoticeDaoImpl implements NoticeDAO {
     // 공지사항 상세 조회 ---------------------------------------------------------------------------------------------------
     public Notice readNoticeOne(Integer noticeId) {
 
-        conn = DBUtil.getConnection();
-
         Notice oneNotice = new Notice();
 
         String sql = "CALL read_notice_one(?)";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
-
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             cStmt.setInt(1, noticeId);
 
             ResultSet rs = cStmt.executeQuery();
@@ -127,11 +123,10 @@ public class NoticeDaoImpl implements NoticeDAO {
     // 공지사항 수정 (총관리자)-----------------------------------------------------------------------------------------------
     public boolean updateNotice(Notice notice) {
 
-        conn = DBUtil.getConnection();
-
         String sql = "CALL update_notice(?,?,?,?,?)";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             cStmt.setInt(1, notice.getNoticeId());
             cStmt.setString(2, notice.getNoticeTitle());
             cStmt.setString(3, notice.getNoticeContent());
@@ -151,11 +146,10 @@ public class NoticeDaoImpl implements NoticeDAO {
     // 공지사항 삭제 (총관리자)-----------------------------------------------------------------------------------------------
     public boolean deleteNotice(Integer noticeId, String noticeManagerId) {
 
-        conn = DBUtil.getConnection();
-
         String sql = "CALL delete_notice(?,?)";
 
-        try (CallableStatement cStmt = conn.prepareCall(sql)) {
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cStmt = conn.prepareCall(sql)) {
             cStmt.setInt(1, noticeId);
             cStmt.setString(2, noticeManagerId);
 

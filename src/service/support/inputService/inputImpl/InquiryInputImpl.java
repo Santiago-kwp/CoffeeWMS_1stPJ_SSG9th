@@ -19,10 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InquiryInputImpl implements InquiryInput {
-    ValidCheck validCheck = new ValidCheck();
-    InquiryDAO inquiryDAO = new InquiryDaoImpl();
-    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
-    List<Category> inquiryCategoryList = new ArrayList<>();
+    private static final InquiryDAO inquiryDAO = new InquiryDaoImpl();
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 1:1 문의 데이터 입력
     @Override
@@ -39,7 +37,7 @@ public class InquiryInputImpl implements InquiryInput {
 
             System.out.println(BoardText.INQUIRY_CATEGORY.getMessage());
             System.out.printf("%-3s\t | %-10s\n", BoardText.NUMBER.getMessage(), BoardText.LIST_NAME.getMessage());
-            inquiryCategoryList = inquiryDAO.readInquiryCategory();
+            List<Category> inquiryCategoryList = inquiryDAO.readInquiryCategory();
             int boardNumber = inquiryCategoryList.size();
             for (Category inquiryCategory : inquiryCategoryList) {
                 System.out.printf("%-3s\t | %-10s\n", inquiryCategory.getCategoryId(), inquiryCategory.getCategoryName());
@@ -51,7 +49,7 @@ public class InquiryInputImpl implements InquiryInput {
 
             try {
                 categoryId = input.readLine();
-                validCheck.isValidBoardNumber(categoryId, boardNumber);
+                ValidCheck.isValidBoardNumber(categoryId, boardNumber);
                 break;
             } catch (InputException e) {
                 System.out.println(e.getMessage());
@@ -93,7 +91,7 @@ public class InquiryInputImpl implements InquiryInput {
 
             System.out.println(BoardText.INQUIRY_CATEGORY.getMessage());
             System.out.printf("%-3s\t | %-10s\n", "NO", "목록명");
-            inquiryCategoryList = inquiryDAO.readInquiryCategory();
+            List<Category> inquiryCategoryList = inquiryDAO.readInquiryCategory();
             int boardNumber = inquiryCategoryList.size();
             for (Category inquiryCategory : inquiryCategoryList) {
                 System.out.printf("%-3s\t | %-10s\n", inquiryCategory.getCategoryId(), inquiryCategory.getCategoryName());
@@ -105,7 +103,7 @@ public class InquiryInputImpl implements InquiryInput {
 
             try {
                 categoryId = input.readLine();
-                validCheck.isValidBoardNumber(categoryId, boardNumber);
+                ValidCheck.isValidBoardNumber(categoryId, boardNumber);
                 check = false;
             } catch (InputException e) {
                 System.out.println(e.getMessage());

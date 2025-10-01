@@ -26,12 +26,11 @@ import java.io.InputStreamReader;
 
 
 public class NoticeMenu {
-    ValidCheck validCheck = new ValidCheck();
-    NoticeDAO noticeDAO = new NoticeDaoImpl();
-    BoardInput noticeInput = new NoticeInputImpl();
-    NoticeRead noticeRead = new NoticeReadImpl();
-    CSOption csOption = new CSOptionImpl();
-    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private static final NoticeDAO noticeDAO = new NoticeDaoImpl();
+    private static final BoardInput noticeInput = new NoticeInputImpl();
+    private static final NoticeRead noticeRead = new NoticeReadImpl();
+    private static final CSOption csOption = new CSOptionImpl();
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 회원의 공지사항 메뉴
     public void memberNoticeMenu() {
@@ -44,7 +43,7 @@ public class NoticeMenu {
             String choice = null;
             try {
                 choice = input.readLine();
-                validCheck.isTwoMenuValid(choice);
+                ValidCheck.isTwoMenuValid(choice);
             } catch (InputException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {
@@ -73,7 +72,7 @@ public class NoticeMenu {
                     Notice oneNotice = noticeDAO.readNoticeOne(readChoice);
 
                     try {
-                        validCheck.isValidNotFoundNotice(oneNotice);
+                        ValidCheck.isValidNotFoundNotice(oneNotice);
                     } catch (NotFoundException e) {
                         System.out.println(e.getMessage());
                         break;
@@ -104,7 +103,7 @@ public class NoticeMenu {
             String choice = null;
             try {
                 choice = input.readLine();
-                validCheck.isThreeMenuValid(choice);
+                ValidCheck.isThreeMenuValid(choice);
             } catch (InputException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {
@@ -114,7 +113,7 @@ public class NoticeMenu {
             switch (choice) {
                 case "1":
                     try {
-                        validCheck.managerCheck(manager);
+                        ValidCheck.managerCheck(manager);
                     } catch (InputException e) {
                         System.out.println(e.getMessage());
                         break;
@@ -158,7 +157,7 @@ public class NoticeMenu {
                     Notice oneNotice = noticeDAO.readNoticeOne(readChoice);
 
                     try {
-                        validCheck.isValidNotFoundNotice(oneNotice);
+                        ValidCheck.isValidNotFoundNotice(oneNotice);
                     } catch (NotFoundException e) {
                         System.out.println(e.getMessage());
                         break;
@@ -184,7 +183,7 @@ public class NoticeMenu {
         String choice = null;
         try {
             choice = input.readLine();
-            validCheck.isThreeMenuValid(choice);
+            ValidCheck.isThreeMenuValid(choice);
         } catch (InputException e) {
             System.out.println(e.getMessage());
         } catch (IOException e) {
@@ -196,7 +195,7 @@ public class NoticeMenu {
         switch (choice) {
             case "1":
                 try {
-                    validCheck.managerCheck(manager);
+                    ValidCheck.managerCheck(manager);
                 } catch (InputException e) {
                     System.out.println(e.getMessage());
                     break;
@@ -218,7 +217,7 @@ public class NoticeMenu {
 
             case "2":
                 try {
-                    validCheck.managerCheck(manager);
+                    ValidCheck.managerCheck(manager);
                 } catch (InputException e) {
                     System.out.println(e.getMessage());
                     break;

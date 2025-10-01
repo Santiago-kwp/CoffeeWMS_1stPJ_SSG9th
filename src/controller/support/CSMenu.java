@@ -6,17 +6,15 @@ import constant.support.ValidCheck;
 import domain.user.Manager;
 import domain.user.Member;
 import exception.support.InputException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class CSMenu {
-    ValidCheck validCheck = new ValidCheck();
-    NoticeMenu noticeMenu = new NoticeMenu();
-    InquiryMenu inquiryMenu = new InquiryMenu();
-    FaqMenu faqMenu = new FaqMenu();
-    BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private static final NoticeMenu noticeMenu = new NoticeMenu();
+    private static final InquiryMenu inquiryMenu = new InquiryMenu();
+    private static final FaqMenu faqMenu = new FaqMenu();
+    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 일반회원의 고객센터 메뉴
     public void memberCSMenu(Member member) {
@@ -27,7 +25,7 @@ public class CSMenu {
             String choice = null;
             try {
                 choice = input.readLine();
-                validCheck.isFourMenuValid(choice);
+                ValidCheck.isFourMenuValid(choice);
             } catch (InputException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {
@@ -60,7 +58,7 @@ public class CSMenu {
             String choice = null;
             try {
                 choice = input.readLine();
-                validCheck.isFourMenuValid(choice);
+                ValidCheck.isFourMenuValid(choice);
             } catch (InputException e) {
                 System.out.println(e.getMessage());
             } catch (IOException e) {
@@ -73,7 +71,7 @@ public class CSMenu {
                     break;
                 case "2":
                     try {
-                        validCheck.managerCheck(manager);
+                        ValidCheck.managerCheck(manager);
                     } catch (InputException e) {
                         System.out.println(e.getMessage());
                         break;
