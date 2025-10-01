@@ -3,15 +3,18 @@ package controller.support;
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.ValidCheck;
+import domain.support.Board;
+import domain.support.Faq;
 import domain.support.Notice;
 import domain.user.Manager;
 import exception.support.InputException;
 import exception.support.NotFoundException;
 import model.support.dao.NoticeDAO;
 import model.support.dao.daoImpl.NoticeDaoImpl;
-import service.support.inputService.CSOption;
-import service.support.inputService.NoticeInput;
-import service.support.inputService.inputImpl.CSOptionImpl;
+import service.support.csService.CSOption;
+import service.support.inputService.BoardInput;
+//import service.support.inputService.NoticeInput;
+import service.support.csService.csServiceImpl.CSOptionImpl;
 import service.support.inputService.inputImpl.NoticeInputImpl;
 import service.support.readService.NoticeRead;
 import service.support.readService.readImpl.NoticeReadImpl;
@@ -24,7 +27,7 @@ import java.io.InputStreamReader;
 public class NoticeMenu {
     ValidCheck validCheck = new ValidCheck();
     NoticeDAO noticeDAO = new NoticeDaoImpl();
-    NoticeInput noticeInput = new NoticeInputImpl();
+    BoardInput noticeInput = new NoticeInputImpl();
     NoticeRead noticeRead = new NoticeReadImpl();
     CSOption csOption = new CSOptionImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -115,9 +118,17 @@ public class NoticeMenu {
                         System.out.println(e.getMessage());
                         break;
                     }
-                    Notice notice = noticeInput.noticeDataInput(managerId);
+//                    Notice notice =  (Notice) noticeInput.dataInput(managerId);
+                    Board board = noticeInput.dataInput(managerId);
 
-                    boolean pass = noticeDAO.createNotice(notice);
+                    Boolean pass;
+
+                    if (board instanceof Notice notice) {
+                        pass = noticeDAO.createNotice(notice);
+                    } else {
+                        System.out.println(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
+                        break;
+                    }
 
                     if (pass) System.out.println(BoardText.NOTICE_CREATE_SUCCESS.getMessage());
                     else {
@@ -189,9 +200,16 @@ public class NoticeMenu {
                     System.out.println(e.getMessage());
                     break;
                 }
-                Notice notice = noticeInput.noticeDataUpdate(readChoice, managerId);
 
-                boolean update = noticeDAO.updateNotice(notice);
+                Board board = noticeInput.dataUpdate(readChoice, managerId);
+                Boolean update;
+
+                if (board instanceof Notice notice) {
+                    update = noticeDAO.updateNotice(notice);
+                } else {
+                    System.out.println(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
+                    break;
+                }
 
                 if (update) System.out.println(BoardText.NOTICE_UPDATE_SUCCESS.getMessage());
                 else System.out.println(BoardText.NOTICE_UPDATE_FAILURE.getMessage());

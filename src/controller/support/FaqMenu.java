@@ -3,18 +3,18 @@ package controller.support;
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.ValidCheck;
+import domain.support.Board;
 import domain.support.Faq;
 import domain.user.Manager;
 import exception.support.InputException;
 import exception.support.NotFoundException;
 import model.support.dao.FaqDAO;
 import model.support.dao.daoImpl.FaqDaoImpl;
-import service.support.inputService.CSOption;
-import service.support.inputService.FaqInput;
-import service.support.inputService.NoticeInput;
-import service.support.inputService.inputImpl.CSOptionImpl;
+import service.support.csService.CSOption;
+import service.support.inputService.BoardInput;
+//import service.support.inputService.FaqInput;
+import service.support.csService.csServiceImpl.CSOptionImpl;
 import service.support.inputService.inputImpl.FaqInputImpl;
-import service.support.inputService.inputImpl.NoticeInputImpl;
 import service.support.readService.FaqRead;
 import service.support.readService.readImpl.FaqReadImpl;
 
@@ -25,7 +25,7 @@ import java.io.InputStreamReader;
 public class FaqMenu {
     ValidCheck validCheck = new ValidCheck();
     FaqDAO faqDAO = new FaqDaoImpl();
-    FaqInput faqInput = new FaqInputImpl();
+    BoardInput faqInput = new FaqInputImpl();
     FaqRead faqRead = new FaqReadImpl();
     CSOption csOption = new CSOptionImpl();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
@@ -117,9 +117,16 @@ public class FaqMenu {
                         System.out.println(e.getMessage());
                         break;
                     }
-                    Faq faq = faqInput.faqDataInput(managerId);
 
-                    boolean pass = faqDAO.createFaq(faq);
+                    Board board = faqInput.dataInput(managerId);
+                    Boolean pass;
+
+                    if (board instanceof Faq faq) {
+                        pass = faqDAO.createFaq(faq);
+                    } else {
+                        System.out.println(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
+                        break;
+                    }
 
                     if (pass) System.out.println(BoardText.FAQ_CREATE_SUCCESS.getMessage());
                     else System.out.println(BoardText.FAQ_CREATE_FAILURE.getMessage());
@@ -190,9 +197,16 @@ public class FaqMenu {
                     System.out.println(e.getMessage());
                     break;
                 }
-                Faq faq = faqInput.faqDataUpdate(readChoice, managerId);
 
-                boolean update = faqDAO.updateFaq(faq);
+                Board board = faqInput.dataUpdate(readChoice, managerId);
+                Boolean update;
+
+                if (board instanceof Faq faq) {
+                    update = faqDAO.updateFaq(faq);
+                } else {
+                    System.out.println(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
+                    break;
+                }
 
                 if (update) System.out.println(BoardText.FAQ_UPDATE_SUCCESS.getMessage());
                 else System.out.println(BoardText.FAQ_UPDATE_FAILURE.getMessage());

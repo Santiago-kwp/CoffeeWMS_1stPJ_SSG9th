@@ -3,11 +3,13 @@ package service.support.inputService.inputImpl;
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.ValidCheck;
+import domain.support.Board;
 import domain.support.Category;
 import domain.support.Inquiry;
 import exception.support.InputException;
 import model.support.dao.InquiryDAO;
 import model.support.dao.daoImpl.InquiryDaoImpl;
+import service.support.inputService.BoardInput;
 import service.support.inputService.InquiryInput;
 
 import java.io.BufferedReader;
@@ -22,8 +24,8 @@ public class InquiryInputImpl implements InquiryInput {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     List<Category> inquiryCategoryList = new ArrayList<>();
 
-    // 1:1 문의 데이터 입력 (회원)-------------------------------------------------------------------------------------------
-    public Inquiry inquiryDataInput(String memberId) {
+    @Override
+    public Board dataInput(String memberId) {
         Inquiry inquiry = new Inquiry();
         InquiryDaoImpl inquiryDAO = new InquiryDaoImpl();
 
@@ -74,8 +76,8 @@ public class InquiryInputImpl implements InquiryInput {
         return inquiry;
     }
 
-    // 회원 1:1 문의 데이터 수정 (회원)-------------------------------------------------------------------------------------------------
-    public Inquiry memberInquiryDataUpdate(String memberId, Integer readChoice) {
+    @Override
+    public Board dataUpdate(Integer readChoice, String memberId) {
         Inquiry inquiry = new Inquiry();
 
         inquiry.setInquiryId(readChoice);
@@ -128,8 +130,8 @@ public class InquiryInputImpl implements InquiryInput {
         return inquiry;
     }
 
-    // 총관리자 1:1 문의 데이터 수정 (총관리자)----------------------------------------------------------------------------------
-    public Inquiry managerInquiryDataUpdate(Integer readChoice, String managerId) {
+    @Override
+    public Inquiry dataReplyUpdate(Integer readChoice, String managerId) {
         Inquiry inquiry = new Inquiry();
 
         inquiry.setInquiryId(readChoice);

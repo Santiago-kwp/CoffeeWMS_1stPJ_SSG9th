@@ -3,7 +3,9 @@ package controller.support;
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.ValidCheck;
+import domain.support.Board;
 import domain.support.Inquiry;
+import domain.support.Notice;
 import exception.support.InputException;
 import exception.support.NotFoundException;
 import model.support.dao.InquiryDAO;
@@ -103,9 +105,18 @@ public class InquiryMenu {
             }
             switch (choice) {
                 case "1":
-                    Inquiry inquiry = inquiryInput.inquiryDataInput(memberId);
+//                    Inquiry inquiry = (Inquiry) inquiryInput.dataInput(memberId);
+//                    boolean pass = inquiryDAO.createInquiry(inquiry);
+                    Board board = inquiryInput.dataInput(memberId);
 
-                    boolean pass = inquiryDAO.createInquiry(inquiry);
+                    Boolean pass;
+
+                    if (board instanceof Inquiry inquiry) {
+                        pass = inquiryDAO.createInquiry(inquiry);
+                    } else {
+                        System.out.println(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
+                        break;
+                    }
 
                     if (pass) System.out.println(BoardText.INQUIRY_CREATE_SUCCESS.getMessage());
                     else System.out.println(BoardText.INQUIRY_CREATE_FAILURE.getMessage());
@@ -169,7 +180,7 @@ public class InquiryMenu {
         switch (choice) {
             case "1":
                 Inquiry inquiry;
-                inquiry = inquiryInput.managerInquiryDataUpdate(readChoice, managerId);
+                inquiry = inquiryInput.dataReplyUpdate(readChoice, managerId);
 
                 boolean update = inquiryDAO.updateInquiryManager(inquiry);
 
@@ -208,9 +219,18 @@ public class InquiryMenu {
 
         switch (choice) {
             case "1":
-                Inquiry inquiry = inquiryInput.memberInquiryDataUpdate(memberIdEx, readChoice);
+//                Inquiry inquiry = (Inquiry) inquiryInput.dataUpdate(readChoice, memberIdEx);
+//                boolean update = inquiryDAO.updateInquiryMember(inquiry);
 
-                boolean update = inquiryDAO.updateInquiryMember(inquiry);
+                Board board = inquiryInput.dataUpdate(readChoice, memberIdEx);
+                Boolean update;
+
+                if (board instanceof Inquiry inquiry) {
+                    update = inquiryDAO.updateInquiryMember(inquiry);
+                } else {
+                    System.out.println(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
+                    break;
+                }
 
                 if (update) System.out.println(BoardText.INQUIRY_UPDATE_SUCCESS.getMessage());
                 else System.out.println(BoardText.INQUIRY_UPDATE_FAILURE.getMessage());

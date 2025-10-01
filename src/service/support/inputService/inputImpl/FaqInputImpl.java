@@ -3,11 +3,13 @@ package service.support.inputService.inputImpl;
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.ValidCheck;
+import domain.support.Board;
 import domain.support.Faq;
 import domain.support.Category;
 import exception.support.InputException;
 import model.support.dao.daoImpl.FaqDaoImpl;
-import service.support.inputService.FaqInput;
+import service.support.inputService.BoardInput;
+//import service.support.inputService.FaqInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,14 +17,15 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FaqInputImpl implements FaqInput {
+public class FaqInputImpl implements BoardInput {
     ValidCheck validCheck = new ValidCheck();
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     FaqDaoImpl faqDAO = new FaqDaoImpl();
     List<Category> faqCategoryList = new ArrayList<>();
 
     // FAQ 데이터 입력 (총관리자)--------------------------------------------------------------------------------------------
-    public Faq faqDataInput(String managerId) {
+    @Override
+    public Board dataInput(String managerId) {
         Faq faq = new Faq();
         faqDAO = new FaqDaoImpl();
 
@@ -77,7 +80,8 @@ public class FaqInputImpl implements FaqInput {
     }
 
     // FAQ 데이터 수정 (총관리자)--------------------------------------------------------------------------------------------
-    public Faq faqDataUpdate(Integer readChoice, String managerId) {
+    @Override
+    public Board dataUpdate(Integer readChoice, String managerId) {
         Faq faq = new Faq();
 
         faq.setFaqId(readChoice);

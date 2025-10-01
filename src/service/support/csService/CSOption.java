@@ -1,4 +1,4 @@
-package service.support.inputService;
+package service.support.csService;
 
 public interface CSOption {
     // 선택지가 뒤로가기 밖에 없을 경우 뒤로가리 여부를 확인할때 사용하는 기능이다.

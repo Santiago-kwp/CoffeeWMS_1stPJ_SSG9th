@@ -1,10 +1,10 @@
-package service.support.inputService.inputImpl;
+package service.support.csService.csServiceImpl;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.ValidCheck;
 import exception.support.InputException;
-import service.support.inputService.CSOption;
+import service.support.csService.CSOption;
 
 import java.io.BufferedReader;
 import java.io.IOException;

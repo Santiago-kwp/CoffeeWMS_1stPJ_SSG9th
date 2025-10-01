@@ -2,11 +2,12 @@ package service.support.inputService.inputImpl;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
-import constant.support.ValidCheck;
+import domain.support.Board;
 import domain.support.Notice;
-import exception.support.InputException;
-import service.support.inputService.CSOption;
-import service.support.inputService.NoticeInput;
+import service.support.csService.csServiceImpl.CSOptionImpl;
+import service.support.csService.CSOption;
+import service.support.inputService.BoardInput;
+//import service.support.inputService.NoticeInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,12 +15,13 @@ import java.io.InputStreamReader;
 
 import static java.lang.Character.toUpperCase;
 
-public class NoticeInputImpl implements NoticeInput {
+public class NoticeInputImpl implements BoardInput {
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     CSOption csOption = new CSOptionImpl();
 
     // 공지사항 데이터 입력 (총관리자)------------------------------------------------------------------------------------------
-    public Notice noticeDataInput(String managerId) {
+    @Override
+    public Board dataInput(String managerId) {
         Notice notice = new Notice();
 
         System.out.println(BoardText.NOTICE_CREATE.getMessage());
@@ -56,7 +58,8 @@ public class NoticeInputImpl implements NoticeInput {
     }
 
     // 공지사항 데이터 수정 (총관리자)-----------------------------------------------------------------------------------------
-    public Notice noticeDataUpdate(Integer readChoice, String managerId) {
+    @Override
+    public Board dataUpdate(Integer readChoice, String managerId) {
         Notice notice = new Notice();
 
         notice.setNoticeId(readChoice);
