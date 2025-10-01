@@ -323,7 +323,7 @@ BEGIN
 END $$
 DELIMITER ;
 
--- 창고 배정
+-- 창고 배정(수동)
 drop procedure add_cargo_to_manager;
 delimiter $$
 create procedure add_cargo_to_manager(
@@ -349,14 +349,39 @@ begin
     where manager_id = managerID;
 
     -- 3. 모든 조건을 만족하는지 최종 확인
+    -- 관리자ID와 창고ID가 유효한지 검사
     if (managerExists and cargoExists and current_cargo_count < cargoLimit) then
-        insert into cargo_management(manager_id, cargo_id) values(managerID, cargoID);
-        set ok = true;
+        -- 입력한 관리자에게 이미 배정된 적이 있는 창고가 아니라면 창고관리 테이블에 데이터 추가
+        if not exists(select manager_id, cargo_id from cargo_management where manager_id = managerID and cargo_id = cargoID) then
+            insert into cargo_management(manager_id, cargo_id) values(managerID, cargoID);
+            set ok = true;
+        else
+            set ok = false;
+        end if;
     else
         set ok = false;
     end if;
 end $$
 delimiter ;
 
-call add_cargo_to_manager('manager4821', 4, 10, @result);
-select @result;
+-- 신규 창고 배정(자동)
+drop trigger if exists add_cargo_to_manager_trigger;
+delimiter $$
+create trigger add_cargo_to_manager_trigger
+    after insert on cargoes
+    for each row
+begin
+    -- 창고 1개 신규 추가 시 해당 창고에 관리자 테이블에 포함된 모든 관리자를 배속한다.(총관리자까지 포함)
+    -- 단, 권한이 삭제되지 않은 관리자만 창고에 배속할 수 있다.
+    insert into cargo_management(manager_id, cargo_id)
+    select manager_id, new.cargo_id
+    from managers
+    where manager_login is not null;
+end $$
+delimiter ;
+
+-- 21번 창고 추가(테스트 코드)
+insert into cargoes values(null, 'tes', 'test', 'test', '메인', 8000, 3000, 20000);
+
+-- 신규 추가된 21번 창고에 모든 창고관리자가 배속되었는지 확인
+select * from cargo_management;
