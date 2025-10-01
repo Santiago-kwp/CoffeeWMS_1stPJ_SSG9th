@@ -6,7 +6,7 @@ public class Cargo {
     //각각의 칼럼에 들어갈 데이터를 담을 변수 선언
     private int CargoId; // 창고 고유 번호
     private String CargoCode; // 창고 코드 Ex BU,GJ,DD
-    private String CargoName; // 창고 이름
+    private String CargoName; // 창고 이름 변수는
     private String CargoAddress;// 창고 소재지
     private String CargoGrade; // 창고 등급 Ex 메인,서브
     private int CargoField; // 창고 평수

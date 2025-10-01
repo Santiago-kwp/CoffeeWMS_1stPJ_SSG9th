@@ -80,13 +80,5 @@ public interface CargoDao {
      * @throws SQLException
      */
     List<Cargo> getCargoByCargoGrade(String cargoGrade) throws SQLException;
-    /**
-     * 창고, 관리자 창고관리 테이블 추가
-     * 입력 받은 창고 ID와 관리자 아이디 조회 후 일치하면 창고관리 태이블에 튜플 추가
-     *
-     * @param 창고ID, 관리자 ID 조회
-     * @throws SQLException
-     */
-    boolean addCargoToManager(String manangerId , int cargoId) throws SQLException;
 
 }

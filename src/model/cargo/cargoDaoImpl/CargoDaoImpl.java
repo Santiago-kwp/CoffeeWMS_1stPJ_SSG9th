@@ -197,20 +197,7 @@ public class CargoDaoImpl implements CargoDao {
         return cargoList;
     }
 
-    @Override
-    public boolean addCargoToManager(String manangerId, int cargoId) throws SQLException {
-        String sql = "Call add_cargo_to_manager(?, ?, ?, ?)";
-        try (CallableStatement pstmt = conn.prepareCall(sql)) {
-            pstmt.setString(1, manangerId);
-            pstmt.setInt(2, cargoId);
-            pstmt.setInt(3, 10); // 한 사람당 관리하는 최대 창고 갯수
-            pstmt.registerOutParameter(4, Types.BOOLEAN);
-            pstmt.execute();
-            return pstmt.getBoolean(4);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
+
 
     }
-}
+
