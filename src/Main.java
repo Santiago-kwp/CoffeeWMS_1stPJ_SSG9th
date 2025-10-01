@@ -1,5 +1,3 @@
-package view;
-
 import controller.MainMenu;
 
 public class Main {

@@ -11,11 +11,11 @@ import exception.support.NotFoundException;
 import model.support.dao.FaqDAO;
 import model.support.dao.daoImpl.FaqDaoImpl;
 import service.support.csService.CSOption;
-import service.support.inputService.BoardInput;
+import service.support.input.BoardInput;
 import service.support.csService.csServiceImpl.CSOptionImpl;
-import service.support.inputService.inputImpl.FaqInputImpl;
-import service.support.readService.Read;
-import service.support.readService.readImpl.FaqReadImpl;
+import service.support.input.inputImpl.FaqInputImpl;
+import view.support.PrintBoard;
+import view.support.readImpl.PrintFaqImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.io.InputStreamReader;
 public class FaqMenu {
     private static final FaqDAO faqDAO = new FaqDaoImpl();
     private static final BoardInput faqInput = new FaqInputImpl();
-    private static final Read faqRead = new FaqReadImpl();
+    private static final PrintBoard printFaq = new PrintFaqImpl();
     private static final CSOption csOption = new CSOptionImpl();
     private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
@@ -32,7 +32,7 @@ public class FaqMenu {
     public void memberFaqMenu() {
         KIKI:
         while (true) {
-            faqRead.readAll();
+            printFaq.printAll();
 
             System.out.print(BoardText.FAQ_MENU_SIMPLE.getMessage());
 
@@ -74,7 +74,7 @@ public class FaqMenu {
                         break;
                     }
 
-                    faqRead.readOne(oneFaq);
+                    printFaq.printOne(oneFaq);
 
                     csOption.backOption();
 
@@ -93,7 +93,7 @@ public class FaqMenu {
         while (true) {
             String managerId = manager.getId();
 
-            faqRead.readAll();
+            printFaq.printAll();
 
             System.out.print(BoardText.FAQ_MENU.getMessage());
 
@@ -157,7 +157,7 @@ public class FaqMenu {
                         break;
                     }
 
-                    faqRead.readOne(oneFaq);
+                    printFaq.printOne(oneFaq);
 
                     faqDetailMenu(readChoice, manager);
                     break;

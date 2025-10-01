@@ -6,21 +6,19 @@ import constant.support.MainMenuText;
 import constant.support.ValidCheck;
 import controller.support.NoticeMenu;
 import controller.user.LoginMenu;
-import domain.support.Notice;
 import exception.support.InputException;
 import model.support.dao.daoImpl.NoticeDaoImpl;
-import service.support.readService.NoticeRead;
-import service.support.readService.readImpl.NoticeReadImpl;
+import view.support.PrintNotice;
+import view.support.readImpl.PrintNoticeImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 public class MainMenu {
     private static final LoginMenu loginMenu = LoginMenu.getInstance();
     private static final NoticeMenu noticeMenu = new NoticeMenu();
-    private static final NoticeRead noticeRead = new NoticeReadImpl();
+    private static final PrintNotice noticeRead = new PrintNoticeImpl();
     private static final NoticeDaoImpl noticeDAO = new NoticeDaoImpl();
     private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     // 메인 페이지
@@ -28,11 +26,7 @@ public class MainMenu {
         TheEnd:
         while (true) {
             System.out.print(MainMenuText.MAIN_MENU.getMessage());
-
-            List<Notice> noticeListMain = noticeDAO.readNoticeMain();
-
-            noticeRead.noticeReadAllMain(noticeListMain);
-
+            noticeRead.printTopNotices(noticeDAO.readNoticeMain());
             System.out.print(MainMenuText.MAIN_MENU_OPTION.getMessage());
 
             String choice = null;

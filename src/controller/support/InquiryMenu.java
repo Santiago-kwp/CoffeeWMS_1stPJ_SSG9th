@@ -5,15 +5,14 @@ import constant.support.BoardText;
 import constant.support.ValidCheck;
 import domain.support.Board;
 import domain.support.Inquiry;
-import domain.support.Notice;
 import exception.support.InputException;
 import exception.support.NotFoundException;
 import model.support.dao.InquiryDAO;
 import model.support.dao.daoImpl.InquiryDaoImpl;
-import service.support.inputService.InquiryInput;
-import service.support.inputService.inputImpl.InquiryInputImpl;
-import service.support.readService.InquiryRead;
-import service.support.readService.readImpl.InquiryReadImpl;
+import service.support.input.InquiryInput;
+import service.support.input.inputImpl.InquiryInputImpl;
+import view.support.PrintInquiry;
+import view.support.readImpl.PrintInquiryImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +21,7 @@ import java.io.InputStreamReader;
 public class InquiryMenu {
     private static final InquiryDAO inquiryDAO = new InquiryDaoImpl();
     private static final InquiryInput inquiryInput = new InquiryInputImpl();
-    private static final InquiryRead inquiryRead = new InquiryReadImpl();
+    private static final PrintInquiry printInquiry = new PrintInquiryImpl();
     private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 회원의 1:1 문의 메뉴
@@ -30,7 +29,7 @@ public class InquiryMenu {
         KI:
         while (true) {
 
-            inquiryRead.memberInquiryReadAll(memberId);
+            printInquiry.printMemberInquiries(memberId);
 
             System.out.print(BoardText.INQUIRY_MENU.getMessage());
 
@@ -45,8 +44,6 @@ public class InquiryMenu {
             }
             switch (choice) {
                 case "1":
-//                    Inquiry inquiry = (Inquiry) inquiryInput.dataInput(memberId);
-//                    boolean pass = inquiryDAO.createInquiry(inquiry);
                     Board board = inquiryInput.dataInput(memberId);
 
                     Boolean pass;
@@ -89,7 +86,7 @@ public class InquiryMenu {
                         break;
                     }
 
-                    inquiryRead.readOne(oneInquiry);
+                    printInquiry.printOne(oneInquiry);
 
                     memberInquiryDetailMenu(memberId, readChoice);
                     break;
@@ -105,7 +102,7 @@ public class InquiryMenu {
     public void managerInquiryMenu(String managerId) {
         KI:
         while (true) {
-            inquiryRead.readAll();
+            printInquiry.printAll();
 
             System.out.print(BoardText.INQUIRY_MENU_SIMPLE.getMessage());
 
@@ -147,7 +144,7 @@ public class InquiryMenu {
                         System.out.println(e.getMessage());
                     }
 
-                    inquiryRead.readOne(oneInquiry);
+                    printInquiry.printOne(oneInquiry);
 
                     managerInquiryDetailMenu(readChoice, managerId);
 

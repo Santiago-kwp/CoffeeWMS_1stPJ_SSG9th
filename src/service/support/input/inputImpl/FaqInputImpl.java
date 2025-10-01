@@ -1,4 +1,4 @@
-package service.support.inputService.inputImpl;
+package service.support.input.inputImpl;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
@@ -8,13 +8,12 @@ import domain.support.Faq;
 import domain.support.Category;
 import exception.support.InputException;
 import model.support.dao.daoImpl.FaqDaoImpl;
-import service.support.inputService.BoardInput;
+import service.support.input.BoardInput;
 //import service.support.inputService.FaqInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 public class FaqInputImpl implements BoardInput {

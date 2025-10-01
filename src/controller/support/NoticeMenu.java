@@ -4,7 +4,6 @@ import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import constant.support.ValidCheck;
 import domain.support.Board;
-import domain.support.Faq;
 import domain.support.Notice;
 import domain.user.Manager;
 import exception.support.InputException;
@@ -12,13 +11,12 @@ import exception.support.NotFoundException;
 import model.support.dao.NoticeDAO;
 import model.support.dao.daoImpl.NoticeDaoImpl;
 import service.support.csService.CSOption;
-import service.support.inputService.BoardInput;
+import service.support.input.BoardInput;
 //import service.support.inputService.NoticeInput;
 import service.support.csService.csServiceImpl.CSOptionImpl;
-import service.support.inputService.inputImpl.NoticeInputImpl;
-import service.support.readService.NoticeRead;
-import service.support.readService.Read;
-import service.support.readService.readImpl.NoticeReadImpl;
+import service.support.input.inputImpl.NoticeInputImpl;
+import view.support.PrintNotice;
+import view.support.readImpl.PrintNoticeImpl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,7 +26,7 @@ import java.io.InputStreamReader;
 public class NoticeMenu {
     private static final NoticeDAO noticeDAO = new NoticeDaoImpl();
     private static final BoardInput noticeInput = new NoticeInputImpl();
-    private static final NoticeRead noticeRead = new NoticeReadImpl();
+    private static final PrintNotice printNotice = new PrintNoticeImpl();
     private static final CSOption csOption = new CSOptionImpl();
     private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
@@ -36,7 +34,7 @@ public class NoticeMenu {
     public void memberNoticeMenu() {
         KI:
         while (true) {
-            noticeRead.readAll();
+            printNotice.printAll();
 
             System.out.print(BoardText.NOTICE_MENU_SIMPLE.getMessage());
 
@@ -78,7 +76,7 @@ public class NoticeMenu {
                         break;
                     }
 
-                    noticeRead.readOne(oneNotice);
+                    printNotice.printOne(oneNotice);
 
                     csOption.backOption();
 
@@ -96,7 +94,7 @@ public class NoticeMenu {
         KIKI:
         while (true) {
             String managerId = manager.getId();
-            noticeRead.readAll();
+            printNotice.printAll();
 
             System.out.print(BoardText.NOTICE_MENU.getMessage());
 
@@ -163,7 +161,7 @@ public class NoticeMenu {
                         break;
                     }
 
-                    noticeRead.readOne(oneNotice);
+                    printNotice.printOne(oneNotice);
 
                     noticeDetailMenu(readChoice, manager);
                     break;
