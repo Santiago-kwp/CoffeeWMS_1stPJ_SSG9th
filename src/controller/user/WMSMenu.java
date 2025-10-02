@@ -33,14 +33,14 @@ public class WMSMenu {
     private CSMenu csMenu = new CSMenu();
     private InboundMenu inboundMenu = new InboundMenu();
     private OutboundMenu outboundMenu = new OutboundMenu();
-
     private CargoController cargoController;
-    public WMSMenu(User loginUser) {
+
+    WMSMenu(User loginUser) {
         this.currentLoginUser = loginUser;
         this.validCheck = new WMSValidCheck();
     }
 
-    public void run() {
+    void run() {
         quitWMS = false;
         while (!quitWMS) {
             try {
@@ -55,7 +55,7 @@ public class WMSMenu {
         }
     }
 
-    public void memberMenuList(Member member) throws IOException {
+    void memberMenuList(Member member) throws IOException {
         System.out.print(WMSPage.MEMBER_MENU_TITLE);
         String menuNum = input.readLine();
         validCheck.checkMemberMenu(menuNum);
@@ -83,9 +83,7 @@ public class WMSMenu {
         }
     }
 
-
-
-    public void managerMenuList(Manager manager) throws IOException {
+    void managerMenuList(Manager manager) throws IOException {
         // 창고관리 기능은 관리자 전용 기능이므로, memberMenu(), managerMenu()를 구분
         System.out.print(WMSPage.MANAGER_MENU_TITLE);
         String menuNum = input.readLine();
@@ -117,7 +115,7 @@ public class WMSMenu {
         }
     }
 
-    public void userManagement(User user) {
+    private void userManagement(User user) {
         // 회원 탈퇴 시 자동 종료
         if (user instanceof Manager manager) {
             userManageMenu = new ManagerManageMenu(manager);
@@ -139,8 +137,7 @@ public class WMSMenu {
        }
     }
 
-
-    public void logout(String userID) {
+    private void logout(String userID) {
         LoginDAO.logout(userID);
         quitWMS = true;
     }
