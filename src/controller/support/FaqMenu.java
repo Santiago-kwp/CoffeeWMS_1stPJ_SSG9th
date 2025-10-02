@@ -2,84 +2,48 @@ package controller.support;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
-import constant.support.ValidCheck;
 import domain.support.Board;
 import domain.support.Faq;
 import domain.user.Manager;
-import exception.support.InputException;
-import exception.support.NotFoundException;
-import model.support.dao.FaqDAO;
-import model.support.dao.daoImpl.FaqDaoImpl;
-import service.support.csService.CSOption;
-import service.support.input.BoardInput;
-import service.support.csService.csServiceImpl.CSOptionImpl;
-import service.support.input.inputImpl.FaqInputImpl;
-import view.support.PrintBoard;
-import view.support.readImpl.PrintFaqImpl;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import handler.support.inputHandler.InputHandlerImpl;
+import handler.support.validHandler.ValidHandler;
+import handler.support.validHandler.ValidHandlerImpl;
+import model.support.dao.FaqRepository;
+import model.support.dao.daoImpl.FaqRepositoryImpl;
+import handler.support.cs.CSOption;
+import handler.support.input.BoardInput;
+import handler.support.cs.csServiceImpl.CSOptionImpl;
+import handler.support.input.inputImpl.FaqInputImpl;
+import service.support.BoardService;
 
 public class FaqMenu {
-    private static final FaqDAO faqDAO = new FaqDaoImpl();
+    private static final FaqRepository faqDAO = new FaqRepositoryImpl();
     private static final BoardInput faqInput = new FaqInputImpl();
-    private static final PrintBoard printFaq = new PrintFaqImpl();
+    private final BoardService boardService;
+    private static final InputHandlerImpl inputHandler = new InputHandlerImpl();
+    private static final ValidHandler validHandler = new ValidHandlerImpl();
     private static final CSOption csOption = new CSOptionImpl();
-    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+
+    public FaqMenu(BoardService boardService) {
+        this.boardService = boardService;
+    }
 
     // 회원의 FAQ 메뉴
     public void memberFaqMenu() {
         KIKI:
         while (true) {
-            printFaq.printAll();
-
+            boardService.showAllFaq();
             System.out.print(BoardText.FAQ_MENU_SIMPLE.getMessage());
-
-            String choice = null;
-            try {
-                choice = input.readLine();
-                ValidCheck.isTwoMenuValid(choice);
-            } catch (InputException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-            }
-
+            String choice = inputHandler.twoMenuChoice();
             switch (choice) {
                 case "1":
                     System.out.print(BoardText.FAQ_INSERT_ID.getMessage());
-
-                    int readChoice = 0;
-                    try {
-                        readChoice = Integer.parseInt(input.readLine());
-                    } catch (IOException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-                        memberFaqMenu();
-                    } catch (NumberFormatException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
-                        memberFaqMenu();
-                    }
-
+                    int readChoice = inputHandler.choiceBoard();
                     System.out.println(BoardText.LINE.getMessage());
-
                     System.out.println(BoardText.FAQ_CHOICE.getMessage());
-
-                    Faq oneFaq = faqDAO.readFaqOne(readChoice);
-
-                    try {
-                        ValidCheck.isValidNotFoundFaq(oneFaq);
-                    } catch (NotFoundException e) {
-                        System.out.println(e.getMessage());
-                        break;
-                    }
-
-                    printFaq.printOne(oneFaq);
-
+                    boardService.showOneFaq(readChoice);
                     csOption.backOption();
-
                     break;
-
                 case "2":
                     System.out.println(BoardText.BACK.getMessage());
                     break KIKI;
@@ -92,29 +56,12 @@ public class FaqMenu {
         KIKI:
         while (true) {
             String managerId = manager.getId();
-
-            printFaq.printAll();
-
+            boardService.showAllFaq();
             System.out.print(BoardText.FAQ_MENU.getMessage());
-
-            String choice = null;
-            try {
-                choice = input.readLine();
-                ValidCheck.isThreeMenuValid(choice);
-            } catch (InputException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-            }
-
+            String choice = inputHandler.threeMenuChoice();
             switch (choice) {
                 case "1":
-                    try {
-                        ValidCheck.managerCheck(manager);
-                    } catch (InputException e) {
-                        System.out.println(e.getMessage());
-                        break;
-                    }
+                    validHandler.managerCheck(manager);
 
                     Board board = faqInput.dataInput(managerId);
                     Boolean pass;
@@ -129,39 +76,14 @@ public class FaqMenu {
                     if (pass) System.out.println(BoardText.FAQ_CREATE_SUCCESS.getMessage());
                     else System.out.println(BoardText.FAQ_CREATE_FAILURE.getMessage());
                     break;
-
                 case "2":
                     System.out.print(BoardText.FAQ_INSERT_ID.getMessage());
-
-                    int readChoice = 0;
-                    try {
-                        readChoice = Integer.parseInt(input.readLine());
-                    } catch (IOException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-                        managerFaqMenu(manager);
-                    } catch (NumberFormatException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
-                        managerFaqMenu(manager);
-                    }
-
+                    int readChoice = inputHandler.choiceBoard();
                     System.out.println(BoardText.LINE.getMessage());
-
                     System.out.println(BoardText.FAQ_CHOICE.getMessage());
-
-                    Faq oneFaq = faqDAO.readFaqOne(readChoice);
-
-                    try {
-                        ValidCheck.isValidNotFoundFaq(oneFaq);
-                    } catch (NotFoundException e) {
-                        System.out.println(e.getMessage());
-                        break;
-                    }
-
-                    printFaq.printOne(oneFaq);
-
+                    boardService.showOneFaq(readChoice);
                     faqDetailMenu(readChoice, manager);
                     break;
-
                 case "3":
                     System.out.println(BoardText.BACK.getMessage());
                     break KIKI;
@@ -171,30 +93,12 @@ public class FaqMenu {
 
     // 관리자 FAQ 상세 메뉴
     public void faqDetailMenu(Integer readChoice, Manager manager) {
-
         String managerId = manager.getId();
-
         System.out.print(BoardText.FAQ_DETAIL_MENU.getMessage());
-
-        String choice = null;
-        try {
-            choice = input.readLine();
-            ValidCheck.isThreeMenuValid(choice);
-        } catch (InputException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-        }
-        System.out.println(BoardText.LINE.getMessage());
-
+        String choice = inputHandler.threeMenuChoice();
         switch (choice) {
             case "1":
-                try {
-                    ValidCheck.managerCheck(manager);
-                } catch (InputException e) {
-                    System.out.println(e.getMessage());
-                    break;
-                }
+                validHandler.managerCheck(manager);
 
                 Board board = faqInput.dataUpdate(readChoice, managerId);
                 Boolean update;
@@ -211,12 +115,7 @@ public class FaqMenu {
                 break;
 
             case "2":
-                try {
-                    ValidCheck.managerCheck(manager);
-                } catch (InputException e) {
-                    System.out.println(e.getMessage());
-                    break;
-                }
+                validHandler.managerCheck(manager);
                 boolean delete = faqDAO.deleteFaq(readChoice, managerId);
 
                 if (delete) System.out.println(BoardText.FAQ_DELETE_SUCCESS.getMessage());

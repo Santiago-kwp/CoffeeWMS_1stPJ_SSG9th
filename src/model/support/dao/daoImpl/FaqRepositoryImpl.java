@@ -2,9 +2,10 @@ package model.support.dao.daoImpl;
 
 import config.DBUtil;
 import constant.support.BoardErrorCode;
+import domain.support.Board;
 import domain.support.Faq;
 import domain.support.Category;
-import model.support.dao.FaqDAO;
+import model.support.dao.FaqRepository;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -12,8 +13,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class FaqDaoImpl implements FaqDAO {
+public class FaqRepositoryImpl implements FaqRepository {
     // FAQ 생성 -------------------------------------------------------------------------------------------------------
     public boolean createFaq(Faq faq) {
 
@@ -48,7 +50,7 @@ public class FaqDaoImpl implements FaqDAO {
     }
 
     // FAQ 전체 조회 -------------------------------------------------------------------------------------------------
-    public List<Faq> readFaqAll() {
+    public List<Board> readFaqAll() {
         List<Faq> faqList = new ArrayList<>();
 
         String sql = "CALL read_faq_all()";
@@ -67,7 +69,8 @@ public class FaqDaoImpl implements FaqDAO {
                     faqList.add(faq);
                 }
             }
-            return faqList;
+            List<Board> faqBoardList = faqList.stream().map(faq -> (Board) faq).toList() ;
+            return faqBoardList;
         } catch (SQLException e) {
             System.out.println(BoardErrorCode.NOT_FOUND_LIST.getMessage());
             return null;
@@ -75,7 +78,7 @@ public class FaqDaoImpl implements FaqDAO {
     }
 
     // FAQ 상세 조회 ---------------------------------------------------------------------------------------------------
-    public Faq readFaqOne(Integer faqId) {
+    public Board readFaqOne(Integer faqId) {
 
         String sql = "CALL read_faq_one(?)";
 
@@ -86,12 +89,13 @@ public class FaqDaoImpl implements FaqDAO {
 
             ResultSet rs = cStmt.executeQuery();
             if (rs.next()) {
-                Faq oneFaq = new Faq();
-                oneFaq.setFaqDate(rs.getDate(1));
-                oneFaq.setFaqCategoryName(rs.getString(2));
-                oneFaq.setFaqQuestion(rs.getString(3));
-                oneFaq.setFaqReply(rs.getString(4));
-                return oneFaq;
+                Faq faq = new Faq();
+                faq.setFaqDate(rs.getDate(1));
+                faq.setFaqCategoryName(rs.getString(2));
+                faq.setFaqQuestion(rs.getString(3));
+                faq.setFaqReply(rs.getString(4));
+
+                return faq;
             }
         } catch (SQLException e) {
             System.out.println(BoardErrorCode.NOT_FOUND_BOARD.getMessage());

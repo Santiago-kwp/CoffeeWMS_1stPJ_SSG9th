@@ -2,46 +2,32 @@ package controller.support;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
-import constant.support.ValidCheck;
 import domain.support.Board;
 import domain.support.Inquiry;
-import exception.support.InputException;
-import exception.support.NotFoundException;
-import model.support.dao.InquiryDAO;
-import model.support.dao.daoImpl.InquiryDaoImpl;
-import service.support.input.InquiryInput;
-import service.support.input.inputImpl.InquiryInputImpl;
-import view.support.PrintInquiry;
-import view.support.readImpl.PrintInquiryImpl;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import handler.support.inputHandler.InputHandlerImpl;
+import model.support.dao.InquiryRepository;
+import model.support.dao.daoImpl.InquiryRepositoryImpl;
+import handler.support.input.InquiryInput;
+import handler.support.input.inputImpl.InquiryInputImpl;
+import service.support.BoardService;
 
 public class InquiryMenu {
-    private static final InquiryDAO inquiryDAO = new InquiryDaoImpl();
+    private static final InquiryRepository inquiryDAO = new InquiryRepositoryImpl();
     private static final InquiryInput inquiryInput = new InquiryInputImpl();
-    private static final PrintInquiry printInquiry = new PrintInquiryImpl();
-    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private final BoardService boardService;
+    private static final InputHandlerImpl inputHandler = new InputHandlerImpl();
+
+    public InquiryMenu(BoardService boardService) {
+        this.boardService = boardService;
+    }
 
     // 회원의 1:1 문의 메뉴
     public void memberInquiryMenu(String memberId) {
         KI:
         while (true) {
-
-            printInquiry.printMemberInquiries(memberId);
-
+            boardService.showAllInquiryMember(memberId);
             System.out.print(BoardText.INQUIRY_MENU.getMessage());
-
-            String choice = null;
-            try {
-                choice = input.readLine();
-                ValidCheck.isThreeMenuValid(choice);
-            } catch (InputException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-            }
+            String choice = inputHandler.threeMenuChoice();
             switch (choice) {
                 case "1":
                     Board board = inquiryInput.dataInput(memberId);
@@ -58,39 +44,14 @@ public class InquiryMenu {
                     if (pass) System.out.println(BoardText.INQUIRY_CREATE_SUCCESS.getMessage());
                     else System.out.println(BoardText.INQUIRY_CREATE_FAILURE.getMessage());
                     break;
-
                 case "2":
                     System.out.print(BoardText.INQUIRY_INSERT_ID.getMessage());
-
-                    int readChoice = 0;
-                    try {
-                        readChoice = Integer.parseInt(input.readLine());
-                    } catch (IOException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-                        memberInquiryMenu(memberId);
-                    } catch (NumberFormatException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
-                        memberInquiryMenu(memberId);
-                    }
-
+                    int readChoice = inputHandler.choiceBoard();
                     System.out.println(BoardText.LINE.getMessage());
-
                     System.out.println(BoardText.INQUIRY_CHOICE.getMessage());
-
-                    Inquiry oneInquiry = inquiryDAO.readInquiryMemberOne(memberId, readChoice);
-
-                    try {
-                        ValidCheck.isValidNotFoundInquiry(oneInquiry);
-                    } catch (NotFoundException e) {
-                        System.out.println(e.getMessage());
-                        break;
-                    }
-
-                    printInquiry.printOne(oneInquiry);
-
+                    boardService.showOneInquiryMember(memberId, readChoice);
                     memberInquiryDetailMenu(memberId, readChoice);
                     break;
-
                 case "3":
                     System.out.println(BoardText.BACK.getMessage());
                     break KI;
@@ -102,54 +63,18 @@ public class InquiryMenu {
     public void managerInquiryMenu(String managerId) {
         KI:
         while (true) {
-            printInquiry.printAll();
-
+            boardService.showAllInquiryManager();
             System.out.print(BoardText.INQUIRY_MENU_SIMPLE.getMessage());
-
-            String choice = null;
-            try {
-                choice = input.readLine();
-                ValidCheck.isTwoMenuValid(choice);
-            } catch (InputException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-            }
-
+            String choice = inputHandler.twoMenuChoice();
             switch (choice) {
                 case "1":
                     System.out.print(BoardText.INQUIRY_INSERT_ID.getMessage());
-
-                    int readChoice = 0;
-                    try {
-                        readChoice = Integer.parseInt(input.readLine());
-                    } catch (IOException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-                        managerInquiryMenu(managerId);
-                    } catch (NumberFormatException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
-                        managerInquiryMenu(managerId);
-                    }
-
+                    int readChoice = inputHandler.choiceBoard();
                     System.out.println(BoardText.LINE.getMessage());
-
                     System.out.println(BoardText.INQUIRY_CHOICE.getMessage());
-
-
-                    Inquiry oneInquiry = inquiryDAO.readInquiryManagerOne(readChoice);
-
-                    try {
-                        ValidCheck.isValidNotFoundInquiry(oneInquiry);
-                    } catch (NotFoundException e) {
-                        System.out.println(e.getMessage());
-                    }
-
-                    printInquiry.printOne(oneInquiry);
-
+                    boardService.showOneInquiryManager(readChoice);
                     managerInquiryDetailMenu(readChoice, managerId);
-
                     break;
-
                 case "2":
                     System.out.println(BoardText.BACK.getMessage());
                     break KI;
@@ -160,24 +85,10 @@ public class InquiryMenu {
     // 회원의 1:1 문의 상세 메뉴
     public void memberInquiryDetailMenu(String memberIdEx, Integer readChoice) {
         System.out.print(BoardText.INQUIRY_DETAIL_MENU_MEMBER.getMessage());
-
-        String choice = null;
-        try {
-            choice = input.readLine();
-            ValidCheck.isThreeMenuValid(choice);
-        } catch (InputException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-        }
-
+        String choice = inputHandler.threeMenuChoice();
         System.out.println(BoardText.LINE.getMessage());
-
         switch (choice) {
             case "1":
-//                Inquiry inquiry = (Inquiry) inquiryInput.dataUpdate(readChoice, memberIdEx);
-//                boolean update = inquiryDAO.updateInquiryMember(inquiry);
-
                 Board board = inquiryInput.dataUpdate(readChoice, memberIdEx);
                 Boolean update;
 
@@ -208,23 +119,11 @@ public class InquiryMenu {
     // 관리자의 1:1 문의 상세 메뉴
     public void managerInquiryDetailMenu(Integer readChoice, String managerId) {
         System.out.print(BoardText.INQUIRY_DETAIL_MENU_MANAGER.getMessage());
-
-        String choice = null;
-        try {
-            choice = input.readLine();
-            ValidCheck.isThreeMenuValid(choice);
-        } catch (InputException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-        }
-
+        String choice = inputHandler.threeMenuChoice();
         System.out.println(BoardText.LINE.getMessage());
-
         switch (choice) {
             case "1":
-                Inquiry inquiry;
-                inquiry = inquiryInput.dataReplyUpdate(readChoice, managerId);
+                Inquiry inquiry = inquiryInput.dataReplyUpdate(readChoice, managerId);
 
                 boolean update = inquiryDAO.updateInquiryManager(inquiry);
 

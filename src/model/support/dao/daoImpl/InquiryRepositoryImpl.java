@@ -2,9 +2,10 @@ package model.support.dao.daoImpl;
 
 import config.DBUtil;
 import constant.support.BoardErrorCode;
+import domain.support.Board;
 import domain.support.Category;
 import domain.support.Inquiry;
-import model.support.dao.InquiryDAO;
+import model.support.dao.InquiryRepository;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -13,7 +14,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class InquiryDaoImpl implements InquiryDAO {
+public class InquiryRepositoryImpl implements InquiryRepository {
     // 1:1 문의 생성 (회원)-------------------------------------------------------------------------------------------------
     public boolean createInquiry(Inquiry inquiry) {
 
@@ -47,14 +48,14 @@ public class InquiryDaoImpl implements InquiryDAO {
     }
 
     // 1:1 문의 전체 조회 (회원)---------------------------------------------------------------------------------------------
-    public List<Inquiry> readInquiryMemberAll(String inquiryMemberId) {
+    public List<Board> readInquiryMemberAll(String memberId) {
         List<Inquiry> inquiryList = new ArrayList<>();
 
         String sql = "CALL read_inquiry_member_all(?)";
 
         try (Connection conn = DBUtil.getConnection();
              CallableStatement cStmt = conn.prepareCall(sql)) {
-            cStmt.setString(1, inquiryMemberId);
+            cStmt.setString(1, memberId);
             ResultSet rs = cStmt.executeQuery();
             if (rs != null) {
                 while (rs.next()) {
@@ -74,7 +75,8 @@ public class InquiryDaoImpl implements InquiryDAO {
                     inquiryList.add(inquiry);
                 }
             }
-            return inquiryList;
+            List<Board> inquiryBoardList = inquiryList.stream().map(inquiry -> (Board) inquiry).toList();
+            return inquiryBoardList;
         } catch (SQLException e) {
             System.out.println(BoardErrorCode.NOT_FOUND_LIST.getMessage());
             return null;
@@ -82,7 +84,7 @@ public class InquiryDaoImpl implements InquiryDAO {
     }
 
     // 1:1 문의 전체 조회 (총관리자)------------------------------------------------------------------------------------------
-    public List<Inquiry> readInquiryManagerAll() {
+    public List<Board> readInquiryManagerAll() {
         List<Inquiry> inquiryList = new ArrayList<>();
 
         String sql = "CALL read_inquiry_manager_all()";
@@ -108,7 +110,8 @@ public class InquiryDaoImpl implements InquiryDAO {
                     inquiryList.add(inquiry);
                 }
             }
-            return inquiryList;
+            List<Board> inquiryBoardList = inquiryList.stream().map(inquiry -> (Board) inquiry).toList();
+            return inquiryBoardList;
         } catch (SQLException e) {
             System.out.println(BoardErrorCode.NOT_FOUND_LIST.getMessage());
             return null;
@@ -116,7 +119,7 @@ public class InquiryDaoImpl implements InquiryDAO {
     }
 
     // 1:1 문의 상세 조회 (회원)---------------------------------------------------------------------------------------------
-    public Inquiry readInquiryMemberOne(String inquiryMemberId, Integer inquiryId) {
+    public Board readInquiryMemberOne(String inquiryMemberId, Integer inquiryId) {
 
         String sql = "CALL read_inquiry_member_one(?,?)";
 
@@ -152,7 +155,7 @@ public class InquiryDaoImpl implements InquiryDAO {
     }
 
     // 1:1 문의 상세 조회 (총관리자)------------------------------------------------------------------------------------------
-    public Inquiry readInquiryManagerOne(Integer inquiryId) {
+    public Board readInquiryManagerOne(Integer inquiryId) {
 
         String sql = "CALL read_inquiry_manager_one(?)";
 

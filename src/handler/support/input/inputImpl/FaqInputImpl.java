@@ -1,4 +1,4 @@
-package service.support.input.inputImpl;
+package handler.support.input.inputImpl;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
@@ -7,8 +7,8 @@ import domain.support.Board;
 import domain.support.Faq;
 import domain.support.Category;
 import exception.support.InputException;
-import model.support.dao.daoImpl.FaqDaoImpl;
-import service.support.input.BoardInput;
+import model.support.dao.daoImpl.FaqRepositoryImpl;
+import handler.support.input.BoardInput;
 //import service.support.inputService.FaqInput;
 
 import java.io.BufferedReader;
@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class FaqInputImpl implements BoardInput {
-    private static final FaqDaoImpl faqDAO = new FaqDaoImpl();
+    private static final FaqRepositoryImpl faqDAO = new FaqRepositoryImpl();
     private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // FAQ 데이터 입력

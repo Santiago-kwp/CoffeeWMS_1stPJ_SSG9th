@@ -1,4 +1,4 @@
-package service.support.input;
+package handler.support.input;
 
 import domain.support.Board;
 

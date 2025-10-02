@@ -1,12 +1,12 @@
-package service.support.input.inputImpl;
+package handler.support.input.inputImpl;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import domain.support.Board;
 import domain.support.Notice;
-import service.support.csService.csServiceImpl.CSOptionImpl;
-import service.support.csService.CSOption;
-import service.support.input.BoardInput;
+import handler.support.cs.csServiceImpl.CSOptionImpl;
+import handler.support.cs.CSOption;
+import handler.support.input.BoardInput;
 //import service.support.inputService.NoticeInput;
 
 import java.io.BufferedReader;

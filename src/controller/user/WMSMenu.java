@@ -19,6 +19,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import service.inventory.UserService;
+import service.support.BoardServiceImpl;
+
 import java.sql.SQLException;
 
 public class WMSMenu {
@@ -30,7 +32,7 @@ public class WMSMenu {
 
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
-    private CSMenu csMenu = new CSMenu();
+    private CSMenu csMenu = new CSMenu(new BoardServiceImpl());
     private InboundMenu inboundMenu = new InboundMenu();
     private OutboundMenu outboundMenu = new OutboundMenu();
 

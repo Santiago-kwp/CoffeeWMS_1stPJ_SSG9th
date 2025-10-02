@@ -2,15 +2,16 @@ package model.support.dao.daoImpl;
 
 import config.DBUtil;
 import constant.support.BoardErrorCode;
+import domain.support.Board;
 import domain.support.Notice;
 import exception.support.NotFoundException;
-import model.support.dao.NoticeDAO;
+import model.support.dao.NoticeRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NoticeDaoImpl implements NoticeDAO {
+public class NoticeRepositoryImpl implements NoticeRepository {
     // 공지사항 생성 (총관리자)-----------------------------------------------------------------------------------------------
     public boolean createNotice(Notice notice) {
 
@@ -48,7 +49,7 @@ public class NoticeDaoImpl implements NoticeDAO {
     }
 
     // 공지사항 조회 (메인화면)-----------------------------------------------------------------------------------------------
-    public List<Notice> readNoticeMain() {
+    public List<Board> readNoticePreview() {
         List<Notice> noticeList = new ArrayList<>();
 
         String sql = "CALL read_notice_main()";
@@ -64,14 +65,15 @@ public class NoticeDaoImpl implements NoticeDAO {
                     noticeList.add(notice);
                 }
             }
-            return noticeList;
+            List<Board> noticeBoardList = noticeList.stream().map(notice -> (Board) notice).toList();
+            return noticeBoardList;
         } catch (SQLException e) {
             throw new NotFoundException(BoardErrorCode.NOT_FOUND_LIST.getMessage());
         }
     }
 
     // 공지사항 전체 조회 ---------------------------------------------------------------------------------------------------
-    public List<Notice> readNoticeAll() {
+    public List<Board> readNoticeAll() {
         List<Notice> noticeList = new ArrayList<>();
 
         String sql = "CALL read_notice_all()";
@@ -90,16 +92,17 @@ public class NoticeDaoImpl implements NoticeDAO {
                     noticeList.add(notice);
                 }
             }
-            return noticeList;
+            List<Board> noticeBoardList = noticeList.stream().map(notice -> (Board) notice).toList();
+            return noticeBoardList;
         } catch (SQLException e) {
             throw new NotFoundException(BoardErrorCode.NOT_FOUND_LIST.getMessage());
         }
     }
 
     // 공지사항 상세 조회 ---------------------------------------------------------------------------------------------------
-    public Notice readNoticeOne(Integer noticeId) {
+    public Board readNoticeOne(Integer noticeId) {
 
-        Notice oneNotice = new Notice();
+        Notice notice = new Notice();
 
         String sql = "CALL read_notice_one(?)";
 
@@ -109,10 +112,11 @@ public class NoticeDaoImpl implements NoticeDAO {
 
             ResultSet rs = cStmt.executeQuery();
             if (rs.next()) {
-                oneNotice.setNoticeDate(rs.getDate(1));
-                oneNotice.setNoticeTitle(rs.getString(2));
-                oneNotice.setNoticeContent(rs.getString(3));
-                return oneNotice;
+                notice.setNoticeDate(rs.getDate(1));
+                notice.setNoticeTitle(rs.getString(2));
+                notice.setNoticeContent(rs.getString(3));
+
+                return notice;
             }
         } catch (SQLException e) {
             throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());

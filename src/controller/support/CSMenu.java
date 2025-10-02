@@ -1,50 +1,41 @@
 package controller.support;
 
-import constant.support.BoardErrorCode;
 import constant.support.BoardText;
-import constant.support.ValidCheck;
 import domain.user.Manager;
 import domain.user.Member;
-import exception.support.InputException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import handler.support.inputHandler.InputHandler;
+import handler.support.inputHandler.InputHandlerImpl;
+import handler.support.validHandler.ValidHandler;
+import handler.support.validHandler.ValidHandlerImpl;
+import service.support.BoardService;
 
 public class CSMenu {
-    private static final NoticeMenu noticeMenu = new NoticeMenu();
-    private static final InquiryMenu inquiryMenu = new InquiryMenu();
-    private static final FaqMenu faqMenu = new FaqMenu();
-    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+    private NoticeMenu noticeMenu;
+    private InquiryMenu inquiryMenu;
+    private FaqMenu faqMenu;
+    private static final InputHandler inputHandler = new InputHandlerImpl();
+    private static final ValidHandler validHandler = new ValidHandlerImpl();
+
+    public CSMenu(BoardService boardService) {
+        this.noticeMenu = new NoticeMenu(boardService);
+        this.inquiryMenu = new InquiryMenu(boardService);
+        this.faqMenu = new FaqMenu(boardService);
+    }
 
     // 일반회원의 고객센터 메뉴
     public void memberCSMenu(Member member) {
         TheEndCS:
         while (true) {
             System.out.print(BoardText.CS_MENU.getMessage());
-
-            String choice = null;
-            try {
-                choice = input.readLine();
-                ValidCheck.isFourMenuValid(choice);
-            } catch (InputException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-            }
-
+            String choice = inputHandler.fourMenuChoice();
             switch (choice) {
-                case "1":
-                    noticeMenu.memberNoticeMenu();
-                    break;
-                case "2":
-                    inquiryMenu.memberInquiryMenu(member.getId());
-                    break;
-                case "3":
-                    faqMenu.memberFaqMenu();
-                    break;
-                case "4":
+                case "1" -> noticeMenu.memberNoticeMenu();
+                case "2" -> inquiryMenu.memberInquiryMenu(member.getId());
+                case "3" -> faqMenu.memberFaqMenu();
+                case "4" -> {
                     System.out.println(BoardText.BACK.getMessage());
                     break TheEndCS;
+                }
             }
         }
     }
@@ -54,36 +45,18 @@ public class CSMenu {
         TheEndCS:
         while (true) {
             System.out.print(BoardText.CS_MENU.getMessage());
-
-            String choice = null;
-            try {
-                choice = input.readLine();
-                ValidCheck.isFourMenuValid(choice);
-            } catch (InputException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-            }
-
+            String choice = inputHandler.fourMenuChoice();
             switch (choice) {
-                case "1":
-                    noticeMenu.managerNoticeMenu(manager);
-                    break;
-                case "2":
-                    try {
-                        ValidCheck.managerCheck(manager);
-                    } catch (InputException e) {
-                        System.out.println(e.getMessage());
-                        break;
-                    }
+                case "1" -> noticeMenu.managerNoticeMenu(manager);
+                case "2"->{
+                    validHandler.managerCheck(manager);
                     inquiryMenu.managerInquiryMenu(manager.getId());
-                    break;
-                case "3":
-                    faqMenu.managerFaqMenu(manager);
-                    break;
-                case "4":
+                }
+                case "3" -> faqMenu.managerFaqMenu(manager);
+                case "4" -> {
                     System.out.println(BoardText.BACK.getMessage());
                     break TheEndCS;
+                }
             }
         }
     }

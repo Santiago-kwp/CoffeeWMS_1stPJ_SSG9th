@@ -1,4 +1,4 @@
-package service.support.input.inputImpl;
+package handler.support.input.inputImpl;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
@@ -7,9 +7,9 @@ import domain.support.Board;
 import domain.support.Category;
 import domain.support.Inquiry;
 import exception.support.InputException;
-import model.support.dao.InquiryDAO;
-import model.support.dao.daoImpl.InquiryDaoImpl;
-import service.support.input.InquiryInput;
+import model.support.dao.InquiryRepository;
+import model.support.dao.daoImpl.InquiryRepositoryImpl;
+import handler.support.input.InquiryInput;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,14 +17,14 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class InquiryInputImpl implements InquiryInput {
-    private static final InquiryDAO inquiryDAO = new InquiryDaoImpl();
+    private static final InquiryRepository inquiryDAO = new InquiryRepositoryImpl();
     private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     // 1:1 문의 데이터 입력
     @Override
     public Board dataInput(String memberId) {
         Inquiry inquiry = new Inquiry();
-        InquiryDaoImpl inquiryDAO = new InquiryDaoImpl();
+        InquiryRepositoryImpl inquiryDAO = new InquiryRepositoryImpl();
 
         System.out.println(BoardText.INQUIRY_CREATE.getMessage());
 

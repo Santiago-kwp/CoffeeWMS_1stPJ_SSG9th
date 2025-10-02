@@ -1,5 +1,6 @@
 package constant.support;
 
+import domain.support.Board;
 import domain.support.Faq;
 import domain.support.Inquiry;
 import domain.support.Notice;
@@ -72,18 +73,6 @@ public class ValidCheck {
         }
     }
 
-    public static void isValidNotFoundNotice(Notice notice) {
-        if (notice == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
-    }
-
-    public static void isValidNotFoundInquiry(Inquiry inquiry) {
-        if (inquiry == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
-    }
-
-    public static void isValidNotFoundFaq(Faq faq) {
-        if (faq == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
-    }
-
     public static void managerCheck(Manager manager) {
         if (!manager.getPosition().equals("총관리자")) {
             throw new InputException(BoardErrorCode.YOU_ARE_NOT.getMessage());
@@ -93,5 +82,10 @@ public class ValidCheck {
     public static void yCheck (String y){
         if (y == null || y.trim().isEmpty()) throw new InputException(BoardErrorCode.NOT_INPUT_EMPTY.getMessage());
         if (!y.trim().equalsIgnoreCase("Y")) throw new InputException(BoardErrorCode.NOT_INPUT_OPTION.getMessage());
+    }
+
+    //*****************
+    public static void isValidNotFoundBoard(Board board) {
+        if (board == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
     }
 }

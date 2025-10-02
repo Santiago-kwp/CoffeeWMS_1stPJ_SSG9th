@@ -1,11 +1,12 @@
 package view.support;
 
 import domain.support.Board;
+import java.util.List;
 
 public interface PrintBoard {
-    // 목록 전체 출력
-    void printAll();
+    void printAll(List<Board> boards);
 
-    // 한 가지 목록 출력
     void printOne(Board board);
+
+    void printTopNotices(List<Board> boards);
 }

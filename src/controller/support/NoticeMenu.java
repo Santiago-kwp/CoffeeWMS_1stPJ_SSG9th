@@ -2,89 +2,52 @@ package controller.support;
 
 import constant.support.BoardErrorCode;
 import constant.support.BoardText;
-import constant.support.ValidCheck;
 import domain.support.Board;
 import domain.support.Notice;
 import domain.user.Manager;
-import exception.support.InputException;
-import exception.support.NotFoundException;
-import model.support.dao.NoticeDAO;
-import model.support.dao.daoImpl.NoticeDaoImpl;
-import service.support.csService.CSOption;
-import service.support.input.BoardInput;
-//import service.support.inputService.NoticeInput;
-import service.support.csService.csServiceImpl.CSOptionImpl;
-import service.support.input.inputImpl.NoticeInputImpl;
-import view.support.PrintNotice;
-import view.support.readImpl.PrintNoticeImpl;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
+import handler.support.inputHandler.InputHandlerImpl;
+import handler.support.validHandler.ValidHandler;
+import handler.support.validHandler.ValidHandlerImpl;
+import model.support.dao.NoticeRepository;
+import model.support.dao.daoImpl.NoticeRepositoryImpl;
+import handler.support.cs.CSOption;
+import handler.support.input.BoardInput;
+import handler.support.cs.csServiceImpl.CSOptionImpl;
+import handler.support.input.inputImpl.NoticeInputImpl;
+import service.support.BoardService;
 
 public class NoticeMenu {
-    private static final NoticeDAO noticeDAO = new NoticeDaoImpl();
+    private static final NoticeRepository noticeDAO = new NoticeRepositoryImpl();
     private static final BoardInput noticeInput = new NoticeInputImpl();
-    private static final PrintNotice printNotice = new PrintNoticeImpl();
+    private final BoardService boardService;
+    private static final InputHandlerImpl inputHandler = new InputHandlerImpl();
+    private static final ValidHandler validHandler = new ValidHandlerImpl();
     private static final CSOption csOption = new CSOptionImpl();
-    private final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
+
+    public NoticeMenu(BoardService boardService) {
+        this.boardService = boardService;
+    }
 
     // 회원의 공지사항 메뉴
     public void memberNoticeMenu() {
         KI:
         while (true) {
-            printNotice.printAll();
-
+            boardService.showAllNotice();
             System.out.print(BoardText.NOTICE_MENU_SIMPLE.getMessage());
-
-            String choice = null;
-            try {
-                choice = input.readLine();
-                ValidCheck.isTwoMenuValid(choice);
-            } catch (InputException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-            }
-
+            String choice = inputHandler.twoMenuChoice();
             switch (choice) {
-                case "1":
+                case "1" -> {
                     System.out.print(BoardText.NOTICE_INSERT_ID.getMessage());
-
-                    int readChoice = 0;
-                    try {
-                        readChoice = Integer.parseInt(input.readLine());
-                    } catch (IOException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-                        memberNoticeMenu();
-                    } catch (NumberFormatException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
-                        memberNoticeMenu();
-                    }
-
+                    int readChoice = inputHandler.choiceBoard();
                     System.out.println(BoardText.LINE.getMessage());
-
                     System.out.println(BoardText.NOTICE_CHOICE.getMessage());
-
-                    Notice oneNotice = noticeDAO.readNoticeOne(readChoice);
-
-                    try {
-                        ValidCheck.isValidNotFoundNotice(oneNotice);
-                    } catch (NotFoundException e) {
-                        System.out.println(e.getMessage());
-                        break;
-                    }
-
-                    printNotice.printOne(oneNotice);
-
+                    boardService.showOneNotice(readChoice);
                     csOption.backOption();
-
-                    break;
-
-                case "2":
+                }
+                case "2" -> {
                     System.out.println(BoardText.BACK.getMessage());
                     break KI;
+                }
             }
         }
     }
@@ -94,29 +57,13 @@ public class NoticeMenu {
         KIKI:
         while (true) {
             String managerId = manager.getId();
-            printNotice.printAll();
-
+            boardService.showAllNotice();
             System.out.print(BoardText.NOTICE_MENU.getMessage());
-
-            String choice = null;
-            try {
-                choice = input.readLine();
-                ValidCheck.isThreeMenuValid(choice);
-            } catch (InputException e) {
-                System.out.println(e.getMessage());
-            } catch (IOException e) {
-                System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-            }
-
+            String choice = inputHandler.threeMenuChoice();
             switch (choice) {
-                case "1":
-                    try {
-                        ValidCheck.managerCheck(manager);
-                    } catch (InputException e) {
-                        System.out.println(e.getMessage());
-                        break;
-                    }
-//                    Notice notice =  (Notice) noticeInput.dataInput(managerId);
+                case "1" -> {
+                    validHandler.managerCheck(manager);
+
                     Board board = noticeInput.dataInput(managerId);
 
                     Boolean pass;
@@ -129,46 +76,20 @@ public class NoticeMenu {
                     }
 
                     if (pass) System.out.println(BoardText.NOTICE_CREATE_SUCCESS.getMessage());
-                    else {
-                        System.out.println(BoardText.NOTICE_CREATE_FAILURE.getMessage());
-                    }
-                    break;
-
-                case "2":
+                    else System.out.println(BoardText.NOTICE_CREATE_FAILURE.getMessage());
+                }
+                case "2" -> {
                     System.out.print(BoardText.NOTICE_INSERT_ID.getMessage());
-
-                    int readChoice;
-                    try {
-                        readChoice = Integer.parseInt(input.readLine());
-                    } catch (IOException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-                        break;
-                    } catch (NumberFormatException e) {
-                        System.out.println(BoardErrorCode.NOT_INPUT_NUMBER.getMessage());
-                        break;
-                    }
-
+                    int readChoice = inputHandler.choiceBoard();
                     System.out.println(BoardText.LINE.getMessage());
-
                     System.out.println(BoardText.NOTICE_CHOICE.getMessage());
-
-                    Notice oneNotice = noticeDAO.readNoticeOne(readChoice);
-
-                    try {
-                        ValidCheck.isValidNotFoundNotice(oneNotice);
-                    } catch (NotFoundException e) {
-                        System.out.println(e.getMessage());
-                        break;
-                    }
-
-                    printNotice.printOne(oneNotice);
-
+                    boardService.showOneNotice(readChoice);
                     noticeDetailMenu(readChoice, manager);
-                    break;
-
-                case "3":
+                }
+                case "3" -> {
                     System.out.println(BoardText.BACK.getMessage());
                     break KIKI;
+                }
             }
         }
     }
@@ -177,27 +98,11 @@ public class NoticeMenu {
     public void noticeDetailMenu(Integer readChoice, Manager manager) {
         System.out.print(BoardText.NOTICE_DETAIL_MENU.getMessage());
         String managerId = manager.getId();
-
-        String choice = null;
-        try {
-            choice = input.readLine();
-            ValidCheck.isThreeMenuValid(choice);
-        } catch (InputException e) {
-            System.out.println(e.getMessage());
-        } catch (IOException e) {
-            System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
-        }
-
+        String choice = inputHandler.threeMenuChoice();
         System.out.println(BoardText.LINE.getMessage());
-
         switch (choice) {
-            case "1":
-                try {
-                    ValidCheck.managerCheck(manager);
-                } catch (InputException e) {
-                    System.out.println(e.getMessage());
-                    break;
-                }
+            case "1" -> {
+                validHandler.managerCheck(manager);
 
                 Board board = noticeInput.dataUpdate(readChoice, managerId);
                 Boolean update;
@@ -211,24 +116,15 @@ public class NoticeMenu {
 
                 if (update) System.out.println(BoardText.NOTICE_UPDATE_SUCCESS.getMessage());
                 else System.out.println(BoardText.NOTICE_UPDATE_FAILURE.getMessage());
-                break;
-
-            case "2":
-                try {
-                    ValidCheck.managerCheck(manager);
-                } catch (InputException e) {
-                    System.out.println(e.getMessage());
-                    break;
-                }
+            }
+            case "2" -> {
+                validHandler.managerCheck(manager);
                 boolean delete = noticeDAO.deleteNotice(readChoice, managerId);
 
                 if (delete) System.out.println(BoardText.NOTICE_DELETE_SUCCESS.getMessage());
                 else System.out.println(BoardText.NOTICE_DELETE_FAILURE.getMessage());
-                break;
-
-            case "3":
-                System.out.println(BoardText.BACK.getMessage());
-                break;
+            }
+            case "3" -> System.out.println(BoardText.BACK.getMessage());
         }
     }
 }
