@@ -5,14 +5,12 @@ import controller.inventory.InventoryController;
 import controller.support.CSMenu;
 import domain.inventory.UserVO;
 import controller.cargo.CargoController;
-import constant.user.validation.WMSValidCheck;
-import controller.support.CSMenu;
+import constant.user.validation.MenuNumberValidCheck;
 import controller.transaction.InboundMenu;
 import controller.transaction.OutboundMenu;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-import exception.support.InputException;
 import model.user.LoginDAO;
 
 import java.io.BufferedReader;
@@ -26,7 +24,7 @@ public class WMSMenu {
     private static final BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 
     private final User currentLoginUser;
-    private final WMSValidCheck validCheck;
+    private final MenuNumberValidCheck validCheck;
 
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
@@ -37,7 +35,7 @@ public class WMSMenu {
 
     WMSMenu(User loginUser) {
         this.currentLoginUser = loginUser;
-        this.validCheck = new WMSValidCheck();
+        this.validCheck = new MenuNumberValidCheck();
     }
 
     void run() {
@@ -58,7 +56,7 @@ public class WMSMenu {
     void memberMenuList(Member member) throws IOException {
         System.out.print(WMSPage.MEMBER_MENU_TITLE);
         String menuNum = input.readLine();
-        validCheck.checkMemberMenu(menuNum);
+        validCheck.checkMenuNumber("^[1-6]", menuNum);
         switch (menuNum) {
             case "1":   // 회원관리
                 userManagement(member);
@@ -87,7 +85,7 @@ public class WMSMenu {
         // 창고관리 기능은 관리자 전용 기능이므로, memberMenu(), managerMenu()를 구분
         System.out.print(WMSPage.MANAGER_MENU_TITLE);
         String menuNum = input.readLine();
-        validCheck.checkManagerMenu(menuNum);
+        validCheck.checkMenuNumber("^[1-7]", menuNum);
         switch (menuNum) {
             case "1":   // 회원관리
                 userManagement(manager);

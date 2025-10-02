@@ -3,8 +3,8 @@ package controller.user;
 import constant.user.UserPage;
 import constant.user.validation.UserManagementValidCheck;
 import exception.user.UnableToReadUserException;
-import exception.user.UserNotDeletedException;
-import exception.user.UserNotUpdatedException;
+import exception.user.UserDeleteFailedException;
+import exception.user.FailedToUserUpdateException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,7 +22,7 @@ public interface UserManageMenu {
             try {
                 printMenu();
                 String menuNum = input.readLine();
-                validCheck.checkMenuNum("^[1-4]", menuNum);
+                validCheck.checkMenuNumber("^[1-4]", menuNum);
                 switch (menuNum) {
                     case "1" -> read();
                     case "2" -> update();
@@ -31,8 +31,8 @@ public interface UserManageMenu {
                 }
             } catch (IOException
                      | UnableToReadUserException
-                     | UserNotUpdatedException
-                     | UserNotDeletedException e) {
+                     | FailedToUserUpdateException
+                     | UserDeleteFailedException e) {
                 System.out.println(e.getMessage());
             }
         }

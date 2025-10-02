@@ -7,7 +7,7 @@ import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
 import exception.user.UserNotFoundException;
-import exception.user.UserNotRegisteredException;
+import exception.user.FailedToUserRegisterException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -131,7 +131,7 @@ public class LoginDAO {
             int affected = call.getInt(9);
             return affected > 0;
         } catch (SQLException e) {
-            throw new UserNotRegisteredException(LoginPage.REGISTER_FAILED.toString());
+            throw new FailedToUserRegisterException(LoginPage.REGISTER_FAILED.toString());
         }
     }
 

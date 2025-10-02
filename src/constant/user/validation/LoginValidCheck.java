@@ -5,8 +5,8 @@ import constant.user.LoginPage;
 import domain.user.User;
 import exception.user.LoginException;
 import exception.user.UserNotFoundException;
-import exception.user.UserNotRegisteredException;
-import exception.user.UserNotUpdatedException;
+import exception.user.FailedToUserRegisterException;
+import exception.user.FailedToUserUpdateException;
 
 public class LoginValidCheck {
 
@@ -26,7 +26,7 @@ public class LoginValidCheck {
 
     public void checkUserRegistered(boolean registerACK) {
         if (!registerACK) {
-            throw new UserNotRegisteredException(LoginPage.REGISTER_FAILED.toString());
+            throw new FailedToUserRegisterException(LoginPage.REGISTER_FAILED.toString());
         }
     }
 
@@ -38,7 +38,7 @@ public class LoginValidCheck {
 
     public void checkPwdUpdated(boolean pwdUpdateACK) {
         if (!pwdUpdateACK) {
-            throw new UserNotUpdatedException(LoginPage.NOT_UPDATE_PASSWORD.toString());
+            throw new FailedToUserUpdateException(LoginPage.NOT_UPDATE_PASSWORD.toString());
         }
     }
 }

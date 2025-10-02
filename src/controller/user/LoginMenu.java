@@ -7,8 +7,8 @@ import domain.user.User;
 import exception.user.InvalidUserDataException;
 import exception.user.LoginException;
 import exception.user.UserNotFoundException;
-import exception.user.UserNotRegisteredException;
-import exception.user.UserNotUpdatedException;
+import exception.user.FailedToUserRegisterException;
+import exception.user.FailedToUserUpdateException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -52,8 +52,8 @@ public class LoginMenu {
                 }
             } catch (IllegalArgumentException
                      | IOException | LoginException
-                     | InvalidUserDataException | UserNotRegisteredException
-                     | UserNotFoundException | UserNotUpdatedException e) {
+                     | InvalidUserDataException | FailedToUserRegisterException
+                     | UserNotFoundException | FailedToUserUpdateException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -71,7 +71,7 @@ public class LoginMenu {
         wmsMenu.run();
     }
 
-    public void register() throws IOException, InvalidUserDataException, UserNotRegisteredException {
+    public void register() throws IOException, InvalidUserDataException, FailedToUserRegisterException {
         LoginPage.print(LoginPage.SIGN_UP);
         System.out.print(LoginPage.REGISTER_OR_NOT);
         String yesOrNo = input.readLine();

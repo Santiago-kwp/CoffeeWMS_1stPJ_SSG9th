@@ -39,14 +39,14 @@ public class ManagerManageMenu implements UserManageMenu {
             try {
                 System.out.print(ManagerPage.MANAGER_SELECT_TITLE);
                 String menuNum = input.readLine();
-                validCheck.checkMenuNum("^[1-4]", menuNum);
+                validCheck.checkMenuNumber("^[1-4]", menuNum);
                 switch (menuNum) {
                     case "1" -> readOneUser();
                     case "2" -> readAllUsers();
                     case "3" -> readUsersByRole();
                     case "4" -> quitRead = quit();
                 }
-            } catch (UserNotHavePermissionException
+            } catch (NotAllowedUserException
                      | UnableToReadUserException e) {
                 System.out.println(e.getMessage());
             }
@@ -59,14 +59,14 @@ public class ManagerManageMenu implements UserManageMenu {
             try {
                 System.out.print(ManagerPage.MANAGER_DETAIL_INFO_TITLE);
                 String menuNum = input.readLine();
-                validCheck.checkMenuNum("^[1-3]", menuNum);
+                validCheck.checkMenuNumber("^[1-3]", menuNum);
                 switch (menuNum) {
                     case "1" -> readCurrentUser();
                     case "2" -> readOtherUser();
                     case "3" -> quitRead = quit();
                 }
             } catch (UnableToReadUserException
-                     | UserNotHavePermissionException e) {
+                     | NotAllowedUserException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -117,7 +117,7 @@ public class ManagerManageMenu implements UserManageMenu {
     public void readUsersByRole() throws IOException {
         System.out.print(ManagerPage.MANAGER_SEARCH_BY_ROLE_TITLE);
         String menuNum = input.readLine();
-        validCheck.checkMenuNum("^[1-2]", menuNum);
+        validCheck.checkMenuNumber("^[1-2]", menuNum);
         switch (menuNum) {
             case "1":
                 readMemberList();
@@ -157,7 +157,7 @@ public class ManagerManageMenu implements UserManageMenu {
             try {
                 System.out.print(ManagerPage.MANAGER_UPDATE_TITLE);
                 String menuNum = input.readLine();
-                validCheck.checkMenuNum("^[1-6]", menuNum);
+                validCheck.checkMenuNumber("^[1-6]", menuNum);
                 switch (menuNum) {
                     case "1" -> updateCurrentUser();
                     case "2" -> approveUser();
@@ -173,12 +173,12 @@ public class ManagerManageMenu implements UserManageMenu {
                     case "6" -> quitUpdate = quit();
                 }
             } catch (InvalidUserDataException
-                     | UserNotUpdatedException
-                     | UserRoleNotUpdatedException
-                     | UserNotHavePermissionException
-                     | UserNotApprovedException
-                     | UserNotRestoredException
-                     | CargoNotAddedException e) {
+                     | FailedToUserUpdateException
+                     | FailedToUserRoleUpdateException
+                     | NotAllowedUserException
+                     | FailedToApproveUserException
+                     | FailedToUserRestoreException
+                     | CargoAddToManagerFailedException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -251,7 +251,7 @@ public class ManagerManageMenu implements UserManageMenu {
 
         System.out.print(ManagerPage.ROLE_UPDATE_OPTION);
         String option = input.readLine();
-        validCheck.checkMenuNum("^[1-2]", option);
+        validCheck.checkMenuNumber("^[1-2]", option);
         boolean ack = false;
         switch (option) {
             case "1" -> ack = dao.restoreRole(targetID, "일반회원");
@@ -294,7 +294,7 @@ public class ManagerManageMenu implements UserManageMenu {
             try {
                 System.out.print(ManagerPage.MANAGER_DELETE_TITLE);
                 String menuNum = input.readLine();
-                validCheck.checkMenuNum("^[1-3]", menuNum);
+                validCheck.checkMenuNumber("^[1-3]", menuNum);
                 switch (menuNum) {
                     case "1" -> {
                         validCheck.checkPermission(currentManager.getPosition(), "창고관리자", true);
@@ -306,9 +306,9 @@ public class ManagerManageMenu implements UserManageMenu {
                     }
                     case "3" -> quitDelete = quit();
                 }
-            } catch (UserNotHavePermissionException
-                     | UserRoleNotDeletedException
-                     | UserNotDeletedException e) {
+            } catch (NotAllowedUserException
+                     | FailedToDeleteUserRoleException
+                     | UserDeleteFailedException e) {
                 System.out.println(e.getMessage());
             }
         }
