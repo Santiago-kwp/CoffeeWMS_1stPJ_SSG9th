@@ -9,6 +9,8 @@ import domain.user.User;
 import exception.support.InputException;
 import exception.support.NotFoundException;
 
+import java.util.List;
+
 import static java.lang.Character.toUpperCase;
 
 public class ValidCheck {
@@ -87,5 +89,13 @@ public class ValidCheck {
     //*****************
     public static void isValidNotFoundBoard(Board board) {
         if (board == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD.getMessage());
+    }
+
+    public static void isValidNotFoundList(List<Board> boardList) {
+        if (boardList == null) throw new NotFoundException(BoardErrorCode.NOT_FOUND_LIST.getMessage());
+    }
+
+    public static void validateCreatable(boolean pass){
+        if (!pass) throw new InputException(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
     }
 }

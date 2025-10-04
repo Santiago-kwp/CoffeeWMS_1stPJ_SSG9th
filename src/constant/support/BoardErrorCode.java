@@ -26,8 +26,9 @@ public enum BoardErrorCode {
 
     NOT_INPUT_ERROR ("[에러가 발생했습니다]"),
 
-    YOU_ARE_NOT ("[해당 권한이 없습니다]")
+    YOU_ARE_NOT ("[해당 권한이 없습니다]"),
 
+    PLEASE_AGAIN ("[다시 시도해주세요]")
 
     ;
     private final String message;

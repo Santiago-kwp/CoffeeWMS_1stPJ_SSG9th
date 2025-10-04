@@ -1,23 +1,18 @@
 package controller.support;
 
-import constant.support.BoardErrorCode;
 import constant.support.BoardText;
 import domain.support.Board;
-import domain.support.Inquiry;
 import handler.support.inputHandler.InputHandlerImpl;
-import model.support.dao.InquiryRepository;
-import model.support.dao.daoImpl.InquiryRepositoryImpl;
 import handler.support.input.InquiryInput;
 import handler.support.input.inputImpl.InquiryInputImpl;
 import service.support.BoardService;
 
-public class InquiryMenu {
-    private static final InquiryRepository inquiryDAO = new InquiryRepositoryImpl();
+public class InquiryController {
     private static final InquiryInput inquiryInput = new InquiryInputImpl();
     private final BoardService boardService;
     private static final InputHandlerImpl inputHandler = new InputHandlerImpl();
 
-    public InquiryMenu(BoardService boardService) {
+    public InquiryController(BoardService boardService) {
         this.boardService = boardService;
     }
 
@@ -29,32 +24,19 @@ public class InquiryMenu {
             System.out.print(BoardText.INQUIRY_MENU.getMessage());
             String choice = inputHandler.threeMenuChoice();
             switch (choice) {
-                case "1":
-                    Board board = inquiryInput.dataInput(memberId);
-
-                    Boolean pass;
-
-                    if (board instanceof Inquiry inquiry) {
-                        pass = inquiryDAO.createInquiry(inquiry);
-                    } else {
-                        System.out.println(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
-                        break;
-                    }
-
-                    if (pass) System.out.println(BoardText.INQUIRY_CREATE_SUCCESS.getMessage());
-                    else System.out.println(BoardText.INQUIRY_CREATE_FAILURE.getMessage());
-                    break;
-                case "2":
+                case "1"-> boardService.createInquiry(inquiryInput.dataInput(memberId));
+                case "2" -> {
                     System.out.print(BoardText.INQUIRY_INSERT_ID.getMessage());
                     int readChoice = inputHandler.choiceBoard();
                     System.out.println(BoardText.LINE.getMessage());
                     System.out.println(BoardText.INQUIRY_CHOICE.getMessage());
                     boardService.showOneInquiryMember(memberId, readChoice);
                     memberInquiryDetailMenu(memberId, readChoice);
-                    break;
-                case "3":
+                }
+                case "3" -> {
                     System.out.println(BoardText.BACK.getMessage());
                     break KI;
+                }
             }
         }
     }
@@ -67,17 +49,18 @@ public class InquiryMenu {
             System.out.print(BoardText.INQUIRY_MENU_SIMPLE.getMessage());
             String choice = inputHandler.twoMenuChoice();
             switch (choice) {
-                case "1":
+                case "1" -> {
                     System.out.print(BoardText.INQUIRY_INSERT_ID.getMessage());
                     int readChoice = inputHandler.choiceBoard();
                     System.out.println(BoardText.LINE.getMessage());
                     System.out.println(BoardText.INQUIRY_CHOICE.getMessage());
                     boardService.showOneInquiryManager(readChoice);
                     managerInquiryDetailMenu(readChoice, managerId);
-                    break;
-                case "2":
+                }
+                case "2" -> {
                     System.out.println(BoardText.BACK.getMessage());
                     break KI;
+                }
             }
         }
     }
@@ -88,31 +71,9 @@ public class InquiryMenu {
         String choice = inputHandler.threeMenuChoice();
         System.out.println(BoardText.LINE.getMessage());
         switch (choice) {
-            case "1":
-                Board board = inquiryInput.dataUpdate(readChoice, memberIdEx);
-                Boolean update;
-
-                if (board instanceof Inquiry inquiry) {
-                    update = inquiryDAO.updateInquiryMember(inquiry);
-                } else {
-                    System.out.println(BoardErrorCode.NOT_CREATE_BOARD.getMessage());
-                    break;
-                }
-
-                if (update) System.out.println(BoardText.INQUIRY_UPDATE_SUCCESS.getMessage());
-                else System.out.println(BoardText.INQUIRY_UPDATE_FAILURE.getMessage());
-                break;
-
-            case "2":
-                boolean delete = inquiryDAO.deleteInquiryMember(readChoice, memberIdEx);
-
-                if (delete) System.out.println(BoardText.INQUIRY_DELETE_SUCCESS.getMessage());
-                else System.out.println(BoardText.INQUIRY_DELETE_FAILURE.getMessage());
-                break;
-
-            case "3":
-                System.out.println(BoardText.BACK.getMessage());
-                break;
+            case "1" -> boardService.updateInquiryMember(inquiryInput.dataUpdate(readChoice, memberIdEx));
+            case "2" -> boardService.deleteInquiryMember(readChoice, memberIdEx);
+            case "3" -> System.out.println(BoardText.BACK.getMessage());
         }
     }
 
@@ -122,25 +83,12 @@ public class InquiryMenu {
         String choice = inputHandler.threeMenuChoice();
         System.out.println(BoardText.LINE.getMessage());
         switch (choice) {
-            case "1":
-                Inquiry inquiry = inquiryInput.dataReplyUpdate(readChoice, managerId);
-
-                boolean update = inquiryDAO.updateInquiryManager(inquiry);
-
-                if (update) System.out.println(BoardText.INQUIRY_REPLY_SUCCESS.getMessage());
-                else System.out.println(BoardText.INQUIRY_REPLY_FAILURE.getMessage());
-                break;
-
-            case "2":
-                boolean delete = inquiryDAO.deleteInquiryManager(readChoice);
-
-                if (delete) System.out.println(BoardText.INQUIRY_DELETE_SUCCESS.getMessage());
-                else System.out.println(BoardText.INQUIRY_DELETE_FAILURE.getMessage());
-                break;
-
-            case "3":
-                System.out.println(BoardText.BACK.getMessage());
-                break;
+            case "1" -> {
+                Board board = inquiryInput.dataReplyUpdate(readChoice, managerId);
+                boardService.updateInquiryManager(board);
+            }
+            case "2" -> boardService.deleteInquiryManager(readChoice);
+            case "3" -> System.out.println(BoardText.BACK.getMessage());
         }
     }
 }

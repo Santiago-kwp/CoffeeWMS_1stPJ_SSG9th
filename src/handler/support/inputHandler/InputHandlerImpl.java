@@ -15,8 +15,6 @@ public class InputHandlerImpl implements InputHandler {
             String choice = input.readLine();
             ValidCheck.isTwoMenuValid(choice);
             return choice;
-        } catch (InputException e) {
-            System.out.println(e.getMessage());
         } catch (IOException e) {
             System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
         }
@@ -28,8 +26,6 @@ public class InputHandlerImpl implements InputHandler {
             String choice = input.readLine();
             ValidCheck.isThreeMenuValid(choice);
             return choice;
-        } catch (InputException e) {
-            System.out.println(e.getMessage());
         } catch (IOException e) {
             System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
         }
@@ -42,8 +38,6 @@ public class InputHandlerImpl implements InputHandler {
             String choice = input.readLine();
             ValidCheck.isFourMenuValid(choice);
             return choice;
-        } catch (InputException e) {
-            System.out.println(e.getMessage());
         } catch (IOException e) {
             System.out.println(BoardErrorCode.NOT_INPUT_IO.getMessage());
         }
