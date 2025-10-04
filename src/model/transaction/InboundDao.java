@@ -317,34 +317,6 @@ public class InboundDao {
     return jsonBuilder.toString();
   }
 
-  /*
-  관리자가 위치를 지정하기 위해 창고위치(location_places 테이블의 데이터를 조회합니다.)
-   */
-  public List<LocationPlace> getAvailableLocationPlaces () {
-    List<LocationPlace> locationPlaces = new ArrayList<>();
-
-    String sql = "SELECT * FROM location_places";
-    try (Connection conn = DBUtil.getConnection();
-        CallableStatement cs = conn.prepareCall(sql);
-        ResultSet rs = cs.executeQuery()) {
-
-      while (rs.next()) {
-        LocationPlace locationPlace = new LocationPlace(
-            rs.getString("location_place_id"),
-            rs.getString("zone_id"),
-            rs.getString("zone_name"),
-            rs.getString("rack_id"),
-            rs.getString("rack_name"),
-            rs.getString("cell_id"),
-            rs.getString("cell_name")
-        );
-        locationPlaces.add(locationPlace);
-      }
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
-    return locationPlaces;
-  }
 
 
   public List<InboundItem> showInboundPeriod(String memberId, java.sql.Date startDate, java.sql.Date endDate) throws SQLException {
