@@ -23,6 +23,12 @@ public class Manager extends User {
     }
 
     @Override
+    public String maskedInfo() {
+        return super.maskedInfo()
+                + String.format(ManagerPage.SEARCHED_MANAGER_INFO.toString(), hireDate, position);
+    }
+
+    @Override
     public String toString() {
         return super.toString()
                 + String.format(ManagerPage.SEARCHED_MANAGER_INFO.toString(), hireDate, position);

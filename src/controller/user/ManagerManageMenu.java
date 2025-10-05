@@ -136,7 +136,8 @@ public class ManagerManageMenu implements UserManageMenu {
         System.out.print(MemberPage.memberInfoTitle());
         searchResult.stream()
                 .map(user -> (Member)user)
-                .forEach(System.out::println);
+                .forEach(member
+                        -> System.out.println(currentManager.getPosition().equals("총관리자") ? member : member.maskedInfo()));
     }
 
     // 수정 필요

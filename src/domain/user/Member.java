@@ -22,6 +22,12 @@ public class Member extends User {
     }
 
     @Override
+    public String maskedInfo() {
+        return super.maskedInfo()
+                + String.format(MemberPage.SEARCHED_MEMBER_INFO.toString(), companyCode, address, start_date, expired_date);
+    }
+
+    @Override
     public String toString() {
         return super.toString()
                 + String.format(MemberPage.SEARCHED_MEMBER_INFO.toString(), companyCode, address, start_date, expired_date);
