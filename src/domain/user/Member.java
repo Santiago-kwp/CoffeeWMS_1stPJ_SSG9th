@@ -1,23 +1,21 @@
 package domain.user;
 
 import constant.user.MemberPage;
+import constant.user.validation.InputValidCheck;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
 public class Member extends User {
 
-    private String companyCode;
-    private String address;
-    private boolean login;
-    private Date startDate;
-    private Date expiredDate;
+    private final String companyCode;
+    private final String address;
+    private final Date startDate;
+    private final Date expiredDate;
+    private final boolean login;
 
     private Member(Builder builder) {
         super(builder);
@@ -41,24 +39,28 @@ public class Member extends User {
                 expiredDate);
     }
 
+    // 빌더 클래스
     @NoArgsConstructor
     public static class Builder extends User.AbstractBuilder<Member, Builder> {
         private String companyCode;
         private String address;
-        private boolean login;
         private Date startDate;
         private Date expiredDate;
+        private boolean login;
 
         public Builder(String memberID) {
+            InputValidCheck.checkUserID(memberID);
             this.id = memberID;
         }
 
         public Builder companyCode(String companyCode) {
+            super.companyCode(companyCode);
             this.companyCode = companyCode;
             return this;
         }
 
         public Builder address(String address) {
+            super.address(address);
             this.address = address;
             return this;
         }
@@ -68,18 +70,16 @@ public class Member extends User {
             return this;
         }
 
-        public Builder startDate(Date startDate) {
+        public Builder contract(Date startDate, Date expiredDate) {
             this.startDate = startDate;
-            return this;
-        }
-
-        public Builder expiredDate(Date expiredDate) {
             this.expiredDate = expiredDate;
             return this;
         }
 
-        public static Builder create(String userID) {
-            return new Builder(userID);
+        public static Builder create(String userID, String userPwd, String companyName) {
+            return new Builder(userID)
+                    .password(userPwd)
+                    .name(companyName);
         }
 
         // 메서드 체이닝으로 빌더 패턴을 구현하기 위한 메서드
@@ -89,30 +89,24 @@ public class Member extends User {
         }
 
         public static Member from(ResultSet rs) throws SQLException {
-            return create(rs.getString(1))
-                    .password(rs.getString(2))
-                    .name(rs.getString(3))
+            return create(rs.getString(1), rs.getString(2), rs.getString(3))
                     .phone(rs.getString(4))
                     .email(rs.getString(5))
                     .companyCode(rs.getString(6))
                     .address(rs.getString(7))
                     .login(rs.getBoolean(8))
-                    .startDate(rs.getDate(9))
-                    .expiredDate(rs.getDate(10))
+                    .contract(rs.getDate(9), rs.getDate(10))
                     .build();
         }
 
         public static Member from(Member beforeUpdate, User newInfo) {
-            return create(beforeUpdate.id)
-                    .password(newInfo.pwd)
-                    .name(newInfo.name)
+            return create(beforeUpdate.id, newInfo.pwd, newInfo.name)
                     .phone(newInfo.phone)
                     .email(newInfo.email)
                     .companyCode(newInfo.companyCode)
                     .address(newInfo.address)
                     .login(beforeUpdate.login)
-                    .startDate(beforeUpdate.startDate)
-                    .expiredDate(beforeUpdate.expiredDate)
+                    .contract(beforeUpdate.startDate, beforeUpdate.expiredDate)
                     .build();
         }
 

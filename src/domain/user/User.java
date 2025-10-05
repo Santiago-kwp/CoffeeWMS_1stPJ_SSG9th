@@ -2,13 +2,12 @@ package domain.user;
 
 import constant.user.UserPage;
 import constant.user.validation.InputValidCheck;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
 public class User {
 
     protected String id;
@@ -30,14 +29,6 @@ public class User {
         this.companyCode = builder.companyCode;
         this.address = builder.address;
         this.type = builder.type;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof User that) {
-            return this.id.equals(that.id);
-        }
-        throw new ClassCastException("비교할 수 없는 클래스 타입입니다.");
     }
 
     public String maskedInfo() {
@@ -68,10 +59,20 @@ public class User {
         return String.format(UserPage.SEARCHED_COMMON_INFO.toString(), id, "*".repeat(8), name, phone, email, type);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof User that) {
+            return this.id.equals(that.id);
+        }
+        throw new ClassCastException("비교할 수 없는 클래스 타입입니다.");
+    }
+
+    // 빌더 클래스
     @NoArgsConstructor
     public static class Builder extends AbstractBuilder<User, Builder> {
 
         private Builder(String userID) {
+            InputValidCheck.checkUserID(userID);
             this.id = userID;
         }
 
@@ -92,6 +93,14 @@ public class User {
             return this;
         }
 
+        public static User from(ResultSet rs) throws SQLException  {
+            return User.Builder.create(rs.getString("user_id"), rs.getString("user_pwd"), rs.getString("user_name"))
+                    .phone(rs.getString("user_phone"))
+                    .email(rs.getString("user_email"))
+                    .registerType(rs.getString("user_type"))
+                    .build();
+        }
+
         @Override
         public User build() {
             return new User(this);
@@ -109,16 +118,10 @@ public class User {
         protected String address;
         protected String type;
 
-        public B id(String id) {
-            this.id = id;
-            InputValidCheck.checkUserID(id);
-            // AbstractBuilder 클래스에 setter를 구현하더라도 하위 빌더 클래스에 관한 메서드 체이닝이 가능
-            return self();
-        }
-
         public B password(String pwd) {
             this.pwd = pwd;
             InputValidCheck.checkPwd(pwd);
+            // AbstractBuilder 클래스에 setter를 구현하더라도 하위 빌더 클래스에 관한 메서드 체이닝이 가능
             return self();
         }
 

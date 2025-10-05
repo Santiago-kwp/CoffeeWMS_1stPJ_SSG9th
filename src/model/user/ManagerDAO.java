@@ -117,16 +117,7 @@ public class ManagerDAO implements UserDAO {
 
             try (ResultSet rs = call.getResultSet()) {
                 while (rs.next()) {
-                    String userID = rs.getString("user_id");
-                    String userPwd = rs.getString("user_pwd");
-                    String userName = rs.getString("user_name");
-
-                    User user = User.Builder.create(userID, userPwd, userName)
-                            .phone(rs.getString("user_phone"))
-                            .email(rs.getString("user_email"))
-                            .registerType(rs.getString("user_type"))
-                            .build();
-                    allUsers.add(user);
+                    allUsers.add(User.Builder.from(rs));
                 }
             }
         } catch (SQLException e) {

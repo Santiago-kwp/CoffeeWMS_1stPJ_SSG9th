@@ -18,14 +18,12 @@ import model.user.ManagerDAO;
 public class ManagerManageMenu implements UserManageMenu {
 
     private final ManagerDAO dao;
-    private final InputValidCheck inputValidCheck;
 
     private Manager currentManager;
 
     public ManagerManageMenu(Manager manager) {
         this.currentManager = manager;
         this.dao = new ManagerDAO(manager);
-        this.inputValidCheck = new InputValidCheck();
     }
 
     @Override
@@ -120,13 +118,11 @@ public class ManagerManageMenu implements UserManageMenu {
         String menuNum = input.readLine();
         validCheck.checkMenuNumber("^[1-2]", menuNum);
         switch (menuNum) {
-            case "1":
-                readMemberList();
-                break;
-            case "2":
+            case "1" -> readMemberList();
+            case "2" -> {
                 validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
                 readManagerList();
-                break;
+            }
         }
     }
 

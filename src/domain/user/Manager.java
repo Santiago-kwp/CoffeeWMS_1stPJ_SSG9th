@@ -1,23 +1,21 @@
 package domain.user;
 
 import constant.user.ManagerPage;
+import constant.user.validation.InputValidCheck;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor
 public class Manager extends User {
 
     public static final int CARGO_LIMIT = 3;
 
-    private boolean login;
-    private Date hireDate;
-    private String position;
+    private final boolean login;
+    private final Date hireDate;
+    private final String position;
 
     private Manager(Builder builder) {
         super(builder);
@@ -45,6 +43,7 @@ public class Manager extends User {
         private Date hireDate;
 
         public Builder(String managerID) {
+            InputValidCheck.checkUserID(managerID);
             this.id = managerID;
         }
 
