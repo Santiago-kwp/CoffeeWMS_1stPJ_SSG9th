@@ -1,6 +1,6 @@
 package model.user;
 
-import config.DBUtil;
+import config.user.DBUtil;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
