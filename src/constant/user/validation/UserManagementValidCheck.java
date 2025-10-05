@@ -45,8 +45,8 @@ public class UserManagementValidCheck extends MenuNumberValidCheck {
         }
     }
 
-    public void checkUserUpdated(boolean isUserUpdated) {
-        if (!isUserUpdated) {
+    public void checkUserUpdated(User user) {
+        if (user == null) {
             throw new FailedToUserUpdateException(UserPage.USER_UPDATE_FAILED.toString());
         }
     }

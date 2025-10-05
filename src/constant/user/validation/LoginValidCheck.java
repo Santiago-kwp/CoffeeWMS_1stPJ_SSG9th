@@ -1,6 +1,5 @@
 package constant.user.validation;
 
-import constant.user.InputMessage;
 import constant.user.LoginPage;
 import domain.user.User;
 import exception.user.LoginException;
@@ -8,15 +7,7 @@ import exception.user.UserNotFoundException;
 import exception.user.FailedToUserRegisterException;
 import exception.user.FailedToUserUpdateException;
 
-public class LoginValidCheck {
-
-    private static final String LOGIN_MENU = "^[1-5]";
-
-    public void checkMenuNumber(String menuOption) {
-        if (!menuOption.matches(LOGIN_MENU)) {
-            throw new IllegalArgumentException(InputMessage.INVALID_MENU_NUMBER.toString());
-        }
-    }
+public class LoginValidCheck extends MenuNumberValidCheck {
 
     public void checkLoginSuccess(User loginUser) {
         if (loginUser == null) {
@@ -30,8 +21,8 @@ public class LoginValidCheck {
         }
     }
 
-    public void checkIDFound(boolean findIDACK) {
-        if (!findIDACK) {
+    public void checkIDFound(String foundID) {
+        if (foundID == null) {
             throw new UserNotFoundException(LoginPage.NOT_FOUND_ID.toString());
         }
     }

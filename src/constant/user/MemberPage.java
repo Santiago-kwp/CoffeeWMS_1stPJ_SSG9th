@@ -46,7 +46,7 @@ public enum MemberPage {
         System.out.printf(MEMBER_DETAIL.toString(),
                 member.getId(), member.getName(),
                 member.getPhone(), member.getEmail(), member.getCompanyCode(),
-                member.getAddress(), member.getStart_date(), member.getExpired_date());
+                member.getAddress(), member.getStartDate(), member.getExpiredDate());
     }
     public static String memberInfoTitle() {
         return String.format(SEARCH_MEMBER_TITLE_FORMAT.toString(),

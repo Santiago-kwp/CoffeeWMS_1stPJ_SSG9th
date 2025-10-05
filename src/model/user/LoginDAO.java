@@ -63,22 +63,14 @@ public class LoginDAO {
             do {
                 ResultSet rs = call.getResultSet();
                 if (hasResultSet && rs.next()) {
-                    manager = new Manager(
-                            rs.getString(1),
-                            rs.getString(2),
-                            rs.getString(3),
-                            rs.getString(4),
-                            rs.getString(5),
-                            rs.getString(8)
-                    );
-                    manager.setLogin(rs.getBoolean(6));
-                    manager.setHireDate(rs.getDate(7));
+                    manager = Manager.Builder.from(rs);
                 }
             } while (call.getMoreResults());
+
+            return manager;
         } catch (SQLException e) {
             throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString(), e);
         }
-        return manager;
     }
 
     public Member loginMember(String userID, String userPwd, String userType) {
@@ -93,24 +85,13 @@ public class LoginDAO {
             call.execute();
             try (ResultSet rs = call.getResultSet()) {
                 if (rs.next()) {
-                    member = new Member(
-                            rs.getString(1),
-                            rs.getString(2),
-                            rs.getString(3),
-                            rs.getString(4),
-                            rs.getString(5)
-                    );
-                    member.setCompanyCode(rs.getString(6));
-                    member.setAddress(rs.getString(7));
-                    member.setLogin(rs.getBoolean(8));
-                    member.setStart_date(rs.getDate(9));
-                    member.setExpired_date(rs.getDate(10));
+                    member = Member.Builder.from(rs);
                 }
             }
+            return member;
         } catch (SQLException e) {
             throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString(), e);
         }
-        return member;
     }
 
     public boolean register(User user) {
@@ -137,7 +118,6 @@ public class LoginDAO {
 
     public String findID(String userEmail) {
         String sql = "{call find_userID(?, ?)}";
-        String foundID = null;
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, userEmail);
@@ -145,27 +125,11 @@ public class LoginDAO {
 
             call.execute();
 
-            foundID = call.getString(2);
+            return call.getString(2);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            return null;
         }
-        return foundID;
-    }
-
-    public boolean isExistID(String userID) {
-        String sql = "{call has_userID(?, ?)}";
-        try (Connection conn = DBUtil.getConnection();
-             CallableStatement call = conn.prepareCall(sql)) {
-            call.setString(1, userID);
-            call.registerOutParameter(2, Types.BOOLEAN);
-
-            call.execute();
-
-            return call.getBoolean(2);
-        } catch (SQLException e) {
-            System.out.println(e.getMessage());
-        }
-        return false;
     }
 
     public boolean updatePassword(String userID, String newPwd) {

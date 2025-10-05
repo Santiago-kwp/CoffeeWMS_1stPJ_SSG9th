@@ -2,6 +2,7 @@ package controller.user;
 
 import constant.user.UserPage;
 import constant.user.validation.UserManagementValidCheck;
+import exception.user.InvalidUserDataException;
 import exception.user.UnableToReadUserException;
 import exception.user.UserDeleteFailedException;
 import exception.user.FailedToUserUpdateException;
@@ -30,6 +31,7 @@ public interface UserManageMenu {
                     case "4" -> quitMenu = exitMenu();
                 }
             } catch (IOException
+                     | InvalidUserDataException
                      | UnableToReadUserException
                      | FailedToUserUpdateException
                      | UserDeleteFailedException e) {

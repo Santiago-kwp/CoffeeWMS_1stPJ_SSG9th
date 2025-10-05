@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ManagerDAO implements UserDAO {
 
-    private final Manager manager;
+    private Manager manager;
 
     public ManagerDAO(Manager manager) {
         this.manager = manager;
@@ -26,7 +26,7 @@ public class ManagerDAO implements UserDAO {
     }
 
     @Override
-    public boolean updateUserInfo(User newInfo) {
+    public Manager updateUserInfo(User newInfo) {
         String sql = "{call manager_update(?, ?, ?, ?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
@@ -39,16 +39,12 @@ public class ManagerDAO implements UserDAO {
             call.execute();
 
             // 현재 사용자 정보 갱신 -> 다음에 자신의 정보 조회할 때 반영해야 함
-            manager.setPwd(newInfo.getPwd());
-            manager.setName(newInfo.getName());
-            manager.setPhone(newInfo.getPhone());
-            manager.setEmail(newInfo.getEmail());
-
-            return true;
+            manager = Manager.Builder.from(manager, newInfo);
+            return manager;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            return null;
         }
-        return false;
     }
 
     @Override
@@ -100,43 +96,15 @@ public class ManagerDAO implements UserDAO {
 
             try (ResultSet rs = call.executeQuery()) {
                 if (rs.next()) {
-                    return (targetType.endsWith("관리자")) ? getManager(rs) : getMember(rs);
+                    return (targetType.endsWith("관리자"))
+                            ? Manager.Builder.from(rs)
+                            : Member.Builder.from(rs);
                 }
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         return null;
-    }
-    private Member getMember(ResultSet rs) throws SQLException {
-        Member member = new Member(
-                rs.getString(1),
-                rs.getString(2),
-                rs.getString(3),
-                rs.getString(4),
-                rs.getString(5)
-        );
-        member.setCompanyCode(rs.getString(6));
-        member.setAddress(rs.getString(7));
-        member.setLogin(rs.getBoolean(8));
-        member.setStart_date(rs.getDate(9));
-        member.setExpired_date(rs.getDate(10));
-
-        return member;
-    }
-    private Manager getManager(ResultSet rs) throws SQLException {
-        Manager manager = new Manager(
-                rs.getString(1),
-                rs.getString(2),
-                rs.getString(3),
-                rs.getString(4),
-                rs.getString(5),
-                rs.getString(8)
-        );
-        manager.setLogin(rs.getBoolean(6));
-        manager.setHireDate(rs.getDate(7));
-
-        return manager;
     }
 
     public List<User> searchAllUser() {
@@ -152,11 +120,13 @@ public class ManagerDAO implements UserDAO {
                     String userID = rs.getString("user_id");
                     String userPwd = rs.getString("user_pwd");
                     String userName = rs.getString("user_name");
-                    String userPhone = rs.getString("user_phone");
-                    String userEmail = rs.getString("user_email");
-                    String userType = rs.getString("user_type");
 
-                    allUsers.add(new User(userID, userPwd, userName, userPhone, userEmail, userType));
+                    User user = User.Builder.create(userID, userPwd, userName)
+                            .phone(rs.getString("user_phone"))
+                            .email(rs.getString("user_email"))
+                            .registerType(rs.getString("user_type"))
+                            .build();
+                    allUsers.add(user);
                 }
             }
         } catch (SQLException e) {
@@ -177,8 +147,8 @@ public class ManagerDAO implements UserDAO {
             try (ResultSet rs = call.executeQuery()) {
                 while (rs.next()) {
                     switch (groupName) {
-                        case "members" -> searchResult.add(getMember(rs));
-                        case "managers" -> searchResult.add(getManager(rs));
+                        case "members" -> searchResult.add(Member.Builder.from(rs));
+                        case "managers" -> searchResult.add(Manager.Builder.from(rs));
                     }
                 }
             }

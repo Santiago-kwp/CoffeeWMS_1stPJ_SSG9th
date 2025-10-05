@@ -4,19 +4,19 @@ import constant.user.LoginPage;
 import constant.user.MemberPage;
 import constant.user.UserPage;
 import constant.user.validation.InputValidCheck;
+import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
+import exception.user.InvalidUserDataException;
 import java.io.IOException;
 import model.user.MemberDAO;
 
 public class MemberManageMenu implements UserManageMenu {
 
     private final MemberDAO dao;
-    private final InputValidCheck inputValidCheck;
 
     public MemberManageMenu(Member member) {
         this.dao = new MemberDAO(member);
-        this.inputValidCheck = new InputValidCheck();
     }
 
     public void printMenu() {
@@ -32,7 +32,7 @@ public class MemberManageMenu implements UserManageMenu {
     }
 
     @Override
-    public void update() throws IOException {
+    public void update() throws IOException, InvalidUserDataException {
         System.out.print(UserPage.USER_UPDATE_TITLE);
         String yesOrNo = input.readLine();
         if (!yesOrNo.equalsIgnoreCase("Y")) {
@@ -40,12 +40,12 @@ public class MemberManageMenu implements UserManageMenu {
             return;
         }
         User newUserInfo = inputNewMemberInfo();
-        boolean ack = dao.updateUserInfo(newUserInfo);
-        validCheck.checkUserUpdated(ack);
+        Member updatedMember = dao.updateUserInfo(newUserInfo);
+        validCheck.checkUserUpdated(updatedMember);
         System.out.println(UserPage.USER_UPDATE);
     }
 
-    private User inputNewMemberInfo() throws IOException {
+    private User inputNewMemberInfo() throws IOException, InvalidUserDataException {
         System.out.println(MemberPage.MEMBER_UPDATE_TITLE);
 
         System.out.println(LoginPage.INPUT_PWD);
@@ -61,16 +61,12 @@ public class MemberManageMenu implements UserManageMenu {
         System.out.println(LoginPage.INPUT_ADDRESS);
         String address = input.readLine();
 
-        User user = new User();
-        user.setPwd(userPwd);
-        user.setName(companyName);
-        user.setPhone(phone);
-        user.setEmail(email);
-        user.setCompanyCode(companyCode);
-        user.setAddress(address);
-
-        inputValidCheck.checkMemberData(user, true);
-        return user;
+        return User.Builder.update(userPwd, companyName)
+                .phone(phone)
+                .email(email)
+                .companyCode(companyCode)
+                .address(address)
+                .build();
     }
 
     @Override

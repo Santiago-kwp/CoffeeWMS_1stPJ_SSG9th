@@ -23,12 +23,10 @@ public class LoginMenu {
     private static boolean quitLogin;
 
     private final LoginDAO dao;
-    private final InputValidCheck inputValidCheck;
     private final LoginValidCheck loginValidCheck;
 
     private LoginMenu() {
         this.dao = new LoginDAO();
-        this.inputValidCheck = new InputValidCheck();
         this.loginValidCheck = new LoginValidCheck();
     }
 
@@ -42,7 +40,7 @@ public class LoginMenu {
             try {
                 System.out.print(LoginPage.LOGIN_MENU_TITLE);
                 String menuNum = input.readLine();
-                loginValidCheck.checkMenuNumber(menuNum);
+                loginValidCheck.checkMenuNumber("^[1-5]", menuNum);
                 switch (menuNum) {
                     case "1" -> login();
                     case "2" -> register();
@@ -115,12 +113,13 @@ public class LoginMenu {
         System.out.println(LoginPage.INPUT_ADDRESS);
         String address = input.readLine();
 
-        User newUser = new User(userID, userPwd, companyName, phone, email, "일반회원");
-        newUser.setCompanyCode(companyCode);
-        newUser.setAddress(address);
-
-        inputValidCheck.checkMemberData(newUser, false);
-        return newUser;
+        return User.Builder.create(userID, userPwd, companyName)
+                .phone(phone)
+                .email(email)
+                .registerType("일반회원")
+                .companyCode(companyCode)
+                .address(address)
+                .build();
     }
 
     public User inputManagerInfo() throws IOException, InvalidUserDataException {
@@ -139,14 +138,17 @@ public class LoginMenu {
 
         String option = input.readLine();
         String position = null;
+        loginValidCheck.checkMenuNumber("^[1-2]", option);
         switch (option) {
             case "1" -> position = "창고관리자";
             case "2" -> position = "총관리자";
         }
 
-        User newUser = new User(userID, userPwd, name, phone, email, position);
-        inputValidCheck.checkManagerData(newUser, false);
-        return newUser;
+        return User.Builder.create(userID, userPwd, name)
+                .phone(phone)
+                .email(email)
+                .registerType(position)
+                .build();
     }
 
     public void searchID() throws IOException {
@@ -155,7 +157,7 @@ public class LoginMenu {
         String userEmail = input.readLine();
 
         String foundID = dao.findID(userEmail);
-        loginValidCheck.checkIDFound(dao.isExistID(foundID));
+        loginValidCheck.checkIDFound(foundID);
         System.out.printf(LoginPage.FOUND_ID.toString(), foundID);
     }
 
@@ -164,7 +166,9 @@ public class LoginMenu {
         System.out.println(LoginPage.INPUT_ID);
         String userID = input.readLine();
         System.out.println(LoginPage.NEW_PASSWORD);
+
         String newPassword = input.readLine();
+        InputValidCheck.checkPwd(newPassword);
 
         boolean ack = dao.updatePassword(userID, newPassword);
         loginValidCheck.checkPwdUpdated(ack);

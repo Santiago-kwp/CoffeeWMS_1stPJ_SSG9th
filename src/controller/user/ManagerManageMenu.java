@@ -18,8 +18,9 @@ import model.user.ManagerDAO;
 public class ManagerManageMenu implements UserManageMenu {
 
     private final ManagerDAO dao;
-    private final Manager currentManager;
     private final InputValidCheck inputValidCheck;
+
+    private Manager currentManager;
 
     public ManagerManageMenu(Manager manager) {
         this.currentManager = manager;
@@ -192,14 +193,11 @@ public class ManagerManageMenu implements UserManageMenu {
             System.out.println(UserPage.TO_PREVIOUS_MENU);
             return;
         }
-        User newUserInfo = inputNewManagerInfo();
-        boolean ack = dao.updateUserInfo(newUserInfo);
-        validCheck.checkUserUpdated(ack);
 
-        currentManager.setPwd(newUserInfo.getPwd());
-        currentManager.setName(newUserInfo.getName());
-        currentManager.setPhone(newUserInfo.getPhone());
-        currentManager.setEmail(newUserInfo.getEmail());
+        User newUserInfo = inputNewManagerInfo();
+        Manager updatedManager = dao.updateUserInfo(newUserInfo);
+        validCheck.checkUserUpdated(updatedManager);
+        currentManager = updatedManager;
         System.out.println(UserPage.USER_UPDATE);
     }
 
@@ -214,14 +212,10 @@ public class ManagerManageMenu implements UserManageMenu {
         System.out.println(LoginPage.INPUT_EMAIL);
         String email = input.readLine();
 
-        User newInfo = new User();
-        newInfo.setPwd(userPwd);
-        newInfo.setName(name);
-        newInfo.setPhone(phone);
-        newInfo.setEmail(email);
-
-        inputValidCheck.checkManagerData(newInfo, true);
-        return newInfo;
+        return User.Builder.update(userPwd, name)
+                .phone(phone)
+                .email(email)
+                .build();
     }
 
     private void approveUser() throws IOException {

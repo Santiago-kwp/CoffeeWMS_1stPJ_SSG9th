@@ -1,6 +1,7 @@
 package domain.user;
 
 import constant.user.UserPage;
+import constant.user.validation.InputValidCheck;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,16 +20,16 @@ public class User {
     protected String address;
     protected String type;
 
-    public User(String id, String pwd, String name, String phone, String email) {
-        this(id, pwd, name, phone, email, null);
-    }
-    public User(String id, String pwd, String name, String phone, String email, String type) {
-        this.id = id;
-        this.pwd = pwd;
-        this.name = name;
-        this.phone = phone;
-        this.email = email;
-        this.type = type;
+    // 제네릭 와일드카드 사용: User 클래스를 제네릭으로 바꿀 필요 없이 제네릭 타입을 활용
+    protected User(AbstractBuilder<?, ?> builder) {
+        this.id = builder.id;
+        this.pwd = builder.pwd;
+        this.name = builder.name;
+        this.phone = builder.phone;
+        this.email = builder.email;
+        this.companyCode = builder.companyCode;
+        this.address = builder.address;
+        this.type = builder.type;
     }
 
     @Override
@@ -65,5 +66,97 @@ public class User {
     @Override
     public String toString() {
         return String.format(UserPage.SEARCHED_COMMON_INFO.toString(), id, "*".repeat(8), name, phone, email, type);
+    }
+
+    @NoArgsConstructor
+    public static class Builder extends AbstractBuilder<User, Builder> {
+
+        private Builder(String userID) {
+            this.id = userID;
+        }
+
+        public static Builder create(String userID, String userPwd, String name) {
+            return new Builder(userID)
+                    .password(userPwd)
+                    .name(name);
+        }
+
+        public static Builder update(String userPwd, String name) {
+            return new Builder()
+                    .password(userPwd)
+                    .name(name);
+        }
+
+        @Override
+        public Builder self() {
+            return this;
+        }
+
+        @Override
+        public User build() {
+            return new User(this);
+        }
+    }
+
+    public static abstract class AbstractBuilder<T extends User, B extends AbstractBuilder<T, B>> {
+
+        protected String id;
+        protected String pwd;
+        protected String name;
+        protected String phone;
+        protected String email;
+        protected String companyCode;
+        protected String address;
+        protected String type;
+
+        public B id(String id) {
+            this.id = id;
+            InputValidCheck.checkUserID(id);
+            // AbstractBuilder 클래스에 setter를 구현하더라도 하위 빌더 클래스에 관한 메서드 체이닝이 가능
+            return self();
+        }
+
+        public B password(String pwd) {
+            this.pwd = pwd;
+            InputValidCheck.checkPwd(pwd);
+            return self();
+        }
+
+        public B name(String name) {
+            this.name = name;
+            return self();
+        }
+
+        public B phone(String phone) {
+            this.phone = phone;
+            InputValidCheck.checkPhoneFormat(phone);
+            return self();
+        }
+
+        public B email(String email) {
+            this.email = email;
+            InputValidCheck.checkEmailFormat(email);
+            return self();
+        }
+
+        public B companyCode(String companyCode) {
+            this.companyCode = companyCode;
+            InputValidCheck.checkCompanyCode(companyCode);
+            return self();
+        }
+
+        public B address(String address) {
+            this.address = address;
+            return self();
+        }
+
+        public B registerType(String type) {
+            this.type = type;
+            return self();
+        }
+
+        public abstract T build();
+        // AbstractBuilder 클래스를 구현한 하위 클래스 타입을 반환
+        public abstract B self();
     }
 }

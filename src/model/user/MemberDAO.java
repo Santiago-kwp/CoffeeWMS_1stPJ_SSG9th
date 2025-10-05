@@ -5,7 +5,6 @@ import constant.user.UserPage;
 import domain.user.Member;
 import domain.user.User;
 import exception.user.UserDeleteFailedException;
-import exception.user.FailedToUserUpdateException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -13,7 +12,7 @@ import java.sql.Types;
 
 public class MemberDAO implements UserDAO {
 
-    private final Member member;
+    private Member member;
 
     public MemberDAO(Member loginUser) {
         this.member = loginUser;
@@ -25,7 +24,7 @@ public class MemberDAO implements UserDAO {
     }
 
     @Override
-    public boolean updateUserInfo(User newInfo) {
+    public Member updateUserInfo(User newInfo) {
         String sql = "{call member_update(?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
@@ -40,16 +39,11 @@ public class MemberDAO implements UserDAO {
             call.execute();
 
             // 현재 사용자 정보 갱신 -> 다음에 자신의 정보 조회할 때 반영해야 함
-            member.setPwd(newInfo.getPwd());
-            member.setName(newInfo.getName());
-            member.setPhone(newInfo.getPhone());
-            member.setEmail(newInfo.getEmail());
-            member.setCompanyCode(newInfo.getCompanyCode());
-            member.setAddress(newInfo.getAddress());
-
-            return true;
+            member = Member.Builder.from(member, newInfo);
+            return member;
         } catch (SQLException e) {
-            throw new FailedToUserUpdateException(UserPage.USER_UPDATE_FAILED.toString(), e);
+            System.out.println(e.getMessage());
+            return null;
         }
     }
 
