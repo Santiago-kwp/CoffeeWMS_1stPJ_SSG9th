@@ -1,10 +1,7 @@
 package controller.user;
 
-import constant.user.LoginPage;
 import constant.user.MemberPage;
 import constant.user.UserPage;
-import constant.user.validation.InputValidCheck;
-import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
 import exception.user.InvalidUserDataException;
@@ -19,6 +16,7 @@ public class MemberManageMenu implements UserManageMenu {
         this.dao = new MemberDAO(member);
     }
 
+    @Override
     public void printMenu() {
         System.out.print(MemberPage.MEMBER_MANAGEMENT_MENU_TITLE);
     }
@@ -33,47 +31,21 @@ public class MemberManageMenu implements UserManageMenu {
 
     @Override
     public void update() throws IOException, InvalidUserDataException {
-        System.out.print(UserPage.USER_UPDATE_TITLE);
-        String yesOrNo = input.readLine();
+        String yesOrNo = inputView.promptAndRead(UserPage.USER_UPDATE_TITLE.toString());
         if (!yesOrNo.equalsIgnoreCase("Y")) {
             System.out.println(UserPage.TO_PREVIOUS_MENU);
             return;
         }
-        User newUserInfo = inputNewMemberInfo();
+        User newUserInfo = inputView.inputNewMemberInfo();
         Member updatedMember = dao.updateUserInfo(newUserInfo);
         validCheck.checkUserUpdated(updatedMember);
         System.out.println(UserPage.USER_UPDATE);
     }
 
-    private User inputNewMemberInfo() throws IOException, InvalidUserDataException {
-        System.out.println(MemberPage.MEMBER_UPDATE_TITLE);
-
-        System.out.println(LoginPage.INPUT_PWD);
-        String userPwd = input.readLine();
-        System.out.println(LoginPage.INPUT_COMPANY_NAME);
-        String companyName = input.readLine();
-        System.out.println(LoginPage.INPUT_PHONE);
-        String phone = input.readLine();
-        System.out.println(LoginPage.INPUT_EMAIL);
-        String email = input.readLine();
-        System.out.println(LoginPage.INPUT_COMPANY_CODE);
-        String companyCode = input.readLine();
-        System.out.println(LoginPage.INPUT_ADDRESS);
-        String address = input.readLine();
-
-        return User.Builder.update(userPwd, companyName)
-                .phone(phone)
-                .email(email)
-                .companyCode(companyCode)
-                .address(address)
-                .build();
-    }
-
     @Override
     public boolean delete() {
         try {
-            System.out.print(UserPage.USER_DELETE_TITLE);
-            String yesOrNo = input.readLine();
+            String yesOrNo = inputView.promptAndRead(UserPage.USER_DELETE_TITLE.toString());
             if (!yesOrNo.equalsIgnoreCase("Y")) {
                 System.out.println(UserPage.USER_NOT_DELETE);
                 return false;

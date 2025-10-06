@@ -9,11 +9,13 @@ import exception.user.FailedToUserUpdateException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import view.user.InputView;
 
 public interface UserManageMenu {
 
     BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
     UserManagementValidCheck validCheck = new UserManagementValidCheck();
+    InputView inputView = new InputView(input);
 
     default boolean run() {
         boolean quitMenu = false;

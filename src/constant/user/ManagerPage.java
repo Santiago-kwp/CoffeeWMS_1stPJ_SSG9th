@@ -90,7 +90,8 @@ public enum ManagerPage {
     RESTORE_COMPLETE("회원탈퇴 철회가 완료되었습니다."),
     RESTORE_FAILED("이미 사용 중이거나 이전에 가입한 적이 없는 아이디입니다. 회원 복구를 진행할 수 없습니다."),
 
-    INPUT_MANAGER_FOR_ADD_CARGO("창고를 배정할 창고관리자의 아이디를 입력해주세요."),
+    INPUT_MANAGER_FOR_ADD_CARGO("창고를 배정할 창고관리자의 아이디를 입력해주세요.\n"),
+    INPUT_CARGO_ID("관리자에게 배정할 창고의 아이디를 입력해주세요.\n"),
     CARGO_ADD_SUCCESS("관리자에게 %s번 창고가 배정되었습니다.\n"),
     CARGO_ADD_FAILED("관리자에게 창고를 배정하지 못했습니다."),
 
