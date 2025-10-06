@@ -33,12 +33,8 @@ public class LoginDAO {
         return userType;
     }
 
-    public User login(String userID, String userPwd) {
+    public User login(String userID, String userPwd, String userType) {
         try {
-            String userType = searchUserTypeBy(userID, userPwd);
-            if (userType == null) {
-                throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString());
-            }
             if (userType.endsWith("관리자")) {
                 return loginManager(userID, userPwd, userType);
             }

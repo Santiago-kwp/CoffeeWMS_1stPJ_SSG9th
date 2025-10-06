@@ -4,6 +4,7 @@ import constant.user.InputMessage;
 import constant.user.LoginPage;
 import constant.user.validation.InputValidCheck;
 import constant.user.validation.LoginValidCheck;
+import constant.user.validation.MenuNumberValidCheck;
 import domain.user.User;
 import exception.user.InvalidUserDataException;
 import exception.user.LoginException;
@@ -14,6 +15,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import model.user.LoginDAO;
+import service.user.LoginService;
+import service.user.LoginServiceImpl;
 import view.user.ConsoleView;
 
 public class LoginMenu {
@@ -24,12 +27,12 @@ public class LoginMenu {
     private static boolean quitLogin;
 
     private final ConsoleView consoleView = new ConsoleView(new BufferedReader(new InputStreamReader(System.in)));
-    private final LoginDAO dao;
-    private final LoginValidCheck loginValidCheck;
+    private final LoginService loginService;
+    private final MenuNumberValidCheck menuNumberCheck;
 
     private LoginMenu() {
-        this.dao = new LoginDAO();
-        this.loginValidCheck = new LoginValidCheck();
+        this.loginService = new LoginServiceImpl(new LoginDAO());
+        this.menuNumberCheck = new MenuNumberValidCheck();
     }
 
     // 컨트롤러에 싱글톤 패턴 적용
@@ -41,7 +44,7 @@ public class LoginMenu {
         while (!quitLogin) {
             try {
                 String menuNum = consoleView.promptAndRead(LoginPage.LOGIN_MENU_TITLE.toString());
-                loginValidCheck.checkMenuNumber("^[1-5]", menuNum);
+                menuNumberCheck.checkMenuNumber("^[1-5]", menuNum);
                 switch (menuNum) {
                     case "1" -> login();
                     case "2" -> register();
@@ -62,8 +65,8 @@ public class LoginMenu {
         String userID = consoleView.promptAndRead(InputMessage.INPUT_ID.toString());
         String userPwd = consoleView.promptAndRead(InputMessage.INPUT_PWD.toString());
 
-        User loginUser = dao.login(userID, userPwd);
-        loginValidCheck.checkLoginSuccess(loginUser);
+        User loginUser = loginService.login(userID, userPwd);
+
         WMSMenu wmsMenu = new WMSMenu(loginUser);
         wmsMenu.run();
     }
@@ -74,22 +77,24 @@ public class LoginMenu {
             return;
         }
         String typeOption = consoleView.promptAndRead(LoginPage.INPUT_REGISTER_TYPE.toString());
-        loginValidCheck.checkMenuNumber("^[1-2]", typeOption);
-        boolean ack = false;
+        menuNumberCheck.checkMenuNumber("^[1-2]", typeOption);
+        User userToRegister = null;
         switch (typeOption) {
-            case "1" -> ack = dao.register(consoleView.inputMemberInfo(false));
-            case "2" -> ack = dao.register(consoleView.inputManagerInfo(false));
+            case "1" -> userToRegister = consoleView.inputMemberInfo(false);
+            case "2" -> userToRegister = consoleView.inputManagerInfo(false);
         }
-        loginValidCheck.checkUserRegistered(ack);
+
+        loginService.register(userToRegister);
+
         System.out.println(LoginPage.REGISTER_SUCCESS);
     }
 
     public void searchID() throws IOException {
         LoginPage.print(LoginPage.FIND_ID);
         String userEmail = consoleView.promptAndRead(InputMessage.INPUT_EMAIL.toString());
-        String foundID = dao.findID(userEmail);
 
-        loginValidCheck.checkIDFound(foundID);
+        String foundID = loginService.findIdByEmail(userEmail);
+
         System.out.printf(LoginPage.FOUND_ID.toString(), foundID);
     }
 
@@ -99,8 +104,8 @@ public class LoginMenu {
         String newPassword = consoleView.promptAndRead(InputMessage.INPUT_NEW_PASSWORD.toString());
         InputValidCheck.checkPwd(newPassword);
 
-        boolean ack = dao.updatePassword(userID, newPassword);
-        loginValidCheck.checkPwdUpdated(ack);
+        loginService.updatePassword(userID, newPassword);
+
         System.out.println(LoginPage.UPDATE_PASSWORD);
     }
 

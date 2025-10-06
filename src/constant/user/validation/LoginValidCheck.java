@@ -7,7 +7,13 @@ import exception.user.UserNotFoundException;
 import exception.user.FailedToUserRegisterException;
 import exception.user.FailedToUserUpdateException;
 
-public class LoginValidCheck extends MenuNumberValidCheck {
+public class LoginValidCheck {
+
+    public void checkUserType(String userType) {
+        if (userType == null || userType.trim().isEmpty()) {
+            throw new LoginException(LoginPage.USER_NOT_EXIST.toString());
+        }
+    }
 
     public void checkLoginSuccess(User loginUser) {
         if (loginUser == null) {
@@ -22,7 +28,7 @@ public class LoginValidCheck extends MenuNumberValidCheck {
     }
 
     public void checkIDFound(String foundID) {
-        if (foundID == null) {
+        if (foundID == null || foundID.trim().isEmpty()) {
             throw new UserNotFoundException(LoginPage.NOT_FOUND_ID.toString());
         }
     }
