@@ -45,7 +45,14 @@ public enum LoginPage {
     UPDATE_PASSWORD("비밀번호 재설정이 완료되었습니다.\n"),
     NOT_UPDATE_PASSWORD("비밀번호 변경에 실패했습니다."),
     TO_PREVIOUS_MENU("이전 메뉴로 돌아갑니다."),
-    EXIT_LOGIN_MENU("로그인 메뉴를 종료합니다.");
+    EXIT_LOGIN_MENU("로그인 메뉴를 종료합니다."),
+
+    DB_ACCESS_ERROR_USER_TYPE("사용자 타입 조회 중 DB 오류 발생"),
+    DB_ACCESS_ERROR_LOGIN("로그인 진행 중 DB 오류 발생"),
+    DB_ACCESS_ERROR_REGISTER("회원가입 진행 중 DB 오류 발생"),
+    DB_ACCESS_ERROR_FIND_ID("사용자 ID 검색 중 DB 오류 발생"),
+    DB_ACCESS_ERROR_UPDATE_PASSWORD("비밀번호 재설정 중 DB 오류 발생"),
+    DB_ACCESS_ERROR_LOGOUT("로그아웃 진행 중 DB 오류 발생");
 
     private final String page;
 

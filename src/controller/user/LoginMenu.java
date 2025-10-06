@@ -5,6 +5,7 @@ import constant.user.LoginPage;
 import constant.user.validation.InputValidCheck;
 import constant.user.validation.MenuNumberValidCheck;
 import domain.user.User;
+import exception.user.FailedToAccessLoginDataException;
 import exception.user.InvalidUserDataException;
 import exception.user.LoginException;
 import exception.user.UserNotFoundException;
@@ -51,8 +52,8 @@ public class LoginMenu {
                     case "4" -> updatePassword();
                     case "5" -> exitLoginMenu();
                 }
-            } catch (IllegalArgumentException
-                     | IOException | LoginException
+            } catch (IllegalArgumentException | IOException
+                     | FailedToAccessLoginDataException | LoginException
                      | InvalidUserDataException | FailedToUserRegisterException
                      | UserNotFoundException | FailedToUserUpdateException e) {
                 System.out.println(e.getMessage());
@@ -60,7 +61,7 @@ public class LoginMenu {
         }
     }
 
-    public void login() throws IOException, LoginException {
+    public void login() throws IOException {
         String userID = consoleView.promptAndRead(InputMessage.INPUT_ID.toString());
         String userPwd = consoleView.promptAndRead(InputMessage.INPUT_PWD.toString());
 
@@ -70,7 +71,7 @@ public class LoginMenu {
         wmsMenu.run();
     }
 
-    public void register() throws IOException, InvalidUserDataException, FailedToUserRegisterException {
+    public void register() throws IOException {
         LoginPage.print(LoginPage.SIGN_UP);
         if (consoleView.checkCancel(LoginPage.REGISTER_OR_NOT.toString(), LoginPage.TO_PREVIOUS_MENU.toString())) {
             return;

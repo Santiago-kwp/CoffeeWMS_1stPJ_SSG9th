@@ -20,7 +20,9 @@ public class LoginServiceImpl implements LoginService, LogoutService {
         String userType = dao.searchUserTypeBy(userID, userPwd);
         loginValidCheck.checkUserType(userType);
 
-        User loginUser = dao.login(userID, userPwd, userType);
+        User loginUser = userType.endsWith("관리자")
+                ? dao.loginManagerBy(userID, userPwd, userType)
+                : dao.loginMemberBy(userID, userPwd, userType);
         loginValidCheck.checkLoginSuccess(loginUser);
 
         return loginUser;
@@ -46,7 +48,7 @@ public class LoginServiceImpl implements LoginService, LogoutService {
     }
 
     @Override
-    public void logout(String userID) {
-        dao.logout(userID);
+    public String logout(String userID) {
+        return dao.logout(userID);
     }
 }

@@ -2,12 +2,10 @@ package model.user;
 
 import config.user.DBUtil;
 import constant.user.LoginPage;
-import constant.user.UserPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-import exception.user.UserNotFoundException;
-import exception.user.FailedToUserRegisterException;
+import exception.user.FailedToAccessLoginDataException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -28,24 +26,12 @@ public class LoginDAO {
 
             userType = call.getString(3);
         } catch (SQLException e) {
-            throw new UserNotFoundException(UserPage.CANNOT_SEARCH_USER_TYPE.toString(), e);
+            throw new FailedToAccessLoginDataException(LoginPage.DB_ACCESS_ERROR_USER_TYPE.toString(), e);
         }
         return userType;
     }
 
-    public User login(String userID, String userPwd, String userType) {
-        try {
-            if (userType.endsWith("관리자")) {
-                return loginManager(userID, userPwd, userType);
-            }
-            return loginMember(userID, userPwd, userType);
-        } catch (UserNotFoundException e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
-    }
-
-    public Manager loginManager(String userID, String userPwd, String userType) {
+    public Manager loginManagerBy(String userID, String userPwd, String userType) {
         String sql = "{call login_manager(?, ?, ?)}";
         Manager manager = null;
 
@@ -65,11 +51,11 @@ public class LoginDAO {
 
             return manager;
         } catch (SQLException e) {
-            throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString(), e);
+            throw new FailedToAccessLoginDataException(LoginPage.DB_ACCESS_ERROR_LOGIN.toString(), e);
         }
     }
 
-    public Member loginMember(String userID, String userPwd, String userType) {
+    public Member loginMemberBy(String userID, String userPwd, String userType) {
         String sql = "{call login_member(?, ?, ?)}";
         Member member = null;
         try (Connection conn = DBUtil.getConnection();
@@ -86,7 +72,7 @@ public class LoginDAO {
             }
             return member;
         } catch (SQLException e) {
-            throw new UserNotFoundException(LoginPage.USER_NOT_EXIST.toString(), e);
+            throw new FailedToAccessLoginDataException(LoginPage.DB_ACCESS_ERROR_LOGIN.toString(), e);
         }
     }
 
@@ -108,7 +94,7 @@ public class LoginDAO {
             int affected = call.getInt(9);
             return affected > 0;
         } catch (SQLException e) {
-            throw new FailedToUserRegisterException(LoginPage.REGISTER_FAILED.toString());
+            throw new FailedToAccessLoginDataException(LoginPage.DB_ACCESS_ERROR_REGISTER.toString(), e);
         }
     }
 
@@ -123,8 +109,7 @@ public class LoginDAO {
 
             return call.getString(2);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return null;
+            throw new FailedToAccessLoginDataException(LoginPage.DB_ACCESS_ERROR_FIND_ID.toString(), e);
         }
     }
 
@@ -141,12 +126,11 @@ public class LoginDAO {
             int affected = call.getInt(3);
             return affected == 1;
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new FailedToAccessLoginDataException(LoginPage.DB_ACCESS_ERROR_UPDATE_PASSWORD.toString(), e);
         }
-        return false;
     }
 
-    public void logout(String userID) {
+    public String logout(String userID) {
         String sql = "call logout(?, ?)";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
@@ -155,12 +139,9 @@ public class LoginDAO {
 
             call.execute();
 
-            String result = call.getString(2);
-            if (result != null) {
-                System.out.println(result);
-            }
+            return call.getString(2);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            throw new FailedToAccessLoginDataException(LoginPage.DB_ACCESS_ERROR_LOGOUT.toString(), e);
         }
     }
 }

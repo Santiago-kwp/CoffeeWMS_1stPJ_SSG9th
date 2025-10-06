@@ -138,7 +138,10 @@ public class WMSMenu {
     }
 
     private void logout(String userID) {
-        logoutService.logout(userID);
         quitWMS = true;
+        String logoutSuccess = logoutService.logout(userID);
+        if (logoutSuccess != null) {
+            System.out.println(logoutSuccess);
+        }
     }
 }
