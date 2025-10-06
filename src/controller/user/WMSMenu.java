@@ -15,9 +15,11 @@ import domain.user.User;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import model.user.MemberDAO;
 import service.inventory.UserService;
 import java.sql.SQLException;
 import service.user.LogoutService;
+import service.user.MemberServiceImpl;
 
 public class WMSMenu {
 
@@ -121,7 +123,7 @@ public class WMSMenu {
             userManageMenu = new ManagerManageMenu(manager);
             quitWMS = userManageMenu.run();
         } else if (user instanceof Member member) {
-            userManageMenu = new MemberManageMenu(member);
+            userManageMenu = new MemberManageMenu(member, new MemberServiceImpl(MemberDAO.getInstance()));
             quitWMS = userManageMenu.run();
         }
     }

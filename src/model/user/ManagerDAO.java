@@ -1,9 +1,11 @@
 package model.user;
 
 import config.user.DBUtil;
+import constant.user.UserPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
+import exception.user.UserNotFoundException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -14,23 +16,34 @@ import java.util.List;
 
 public class ManagerDAO implements UserDAO {
 
-    private Manager manager;
-
-    public ManagerDAO(Manager manager) {
-        this.manager = manager;
+    public ManagerDAO() {
     }
 
     @Override
-    public Manager searchUserDetails() {
-        return manager;
+    public Manager searchUserDetails(String managerID) {
+        String sql = "{call current_manager_info(?)}";
+        try (Connection conn = DBUtil.getConnection();
+                CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, managerID);
+            call.execute();
+
+            try (ResultSet rs = call.getResultSet()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                return Manager.Builder.from(rs);
+            }
+        } catch (SQLException e) {
+            throw new UserNotFoundException(UserPage.CANNOT_SEARCH_USER.toString(), e);
+        }
     }
 
     @Override
-    public Manager updateUserInfo(User newInfo) {
+    public Manager updateUserInfo(User original, User newInfo) {
         String sql = "{call manager_update(?, ?, ?, ?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
-            call.setString(1, manager.getId());
+            call.setString(1, original.getId());
             call.setString(2, newInfo.getPwd());
             call.setString(3, newInfo.getName());
             call.setString(4, newInfo.getPhone());
@@ -39,8 +52,7 @@ public class ManagerDAO implements UserDAO {
             call.execute();
 
             // 현재 사용자 정보 갱신 -> 다음에 자신의 정보 조회할 때 반영해야 함
-            manager = Manager.Builder.from(manager, newInfo);
-            return manager;
+            return Manager.Builder.from((Manager)original, newInfo);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             return null;
@@ -48,11 +60,11 @@ public class ManagerDAO implements UserDAO {
     }
 
     @Override
-    public boolean deleteUserInfo() {
+    public boolean deleteUserInfo(String managerID) {
         String sql = "{call manager_delete(?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
-            call.setString(1, manager.getId());
+            call.setString(1, managerID);
             call.setInt(2, Types.INTEGER);
             call.execute();
 
@@ -83,10 +95,6 @@ public class ManagerDAO implements UserDAO {
     }
 
     public User searchUser(String targetID, String targetType) {
-        // 찾을 아이디가 현재 로그인한 회원의 것이라면 자신의 상세정보를 출력
-        if (targetID.equals(manager.getId())) {
-            return searchUserDetails();
-        }
         String sql = (targetType.endsWith("관리자"))
                 ? "{call search_other_manager(?)}"
                 : "{call search_other_member(?)}";

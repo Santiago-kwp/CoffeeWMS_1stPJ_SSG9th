@@ -4,31 +4,53 @@ import config.user.DBUtil;
 import constant.user.UserPage;
 import domain.user.Member;
 import domain.user.User;
+import exception.user.FailedToUserUpdateException;
 import exception.user.UserDeleteFailedException;
+import exception.user.UserNotFoundException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
 public class MemberDAO implements UserDAO {
 
-    private Member member;
+    private static class LazyHolder {
+        private static final MemberDAO MEMBER_DAO = new MemberDAO();
+    }
 
-    public MemberDAO(Member loginUser) {
-        this.member = loginUser;
+    private MemberDAO() {
+    }
+
+    public static MemberDAO getInstance() {
+        return LazyHolder.MEMBER_DAO;
     }
 
     @Override
-    public Member searchUserDetails() {
-        return member;
+    public Member searchUserDetails(String memberID) {
+        String sql = "{call current_member_info(?)}";
+        try (Connection conn = DBUtil.getConnection();
+                CallableStatement call = conn.prepareCall(sql)) {
+            call.setString(1, memberID);
+            call.execute();
+
+            try (ResultSet rs = call.getResultSet()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                return Member.Builder.from(rs);
+            }
+        } catch (SQLException e) {
+            throw new UserNotFoundException(UserPage.CANNOT_SEARCH_USER.toString(), e);
+        }
     }
 
     @Override
-    public Member updateUserInfo(User newInfo) {
+    public Member updateUserInfo(User original, User newInfo) {
         String sql = "{call member_update(?, ?, ?, ?, ?, ?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
-            call.setString(1, member.getId());
+            call.setString(1, original.getId());
             call.setString(2, newInfo.getPwd());
             call.setString(3, newInfo.getName());
             call.setString(4, newInfo.getPhone());
@@ -39,20 +61,18 @@ public class MemberDAO implements UserDAO {
             call.execute();
 
             // 현재 사용자 정보 갱신 -> 다음에 자신의 정보 조회할 때 반영해야 함
-            member = Member.Builder.from(member, newInfo);
-            return member;
+            return Member.Builder.from((Member)original, newInfo);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
-            return null;
+            throw new FailedToUserUpdateException(UserPage.USER_UPDATE_FAILED.toString(), e);
         }
     }
 
     @Override
-    public boolean deleteUserInfo() {   // 회원 탈퇴
+    public boolean deleteUserInfo(String memberID) {   // 회원 탈퇴
         String sql = "{call member_delete(?, ?)}";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
-            call.setString(1, member.getId());
+            call.setString(1, memberID);
             call.registerOutParameter(2, Types.INTEGER);
             call.execute();
 
