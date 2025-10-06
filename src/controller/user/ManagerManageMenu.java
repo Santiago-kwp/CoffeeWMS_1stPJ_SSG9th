@@ -13,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 import model.user.ManagerDAO;
 
-public class ManagerManageMenu implements UserManageMenu {
+public class ManagerManageMenu extends AbstractUserManageMenu {
 
     private final ManagerDAO dao;
 
@@ -113,10 +113,7 @@ public class ManagerManageMenu implements UserManageMenu {
         validCheck.checkMenuNumber("^[1-2]", menuNum);
         switch (menuNum) {
             case "1" -> readMemberList();
-            case "2" -> {
-                validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
-                readManagerList();
-            }
+            case "2" -> readManagerList();
         }
     }
 
@@ -132,6 +129,7 @@ public class ManagerManageMenu implements UserManageMenu {
     }
 
     public void readManagerList() {
+        validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
         List<User> searchResult = dao.searchByRole("managers");
         validCheck.checkUserFound(searchResult);
 

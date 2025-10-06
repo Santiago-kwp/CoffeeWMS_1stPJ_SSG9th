@@ -1,0 +1,61 @@
+package controller.user;
+
+import constant.user.UserPage;
+import constant.user.validation.UserManagementValidCheck;
+import exception.user.FailedToUserUpdateException;
+import exception.user.InvalidUserDataException;
+import exception.user.UnableToReadUserException;
+import exception.user.UserDeleteFailedException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import view.user.ConsoleView;
+
+public abstract class AbstractUserManageMenu implements UserManageMenu {
+
+    protected final BufferedReader input;
+    protected final UserManagementValidCheck validCheck;
+    protected final ConsoleView consoleView;
+
+    public AbstractUserManageMenu() {
+        this.input = new BufferedReader(new InputStreamReader(System.in));
+        this.validCheck = new UserManagementValidCheck();
+        this.consoleView = new ConsoleView(this.input);
+    }
+
+    @Override
+    public boolean run() {
+        boolean quitMenu = false;
+        boolean hasLogout = false;
+
+        while (!quitMenu && !hasLogout) {
+            try {
+                printMenu();
+                String menuNum = input.readLine();
+                validCheck.checkMenuNumber("^[1-4]", menuNum);
+                switch (menuNum) {
+                    case "1" -> read();
+                    case "2" -> update();
+                    case "3" -> hasLogout = delete();
+                    case "4" -> quitMenu = exitMenu();
+                }
+            } catch (IOException
+                     | IllegalArgumentException
+                     | InvalidUserDataException
+                     | UnableToReadUserException
+                     | FailedToUserUpdateException
+                     | UserDeleteFailedException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+        return hasLogout;
+    }
+
+    protected boolean exitMenu() {
+        boolean quitMenu = true;
+        System.out.println(UserPage.TO_PREVIOUS_MENU);
+        return quitMenu;
+    }
+
+    protected abstract void printMenu();
+}

@@ -8,7 +8,7 @@ import exception.user.InvalidUserDataException;
 import java.io.IOException;
 import model.user.MemberDAO;
 
-public class MemberManageMenu implements UserManageMenu {
+public class MemberManageMenu extends AbstractUserManageMenu {
 
     private final MemberDAO dao;
 
