@@ -31,12 +31,10 @@ public class MemberManageMenu implements UserManageMenu {
 
     @Override
     public void update() throws IOException, InvalidUserDataException {
-        String yesOrNo = inputView.promptAndRead(UserPage.USER_UPDATE_TITLE.toString());
-        if (!yesOrNo.equalsIgnoreCase("Y")) {
-            System.out.println(UserPage.TO_PREVIOUS_MENU);
+        if (consoleView.checkCancel(UserPage.USER_UPDATE_TITLE.toString(), UserPage.TO_PREVIOUS_MENU.toString())) {
             return;
         }
-        User newUserInfo = inputView.inputNewMemberInfo();
+        User newUserInfo = consoleView.inputMemberInfo(true);
         Member updatedMember = dao.updateUserInfo(newUserInfo);
         validCheck.checkUserUpdated(updatedMember);
         System.out.println(UserPage.USER_UPDATE);
@@ -45,9 +43,7 @@ public class MemberManageMenu implements UserManageMenu {
     @Override
     public boolean delete() {
         try {
-            String yesOrNo = inputView.promptAndRead(UserPage.USER_DELETE_TITLE.toString());
-            if (!yesOrNo.equalsIgnoreCase("Y")) {
-                System.out.println(UserPage.USER_NOT_DELETE);
+            if (consoleView.checkCancel(UserPage.USER_DELETE_TITLE.toString(), UserPage.USER_NOT_DELETE.toString())) {
                 return false;
             }
             boolean ack = dao.deleteUserInfo();

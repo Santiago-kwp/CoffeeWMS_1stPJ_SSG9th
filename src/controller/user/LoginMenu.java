@@ -14,7 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import model.user.LoginDAO;
-import view.user.InputView;
+import view.user.ConsoleView;
 
 public class LoginMenu {
 
@@ -23,7 +23,7 @@ public class LoginMenu {
     }
     private static boolean quitLogin;
 
-    private final InputView inputView = new InputView(new BufferedReader(new InputStreamReader(System.in)));
+    private final ConsoleView consoleView = new ConsoleView(new BufferedReader(new InputStreamReader(System.in)));
     private final LoginDAO dao;
     private final LoginValidCheck loginValidCheck;
 
@@ -40,7 +40,7 @@ public class LoginMenu {
     public void loginMenu() {
         while (!quitLogin) {
             try {
-                String menuNum = inputView.promptAndRead(LoginPage.LOGIN_MENU_TITLE.toString());
+                String menuNum = consoleView.promptAndRead(LoginPage.LOGIN_MENU_TITLE.toString());
                 loginValidCheck.checkMenuNumber("^[1-5]", menuNum);
                 switch (menuNum) {
                     case "1" -> login();
@@ -59,8 +59,8 @@ public class LoginMenu {
     }
 
     public void login() throws IOException, LoginException {
-        String userID = inputView.promptAndRead(InputMessage.INPUT_ID.toString());
-        String userPwd = inputView.promptAndRead(InputMessage.INPUT_PWD.toString());
+        String userID = consoleView.promptAndRead(InputMessage.INPUT_ID.toString());
+        String userPwd = consoleView.promptAndRead(InputMessage.INPUT_PWD.toString());
 
         User loginUser = dao.login(userID, userPwd);
         loginValidCheck.checkLoginSuccess(loginUser);
@@ -70,23 +70,15 @@ public class LoginMenu {
 
     public void register() throws IOException, InvalidUserDataException, FailedToUserRegisterException {
         LoginPage.print(LoginPage.SIGN_UP);
-        String yesOrNo = inputView.promptAndRead(LoginPage.REGISTER_OR_NOT.toString());
-        if (!yesOrNo.equalsIgnoreCase("Y")) {
-            System.out.println(LoginPage.TO_PREVIOUS_MENU);
+        if (consoleView.checkCancel(LoginPage.REGISTER_OR_NOT.toString(), LoginPage.TO_PREVIOUS_MENU.toString())) {
             return;
         }
-
-        String type = inputView.promptAndRead(LoginPage.INPUT_REGISTER_TYPE.toString());
+        String typeOption = consoleView.promptAndRead(LoginPage.INPUT_REGISTER_TYPE.toString());
+        loginValidCheck.checkMenuNumber("^[1-2]", typeOption);
         boolean ack = false;
-        switch (type) {
-            case "1" -> {
-                User newMember = inputView.inputMemberInfo();
-                ack = dao.register(newMember);
-            }
-            case "2" -> {
-                User newManager = inputView.inputManagerInfo();
-                ack = dao.register(newManager);
-            }
+        switch (typeOption) {
+            case "1" -> ack = dao.register(consoleView.inputMemberInfo(false));
+            case "2" -> ack = dao.register(consoleView.inputManagerInfo(false));
         }
         loginValidCheck.checkUserRegistered(ack);
         System.out.println(LoginPage.REGISTER_SUCCESS);
@@ -94,7 +86,7 @@ public class LoginMenu {
 
     public void searchID() throws IOException {
         LoginPage.print(LoginPage.FIND_ID);
-        String userEmail = inputView.promptAndRead(InputMessage.INPUT_EMAIL.toString());
+        String userEmail = consoleView.promptAndRead(InputMessage.INPUT_EMAIL.toString());
         String foundID = dao.findID(userEmail);
 
         loginValidCheck.checkIDFound(foundID);
@@ -103,8 +95,8 @@ public class LoginMenu {
 
     public void updatePassword() throws IOException {
         LoginPage.print(LoginPage.FIND_PWD);
-        String userID = inputView.promptAndRead(InputMessage.INPUT_ID.toString());
-        String newPassword = inputView.promptAndRead(InputMessage.INPUT_NEW_PASSWORD.toString());
+        String userID = consoleView.promptAndRead(InputMessage.INPUT_ID.toString());
+        String newPassword = consoleView.promptAndRead(InputMessage.INPUT_NEW_PASSWORD.toString());
         InputValidCheck.checkPwd(newPassword);
 
         boolean ack = dao.updatePassword(userID, newPassword);

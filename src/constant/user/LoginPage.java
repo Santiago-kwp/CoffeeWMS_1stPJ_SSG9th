@@ -14,8 +14,8 @@ public enum LoginPage {
 
     LOGIN("로그인"),
     SIGN_UP("회원가입"),
-    MEMBER_REGISTER("일반회원 회원정보 입력"),
-    MANAGER_REGISTER("관리자 회원정보 입력"),
+    MEMBER_REGISTER("---------------------<< 일반회원 회원정보 입력 >>----------------------"),
+    MANAGER_REGISTER("---------------------<< 관리자 회원정보 입력 >>----------------------"),
     FIND_ID("아이디 찾기"),
     FIND_PWD("비밀번호 찾기"),
 
