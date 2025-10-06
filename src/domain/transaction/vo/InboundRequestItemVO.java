@@ -1,6 +1,5 @@
 package domain.transaction.vo;
 
-import java.sql.Date;
 import java.util.Objects;
 
 public final class InboundRequestItemVO { // final 클래스
@@ -9,7 +8,7 @@ public final class InboundRequestItemVO { // final 클래스
     private final String coffeeId;
     private final Integer inboundRequestQuantity;
 
-    public InboundRequestItemVO(Long inboundRequestItemId, Long inboundRequestId, String coffeeId, Integer inboundRequestQuantity, Date inboundRequestDate) {
+    public InboundRequestItemVO(Long inboundRequestItemId, Long inboundRequestId, String coffeeId, Integer inboundRequestQuantity) {
         this.inboundRequestItemId = inboundRequestItemId;
         this.inboundRequestId = inboundRequestId;
         this.coffeeId = coffeeId;

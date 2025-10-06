@@ -1,6 +1,6 @@
 package command.transaction;
 
-import command.Command;
+import controller.command.Command;
 import domain.transaction.LocationPlace;
 import java.util.List;
 import service.transaction.InboundService;

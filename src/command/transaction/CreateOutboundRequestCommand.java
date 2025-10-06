@@ -1,9 +1,8 @@
 package command.transaction;
 
-import command.Command;
+import controller.command.Command;
 import domain.transaction.InboundRequest;
 import domain.transaction.OutboundRequest;
-import service.transaction.InboundService;
 import service.transaction.OutboundService;
 
 /**

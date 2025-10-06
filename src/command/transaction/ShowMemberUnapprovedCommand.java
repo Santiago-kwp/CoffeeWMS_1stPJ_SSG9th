@@ -1,9 +1,8 @@
 package command.transaction;
 
-import command.Command;
+import controller.command.Command;
 import service.transaction.InboundService;
 
-import java.util.List;
 import java.util.Map;
 
 public class ShowMemberUnapprovedCommand implements Command {

@@ -1,139 +1,186 @@
 package service.transaction;
 
 import config.DBUtil;
-import domain.transaction.Coffee;
-import domain.transaction.InboundItem;
-import domain.transaction.InboundRequest;
-import domain.transaction.LocationPlace;
+import constant.transaction.ErrorCode; // ErrorCode 사용
+import domain.transaction.dto.InboundRequestDTO;
+import domain.transaction.dto.InboundRequestItemDTO;
+import domain.transaction.vo.InboundStatus;
+import exception.transaction.TransactionException; // 사용자 정의 예외 사용
+import model.transaction.InboundRequestDAO;
+import model.transaction.InboundRequestItemDAO;
+
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import javax.xml.stream.Location;
-import model.transaction.InboundDao;
+import java.util.UUID;
 
-/**
- * InboundServiceImpl
- * Implementation of the InboundService interface.
- * It handles the business logic and delegates data access to the DAO.
- */
 public class InboundServiceImpl implements InboundService {
 
-  private InboundDao inboundDao;
+  // 의존성을 final 필드로 선언
+  private final InboundRequestDAO inboundRequestDAO;
+  private final InboundRequestItemDAO inboundRequestItemDAO;
 
-  // 연결 객체를 받고, DAO 메소드를 사용하기 위해 의존성 주입
-  public InboundServiceImpl() {
-    this.inboundDao = new InboundDao();
+  /**
+   * 생성자를 통해 의존성을 주입받습니다.
+   * @param inboundRequestDAO InboundRequestDAO의 구현체
+   * @param inboundRequestItemDAO InboundRequestItemDAO의 구현체
+   */
+  public InboundServiceImpl(InboundRequestDAO inboundRequestDAO, InboundRequestItemDAO inboundRequestItemDAO) {
+    // 내부에서 직접 생성하지 않고, 외부에서 받은 객체를 할당
+    this.inboundRequestDAO = inboundRequestDAO;
+    this.inboundRequestItemDAO = inboundRequestItemDAO;
   }
 
-  // 사용자의 입고 요청을 DB에 제출하는 메소드
+
   @Override
-  public void submitInboundRequest(InboundRequest request) {
-    System.out.println("서비스: 입고 요청서를 제출 중입니다...");
-    boolean success = inboundDao.callSubmitInboundRequestProcedure(
-        request.getInboundRequestId(),
-        request.getMemberId(),
-        request.getManagerId(),
-        request.getRequestItemsJson(),
-        new java.sql.Date(request.getInboundRequestDate().getTime())
-    );
-    if (success) {
-      System.out.println("서비스: 입고 요청이 성공적으로 수행되었습니다.");
-    } else {
-      System.out.println("서비스: 입고 요청이 실패했습니다.");
+  public Long requestInbound(InboundRequestDTO requestDto) throws SQLException, TransactionException {
+    // 1. 기본값 설정 및 유효성 검사
+    requestDto.setStatus(InboundStatus.PENDING);
+
+    // 요청 날짜는 컨트롤러에서 사용자가 입력한 값이 DTO에 설정되어 있다고 가정합니다.
+    if (requestDto.getRequestDate() == null) {
+      // 혹시라도 입력되지 않았다면 현재 날짜로 설정 (선택 사항)
+      requestDto.setRequestDate(LocalDate.now());
+    }
+
+    if (requestDto.getItems() == null || requestDto.getItems().isEmpty()) {
+      throw new TransactionException(ErrorCode.EMPTY_INBOUND_ITEMS);
+    }
+
+    // 2. DAO 호출 (프로시저 사용으로 트랜잭션 자동 관리)
+    return inboundRequestDAO.insertInboundRequest(requestDto);
+  }
+
+  @Override
+  public void modifyPendingInbound(InboundRequestDTO requestDto, String memberId) throws SQLException, TransactionException {
+    InboundRequestDTO originalRequest = getInboundRequestDetail(requestDto.getInboundRequestId());
+
+    // 비즈니스 규칙 검증
+    if (!originalRequest.getMemberId().equals(memberId)) {
+      throw new TransactionException(ErrorCode.UNAUTHORIZED_ACCESS); // 예: 권한 없음
+    }
+    if (originalRequest.getStatus() != InboundStatus.PENDING) {
+      throw new TransactionException(ErrorCode.INVALID_STATUS_FOR_OPERATION); // 예: 대기 상태 아님
+    }
+    if (requestDto.getItems() == null || requestDto.getItems().isEmpty()) {
+      throw new TransactionException(ErrorCode.EMPTY_INBOUND_ITEMS);
+    }
+
+    // 서비스 계층 트랜잭션 관리 (수정 작업은 여러 단계이므로)
+    Connection conn = null;
+    try {
+      conn = DBUtil.getConnection();
+      conn.setAutoCommit(false); // 트랜잭션 시작
+
+      // 1. 기존 아이템 전체 삭제 (InboundRequestItemDAO에 추가된 메서드 사용)
+      inboundRequestItemDAO.deleteItemsByInboundRequestId(conn, requestDto.getInboundRequestId());
+
+      // 2. 새로운 아이템 추가 (InboundRequestItemDAO에 추가된 메서드 사용)
+      for (InboundRequestItemDTO item : requestDto.getItems()) {
+        item.setInboundRequestId(requestDto.getInboundRequestId()); // ID 연결 보장
+      }
+      inboundRequestItemDAO.insertItems(conn, requestDto.getItems());
+
+      // 만약 헤더 정보(예: 요청 날짜)도 수정해야 한다면 여기서 inboundRequestDAO.updateInboundRequest(conn, requestDto) 호출
+      // (현재 DAO의 update는 conn을 받지 않으므로 수정 필요, 혹은 프로시저 사용 고려)
+      // 간단하게는 아이템만 수정하는 것으로 가정.
+
+      conn.commit(); // 성공 시 커밋
+    } catch (SQLException e) {
+      if (conn != null) conn.rollback(); // 실패 시 롤백
+      throw e; // 혹은 new TransactionException(ErrorCode.DB_ERROR)로 감싸기
+    } finally {
+      if (conn != null) {
+        conn.setAutoCommit(true);
+        conn.close();
+      }
     }
   }
 
   @Override
-  public void updateInboundRequest(InboundRequest request) {
-    System.out.println("서비스: 수정한 입고 요청서를 제출 중입니다...");
-    boolean success = inboundDao.updateInboundRequestProcedure(
-            request.getInboundRequestId(),
-            request.getMemberId(),
-            request.getManagerId(),
-            request.getRequestItemsJson(),
-            new java.sql.Date(request.getInboundRequestDate().getTime())
-    );
-    if (success) {
-      System.out.println("서비스: 입고 수정 요청이 성공적으로 수행되었습니다.");
-    } else {
-      System.out.println("서비스: 입고 수정 요청이 실패했습니다.");
-    }
-  }
+  public void cancelPendingInbound(Long inboundRequestId, String memberId) throws SQLException, TransactionException {
+    InboundRequestDTO request = inboundRequestDAO.findInboundRequestById(inboundRequestId);
 
-  @Override
-  public void deleteInboundRequest(String requestId, String memberId) {
-    System.out.println("서비스: 입고 요청서를 삭제 중입니다...");
-    boolean success = inboundDao.deleteInboundRequestProcedure(requestId, memberId);
-    if (success) {
-      System.out.println("서비스: 입고 삭제 요청이 성공적으로 수행되었습니다.");
-    } else {
-      System.out.println("서비스: 입고 삭제 요청이 실패했습니다.");
+    // 비즈니스 규칙 검증
+    if (request == null) {
+      throw new TransactionException(ErrorCode.INBOUND_REQUEST_NOT_FOUND);
+    }
+    if (!request.getMemberId().equals(memberId)) {
+      throw new TransactionException(ErrorCode.UNAUTHORIZED_ACCESS);
+    }
+    if (request.getStatus() != InboundStatus.PENDING) {
+      throw new TransactionException(ErrorCode.INVALID_STATUS_FOR_OPERATION);
     }
 
+    // DAO 호출 (논리적 삭제)
+    inboundRequestDAO.deleteInboundRequest(inboundRequestId);
   }
 
   @Override
-  public List<Coffee> getAllCoffees() {
-    // DAO 메소드를 호출하여 전체 커피 상품 목록을 가져옵니다.
-    return inboundDao.getAllCoffees();
-  }
+  public void approveInbound(Long inboundRequestId, String managerId) throws SQLException, TransactionException {
+    InboundRequestDTO request = inboundRequestDAO.findInboundRequestById(inboundRequestId);
 
-  @Override
-  public List<LocationPlace> getAvailableLocationPlaces() {
-    return inboundDao.getAvailableLocationPlaces();
-  }
-
-
-  @Override
-  public List<InboundItem> getInboundRequestItems(String memberId, String requestId) throws SQLException {
-    return inboundDao.getInboundRequestItems(memberId, requestId);
-  }
-
-
-  @Override
-  public List<InboundItem> getUnapprovedRequestsByMember(String memberId) throws SQLException {
-    // DAO 메서드를 호출하여 미승인 요청 목록을 가져옵니다.
-    return inboundDao.getUnapprovedRequestsByMember(memberId);
-  }
-
-  @Override
-  public List<InboundItem> getApprovedRequestsByMember(String memberId) throws SQLException {
-    // DAO 메서드를 호출하여 미승인 요청 목록을 가져옵니다.
-    return inboundDao.getApprovedRequestsByMember(memberId);
-  }
-
-  @Override
-  public Map<String, Integer> getMemberUnapprovedInboundRequests() {
-    // DAO 메소드를 호출하여 미승인 요청이 있는 회원의 ID 목록 및 요청 건수를 가져옵니다.
-    return inboundDao.getAllMemberHasUnapprovedInboundRequest();
-  }
-
-  @Override
-  public Map<String, Integer> getMemberApprovedInboundRequests() {
-    return inboundDao.getMemberApprovedInboundRequests();
-  }
-
-  @Override
-  public void processInboundRequest(String inboundRequestId, List<InboundItem> items) throws SQLException {
-    System.out.println("서비스: 입고 요청 승인 및 입고 상품을 적치 중입니다...");
-    inboundDao.processInboundRequest(inboundRequestId, items);
-    System.out.println("서비스 : 입고 요청 승인 완료 및 상품들이 아래의 위치에 적치되었습니다.");
-    for (InboundItem item : items) {
-      System.out.printf("상품 ID : %s, 수량 : %d, 적치 위치 ID : %s\n",item.getCoffeeId(),item.getQuantity(), item.getLocationPlaceId());
+    // 비즈니스 규칙 검증
+    if (request == null) {
+      throw new TransactionException(ErrorCode.INBOUND_REQUEST_NOT_FOUND);
     }
+    if (request.getStatus() != InboundStatus.PENDING) {
+      throw new TransactionException(ErrorCode.INVALID_STATUS_FOR_OPERATION);
+    }
+
+    // DTO 상태 업데이트
+    request.setStatus(InboundStatus.APPROVED);
+    request.setManagerId(managerId);
+    request.setApprovalDate(LocalDate.now()); // 승인 날짜는 현재
+    request.setInboundReceipt("RCPT-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase()); // 영수증 번호 생성
+
+    // DAO 호출
+    inboundRequestDAO.updateInboundRequest(request);
   }
 
   @Override
-  public List<InboundItem> showInboundPeriod(String memberId, Date startDate, Date endDate) throws SQLException {
-    return inboundDao.showInboundPeriod(memberId, new java.sql.Date(startDate.getTime()), new java.sql.Date(endDate.getTime()));
+  public void rejectInbound(Long inboundRequestId, String managerId) throws SQLException, TransactionException {
+    InboundRequestDTO request = inboundRequestDAO.findInboundRequestById(inboundRequestId);
+
+    if (request == null) {
+      throw new TransactionException(ErrorCode.INBOUND_REQUEST_NOT_FOUND);
+    }
+    if (request.getStatus() != InboundStatus.PENDING) {
+      throw new TransactionException(ErrorCode.INVALID_STATUS_FOR_OPERATION);
+    }
+
+    request.setStatus(InboundStatus.REJECTED);
+    request.setManagerId(managerId);
+    request.setApprovalDate(LocalDate.now()); // 거절 날짜는 현재
+
+    inboundRequestDAO.updateInboundRequest(request);
   }
 
   @Override
-  public List<InboundItem> showInboundMonth(String memberId, int month) throws SQLException {
-    return inboundDao.showInboundMonth(memberId, month);
+  public InboundRequestDTO getInboundRequestDetail(Long inboundRequestId) throws SQLException, TransactionException {
+    // 1. 헤더 조회
+    InboundRequestDTO headerDto = inboundRequestDAO.findInboundRequestById(inboundRequestId);
+    if (headerDto == null) {
+      throw new TransactionException(ErrorCode.INBOUND_REQUEST_NOT_FOUND);
+    }
+
+    // 2. 상세 항목 조회
+    List<InboundRequestItemDTO> items = inboundRequestItemDAO.findItemsByInboundRequestId(inboundRequestId);
+    headerDto.setItems(items);
+
+    return headerDto;
   }
 
+  @Override
+  public List<InboundRequestDTO> getInboundRequestsByMember(String memberId, InboundStatus status) throws SQLException {
+    // 목록 조회는 일반적으로 상세 항목까지 모두 가져오진 않음 (성능상 이유)
+    // 필요하다면 여기서 반복문으로 채워넣거나, 조인 쿼리를 사용하는 DAO 메서드를 만들어야 함.
+    return inboundRequestDAO.findInboundRequestsByMemberId(memberId, status);
+  }
+
+  @Override
+  public List<InboundRequestDTO> getAllInboundRequestsByStatus(InboundStatus status) throws SQLException {
+    return inboundRequestDAO.findAllInboundRequestsByStatus(status);
+  }
 }

@@ -2,7 +2,7 @@ package controller.transaction;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import command.Command;
+import controller.command.Command;
 import command.transaction.*;
 import constant.transaction.TransactionText;
 import constant.transaction.ValidCheck;
@@ -16,7 +16,6 @@ import service.transaction.InboundService;
 import service.transaction.InboundServiceImpl;
 import service.transaction.OutboundService;
 import service.transaction.OutboundServiceImpl;
-import view.transaction.InboundView;
 import view.transaction.OutboundView;
 
 import java.sql.SQLException;

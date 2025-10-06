@@ -1,9 +1,11 @@
 package domain.transaction.dto;
 
-import java.sql.Date;
+import domain.transaction.vo.InboundStatus;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class InboundRequestDTO {
@@ -12,39 +14,69 @@ public class InboundRequestDTO {
     private String managerId;
     private LocalDate requestDate;
     private LocalDate approvalDate;
-    private String managerName;
-    private String coffeeName;
-    private Integer requestQuantity;
-    private String status;
+    private InboundStatus status;
     private String inboundReceipt;
+    private boolean isDeleted;
+    private LocalDate isDeletedAt;
+    private List<InboundRequestItemDTO> items; // 입고 요청 상세 항목
+
+
 
     public InboundRequestDTO() {
-        this.status = "대기"; // 기본 상태 '대기'
+        this.items = new ArrayList<>(); // 기본 생성 시 리스트 초기화
+        this.status = InboundStatus.PENDING; // 'PENDING' 상수를 직접 사용
+        this.isDeleted = false;
     }
 
 
-    // 생성자 (조회 또는 수정 시)
-    public InboundRequestDTO(Long inboundRequestId, String memberId, String managerId, Date requestDate, String status, String inboundReceipt, List<InboundRequestItemDTO> items) {
+    // 모든 필드를 포함하는 생성자
+    public InboundRequestDTO(Long inboundRequestId, String memberId, String managerId, LocalDate requestDate,
+                             LocalDate approvalDate, InboundStatus status, String inboundReceipt,
+                             boolean isDeleted, LocalDate isDeletedAt, List<InboundRequestItemDTO> items) {
         this.inboundRequestId = inboundRequestId;
         this.memberId = memberId;
         this.managerId = managerId;
         this.requestDate = requestDate;
+        this.approvalDate = approvalDate;
         this.status = status;
         this.inboundReceipt = inboundReceipt;
-        this.items = items;
+        this.isDeleted = isDeleted;
+        this.isDeletedAt = isDeletedAt;
+        this.items = (items != null) ? new ArrayList<>(items) : new ArrayList<>();
     }
 
-    // Constructor for convenience (optional)
+    /**
+     * ResultSet으로부터 InboundRequestDTO 객체를 생성하는 생성자.
+     * InboundRequest 테이블의 단일 로우 데이터를 매핑합니다.
+     * 연관된 InboundRequestItemDTO 리스트(items)는 이 생성자에서 채워지지 않습니다.
+     * 이는 일반적으로 DAO에서 별도의 쿼리를 통해 로드됩니다.
+     *
+     * @param rs 데이터베이스 쿼리 결과 ResultSet
+     * @throws SQLException SQL 관련 예외 발생 시
+     */
     public InboundRequestDTO(ResultSet rs) throws SQLException {
         this.inboundRequestId = rs.getLong("inbound_request_id");
-        this.requestDate = rs.getDate("입고_요청_날짜").toLocalDate();
-        // approval_date와 manager_name, member_company_name, inbound_receipt 는 없을 수도 있으므로 null 체크 또는 기본값
-        try { this.approvalDate = rs.getDate("승인_날짜").toLocalDate(); } catch (SQLException e) { /* ignore if column not found */ }
-        try { this.managerName = rs.getString("승인_관리자명"); } catch (SQLException e) { /* ignore if column not found */ }
-        this.coffeeName = rs.getString("커피_이름");
-        this.requestQuantity = rs.getInt("요청_수량");
-        this.status = rs.getString("요청_상태");
-        try { this.inboundReceipt = rs.getString("입고 고지서"); } catch (SQLException e) {  }
+        this.memberId = rs.getString("member_id");
+        this.managerId = rs.getString("manager_id"); // NULL 가능 필드
+
+        // Date -> LocalDate 변환
+        java.sql.Date sqlRequestDate = rs.getDate("request_date");
+        this.requestDate = (sqlRequestDate != null) ? sqlRequestDate.toLocalDate() : null;
+
+        java.sql.Date sqlApprovalDate = rs.getDate("approval_date");
+        this.approvalDate = (sqlApprovalDate != null) ? sqlApprovalDate.toLocalDate() : null;
+
+        // String -> InboundStatus Enum 변환
+        String statusString = rs.getString("status");
+        this.status = (statusString != null) ? InboundStatus.fromString(statusString) : InboundStatus.PENDING; // 기본값 설정 또는 예외 처리
+
+        this.inboundReceipt = rs.getString("inbound_receipt"); // NULL 가능 필드
+        this.isDeleted = rs.getBoolean("is_deleted");
+
+        java.sql.Date sqlIsDeletedAt = rs.getDate("is_deleted_at");
+        this.isDeletedAt = (sqlIsDeletedAt != null) ? sqlIsDeletedAt.toLocalDate() : null;
+
+        this.items = new ArrayList<>(); // ResultSet 생성 시에는 아이템 리스트는 비어있게 초기화 (별도 로딩 필요)
     }
 
     public String getMemberId() {
@@ -87,35 +119,20 @@ public class InboundRequestDTO {
         this.approvalDate = approvalDate;
     }
 
-    public String getManagerName() {
-        return managerName;
+
+    public List<InboundRequestItemDTO> getItems() {
+        return items;
     }
 
-    public void setManagerName(String managerName) {
-        this.managerName = managerName;
+    public void setItems(List<InboundRequestItemDTO> items) {
+        this.items = (items != null) ? new ArrayList<>(items) : new ArrayList<>(); // 방어적 복사
     }
 
-    public String getCoffeeName() {
-        return coffeeName;
-    }
-
-    public void setCoffeeName(String coffeeName) {
-        this.coffeeName = coffeeName;
-    }
-
-    public Integer getRequestQuantity() {
-        return requestQuantity;
-    }
-
-    public void setRequestQuantity(Integer requestQuantity) {
-        this.requestQuantity = requestQuantity;
-    }
-
-    public String getStatus() {
+    public InboundStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(InboundStatus status) {
         this.status = status;
     }
 
@@ -125,5 +142,28 @@ public class InboundRequestDTO {
 
     public void setInboundReceipt(String inboundReceipt) {
         this.inboundReceipt = inboundReceipt;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        isDeleted = deleted;
+    }
+
+    public LocalDate getIsDeletedAt() {
+        return isDeletedAt;
+    }
+
+    public void setIsDeletedAt(LocalDate isDeletedAt) {
+        this.isDeletedAt = isDeletedAt;
+    }
+
+    public void addItem(InboundRequestItemDTO item) {
+        if (this.items == null) {
+            this.items = new ArrayList<>();
+        }
+        this.items.add(item);
     }
 }

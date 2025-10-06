@@ -1,197 +1,262 @@
 package model.transaction;
 
+// ... (기존 import 및 ObjectMapper 인스턴스 선언) ...
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import config.DBUtil;
+import domain.transaction.Coffee;
 import domain.transaction.dto.InboundRequestDTO;
-import domain.transaction.dto.InboundRequestItemDTO;
+import domain.transaction.vo.InboundStatus;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+
 
 public class InboundRequestDAOImpl implements InboundRequestDAO {
 
-    // Helper method to map ResultSet to InboundRequestDTO
-    private InboundRequestDTO mapResultSetToInboundRequestDTO(ResultSet rs) throws SQLException {
-        Long id = rs.getLong("inbound_request_id");
-        String memberId = rs.getString("member_id");
-        String managerId = rs.getString("manager_id");
-        LocalDate requestDate = rs.getDate("request_date") != null ? rs.getDate("request_date").toLocalDate() : null;
-        LocalDate approvalDate = rs.getDate("approval_date") != null ? rs.getDate("approval_date").toLocalDate() : null;
-        String status = rs.getString("status");
-        String inboundReceipt = rs.getString("inbound_receipt");
-        boolean isDeleted = rs.getBoolean("is_deleted");
-        LocalDate isDeletedAt = rs.getDate("is_deleted_at") != null ? rs.getDate("is_deleted_at").toLocalDate() : null;
-
-        // DTO는 항상 isDeleted가 false인 유효한 요청을 반환하는 것이 일반적
-        if (isDeleted) {
-            return null; // 논리적으로 삭제된 요청은 DTO로 변환하지 않음 (필요에 따라 변경 가능)
-        }
-
-        // 입고 요청 상세 항목들도 함께 조회하여 DTO에 담기
-        List<InboundRequestItemDTO> items = getInboundRequestItemsByRequestId(id);
-
-        // InboundRequestDTO의 생성자를 활용
-        return new InboundRequestDTO(id, memberId, managerId, requestDate, status, inboundReceipt, items);
-        // Note: approvalDate와 isDeletedAt은 DTO에는 직접적인 필드가 없으므로, 필요하면 InboundRequestDTO에 추가해야 함.
-        // 현재 InboundRequestDTO는 VO의 모든 필드를 포함하지 않으므로, 이 부분은 유연하게 처리해야 합니다.
-        // 여기서는 DTO가 VO의 모든 필드를 포함한다고 가정하고, LocalDate -> Date 변환을 수행했습니다.
-        // 이상적인 DTO는 필요한 정보만 가짐. 여기서는 편의상 VO와 유사하게 필드를 매핑했습니다.
-    }
-
-    // Helper method to map ResultSet to InboundRequestItemDTO
-    private InboundRequestItemDTO mapResultSetToInboundRequestItemDTO(ResultSet rs) throws SQLException {
-        Long itemId = rs.getLong("inbound_request_item_id");
-        String coffeeId = rs.getString("coffee_id");
-        Integer quantity = rs.getInt("inbound_request_quantity");
-        LocalDate itemRequestDate = rs.getDate("inbound_request_date") != null ? rs.getDate("inbound_request_date").toLocalDate() : null;
-
-        return new InboundRequestItemDTO(itemId, coffeeId, quantity, itemRequestDate);
-    }
-
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Long createInboundRequest(InboundRequestDTO requestDTO) throws SQLException {
-        String sql = "INSERT INTO inbound_request (member_id, request_date, status, inbound_receipt) VALUES (?, ?, ?, ?)";
+    public Long insertInboundRequest(InboundRequestDTO requestDto) throws SQLException {
+        // 프로시저 호출 SQL 정의
+        String sql = "{CALL CreateInboundRequest(?, ?, ?, ?)}"; // 3개의 IN 파라미터 + 1개의 OUT 파라미터
+
         Long generatedId = null;
 
-        try (Connection connection = DBUtil.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            pstmt.setString(1, requestDTO.getMemberId());
-            pstmt.setDate(2, Date.valueOf(LocalDate.now())); // 요청 날짜는 현재 날짜로 고정
-            pstmt.setString(3, requestDTO.getStatus()); // 초기 상태는 DTO에서 '대기'로 설정될 것
-            pstmt.setString(4, requestDTO.getInboundReceipt());
-
-            int affectedRows = pstmt.executeUpdate();
-
-            if (affectedRows == 0) {
-                throw new SQLException("입고 요청 생성 실패, 영향받은 행이 없습니다.");
+        String itemsJson = null;
+        try {
+            if (requestDto.getItems() != null && !requestDto.getItems().isEmpty()) {
+                itemsJson = objectMapper.writeValueAsString(requestDto.getItems());
+            } else {
+                itemsJson = "[]";
             }
-
-            try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    generatedId = generatedKeys.getLong(1);
-                } else {
-                    throw new SQLException("입고 요청 생성 실패, ID를 얻지 못했습니다.");
-                }
-            }
+        } catch (JsonProcessingException e) {
+            System.err.println("Error converting InboundRequestItemDTO list to JSON: " + e.getMessage());
+            throw new SQLException("Failed to serialize inbound items to JSON", e);
         }
 
-        // 입고 요청 상세 항목들 처리
-        if (generatedId != null && requestDTO.getItems() != null) {
-            for (InboundRequestItemDTO item : requestDTO.getItems()) {
-                createInboundRequestItem(conn, generatedId, item);
-            }
+        try (Connection conn = DBUtil.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+
+            // CallableStatement 파라미터 설정
+            cstmt.setString(1, requestDto.getMemberId());
+            cstmt.setDate(2, Date.valueOf(requestDto.getRequestDate()));
+            cstmt.setString(3, itemsJson); // JSON 문자열 전달
+            cstmt.registerOutParameter(4, Types.BIGINT); // OUT 파라미터 등록 (인덱스 변경)
+
+            cstmt.execute();
+
+            generatedId = cstmt.getLong(4); // 생성된 ID 가져오기 (인덱스 변경)
+            requestDto.setInboundRequestId(generatedId);
+
+        } catch (SQLException e) {
+            System.err.println("Error inserting inbound request via procedure: " + e.getMessage());
+            throw e;
         }
         return generatedId;
     }
 
+
+    // ... 다른 DAO 메서드들 ...
+
+    /**
+     * 입고 요청을 논리적으로 삭제합니다.
+     * is_deleted 필드를 true로 설정하고 is_deleted_at 필드를 현재 날짜로 업데이트합니다.
+     *
+     * @param inboundRequestId 삭제할 입고 요청의 ID
+     * @return 업데이트된 레코드 수 (보통 1)
+     * @throws SQLException DB 작업 중 오류 발생 시
+     */
     @Override
-    public InboundRequestDTO getInboundRequestById(Long inboundRequestId) throws SQLException {
-        String sql = "SELECT * FROM inbound_request WHERE inbound_request_id = ? AND is_deleted = 0"; // 삭제되지 않은 요청만
-        try (Connection conn = DBUtil.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, inboundRequestId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToInboundRequestDTO(rs);
-                }
-            }
-        }
-        return null;
-    }
+    public int deleteInboundRequest(Long inboundRequestId) throws SQLException {
+        String sql = "UPDATE inbound_request SET is_deleted = ?, is_deleted_at = ? WHERE inbound_request_id = ?";
+        int rowsAffected = 0;
 
-    @Override
-    public boolean updateInboundRequestStatus(Long inboundRequestId, String newStatus, String managerId) throws SQLException {
-        String sql = "UPDATE inbound_request SET status = ?, manager_id = ?, approval_date = ? WHERE inbound_request_id = ? AND is_deleted = 0";
-        try (Connection conn = DBUtil.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, newStatus);
-            pstmt.setString(2, managerId); // 관리자 ID
-            pstmt.setDate(3, Date.valueOf(LocalDate.now())); // 승인/거절 처리 날짜
-            pstmt.setLong(4, inboundRequestId);
-
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
-        }
-    }
-
-    @Override
-    public boolean softDeleteInboundRequest(Long inboundRequestId) throws SQLException {
-        String sql = "UPDATE inbound_request SET is_deleted = 1, is_deleted_at = ? WHERE inbound_request_id = ? AND is_deleted = 0";
-        try (Connection conn = DBUtil.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setDate(1, Date.valueOf(LocalDate.now())); // 삭제 날짜
-            pstmt.setLong(2, inboundRequestId);
-
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
-        }
-    }
-
-    @Override
-    public List<InboundRequestDTO> getInboundRequestsByMemberId(String memberId) throws SQLException {
-        List<InboundRequestDTO> requestList = new ArrayList<>();
-        String sql = "SELECT * FROM inbound_request WHERE member_id = ? AND is_deleted = 0 ORDER BY request_date DESC";
-        try (Connection conn = DBUtil.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, memberId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    InboundRequestDTO dto = mapResultSetToInboundRequestDTO(rs, conn);
-                    if (dto != null) { // 삭제된 요청은 제외
-                        requestList.add(dto);
-                    }
-                }
-            }
-        }
-        return requestList;
-    }
-
-    @Override
-    public List<InboundRequestDTO> getAllInboundRequests() throws SQLException {
-        List<InboundRequestDTO> requestList = new ArrayList<>();
-        String sql = "SELECT * FROM inbound_request WHERE is_deleted = 0 ORDER BY request_date DESC";
-        try (Connection conn = DBUtil.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    InboundRequestDTO dto = mapResultSetToInboundRequestDTO(rs, conn);
-                    if (dto != null) { // 삭제된 요청은 제외
-                        requestList.add(dto);
-                    }
-                }
-            }
-        }
-        return requestList;
-    }
-
-    @Override
-    public List<InboundRequestItemDTO> getInboundRequestItemsByRequestId(Long inboundRequestId) throws SQLException {
-        List<InboundRequestItemDTO> items = new ArrayList<>();
-        String sql = "SELECT * FROM inbound_request_items WHERE inbound_request_id = ?";
-        try (Connection conn = DBUtil.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, inboundRequestId);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    items.add(mapResultSetToInboundRequestItemDTO(rs));
-                }
-            }
-        }
-        return items;
-    }
-
-    @Override
-    public void createInboundRequestItem(Long inboundRequestId, InboundRequestItemDTO itemDTO) throws SQLException {
-        String sql = "INSERT INTO inbound_request_items (inbound_request_id, coffee_id, inbound_request_quantity, inbound_request_date) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setLong(1, inboundRequestId);
-            pstmt.setString(2, itemDTO.getCoffeeId());
-            pstmt.setInt(3, itemDTO.getInboundRequestQuantity());
-            pstmt.setDate(4, Date.valueOf(LocalDate.now())); // 상세 요청 날짜도 현재 날짜로 고정
 
-            pstmt.executeUpdate();
+            pstmt.setBoolean(1, true); // is_deleted = true
+            pstmt.setDate(2, Date.valueOf(LocalDate.now())); // is_deleted_at = 현재 날짜
+            pstmt.setLong(3, inboundRequestId);
+
+            rowsAffected = pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Error deleting (logically) inbound request: " + e.getMessage());
+            throw e;
         }
+        return rowsAffected;
     }
+
+    /**
+     * 지정된 ID의 단일 입고 요청을 조회합니다.
+     * 이 메서드는 입고 요청 헤더 정보만 가져옵니다.
+     * 연관된 InboundRequestItemDTO 리스트는 별도의 DAO 호출을 통해 가져와야 합니다.
+     *
+     * @param inboundRequestId 조회할 입고 요청의 ID
+     * @return 해당 ID의 InboundRequestDTO 객체, 없으면 null
+     * @throws SQLException DB 작업 중 오류 발생 시
+     */
+    @Override
+    public InboundRequestDTO findInboundRequestById(Long inboundRequestId) throws SQLException {
+        String sql = "SELECT * FROM inbound_request WHERE inbound_request_id = ? AND is_deleted = 0"; // 삭제되지 않은 것만 조회
+        InboundRequestDTO dto = null;
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setLong(1, inboundRequestId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    dto = new InboundRequestDTO(rs); // ResultSet 생성자 활용
+                    // Note: items 리스트는 여기서 채워지지 않습니다. 서비스 계층에서 InboundRequestItemDAO를 통해 추가로 로드해야 합니다.
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding inbound request by ID: " + e.getMessage());
+            throw e;
+        }
+        return dto;
+    }
+
+    /**
+     * 입고 요청(헤더)을 수정합니다.
+     * DTO의 inboundRequestId를 사용하여 기존 레코드를 찾고, 나머지 필드를 업데이트합니다.
+     * 이 메서드는 상태 변경, 매니저 ID 할당, 영수증 추가 등 다양한 업데이트에 사용될 수 있습니다.
+     *
+     * @param dto 업데이트할 입고 요청 정보를 담은 InboundRequestDTO 객체
+     * @return 업데이트된 레코드 수 (보통 1)
+     * @throws SQLException DB 작업 중 오류 발생 시
+     */
+    @Override
+    public int updateInboundRequest(InboundRequestDTO dto) throws SQLException {
+        // manager_id, approval_date, status, inbound_receipt, is_deleted, is_deleted_at 등
+        // 모든 필드를 업데이트 가능한 형태로 쿼리를 작성합니다.
+        // 클라이언트(Service)에서 DTO에 필요한 값만 설정하여 호출하면 됩니다.
+        String sql = "UPDATE inbound_request SET " +
+                "member_id = ?, manager_id = ?, request_date = ?, approval_date = ?, " +
+                "status = ?, inbound_receipt = ?, is_deleted = ?, is_deleted_at = ? " +
+                "WHERE inbound_request_id = ?";
+        int rowsAffected = 0;
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            int paramIndex = 1;
+            pstmt.setString(paramIndex++, dto.getMemberId());
+
+            // manager_id (NULL 허용)
+            if (dto.getManagerId() != null) {
+                pstmt.setString(paramIndex++, dto.getManagerId());
+            } else {
+                pstmt.setNull(paramIndex++, Types.VARCHAR);
+            }
+
+            pstmt.setDate(paramIndex++, Date.valueOf(dto.getRequestDate()));
+
+            // approval_date (NULL 허용)
+            if (dto.getApprovalDate() != null) {
+                pstmt.setDate(paramIndex++, Date.valueOf(dto.getApprovalDate()));
+            } else {
+                pstmt.setNull(paramIndex++, Types.DATE);
+            }
+
+            pstmt.setString(paramIndex++, dto.getStatus().getDisplayName()); // Enum을 String으로 변환
+
+            // inbound_receipt (NULL 허용)
+            if (dto.getInboundReceipt() != null) {
+                pstmt.setString(paramIndex++, dto.getInboundReceipt());
+            } else {
+                pstmt.setNull(paramIndex++, Types.LONGVARCHAR); // TEXT 타입에 적합
+            }
+
+            pstmt.setBoolean(paramIndex++, dto.isDeleted());
+
+            // is_deleted_at (NULL 허용)
+            if (dto.getIsDeletedAt() != null) {
+                pstmt.setDate(paramIndex++, Date.valueOf(dto.getIsDeletedAt()));
+            } else {
+                pstmt.setNull(paramIndex++, Types.DATE);
+            }
+
+            pstmt.setLong(paramIndex, dto.getInboundRequestId());
+
+            rowsAffected = pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Error updating inbound request: " + e.getMessage());
+            throw e;
+        }
+        return rowsAffected;
+    }
+
+    /**
+     * 특정 회원의 특정 상태에 해당하는 입고 요청 목록을 조회합니다.
+     *
+     * @param memberId 조회할 회원의 ID
+     * @param status   조회할 입고 요청의 상태 (InboundStatus Enum)
+     * @return 조회된 InboundRequestDTO 객체들의 리스트
+     * @throws SQLException DB 작업 중 오류 발생 시
+     */
+    @Override
+    public List<InboundRequestDTO> findInboundRequestsByMemberId(String memberId, InboundStatus status) throws SQLException {
+        List<InboundRequestDTO> requestList = new ArrayList<>();
+        // is_deleted = 0 (삭제되지 않은) 요청만 조회
+        String sql = "SELECT * FROM inbound_request WHERE member_id = ? AND status = ? AND is_deleted = 0 ORDER BY request_date DESC";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, memberId);
+            pstmt.setString(2, status.getDisplayName()); // Enum을 String으로 변환
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    requestList.add(new InboundRequestDTO(rs)); // ResultSet 생성자 활용
+                    // Note: items 리스트는 여기서 채워지지 않습니다. 서비스 계층에서 추가 로드 필요.
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding inbound requests by member ID and status: " + e.getMessage());
+            throw e;
+        }
+        return requestList;
+    }
+
+    /**
+     * 특정 상태에 해당하는 모든 입고 요청 목록을 조회합니다. (관리자용)
+     *
+     * @param status 조회할 입고 요청의 상태 (InboundStatus Enum)
+     * @return 조회된 InboundRequestDTO 객체들의 리스트
+     * @throws SQLException DB 작업 중 오류 발생 시
+     */
+    @Override
+    public List<InboundRequestDTO> findAllInboundRequestsByStatus(InboundStatus status) throws SQLException {
+        List<InboundRequestDTO> requestList = new ArrayList<>();
+        // is_deleted = 0 (삭제되지 않은) 요청만 조회
+        String sql = "SELECT * FROM inbound_request WHERE status = ? AND is_deleted = 0 ORDER BY request_date DESC";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, status.getDisplayName()); // Enum을 String으로 변환
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    requestList.add(new InboundRequestDTO(rs)); // ResultSet 생성자 활용
+                    // Note: items 리스트는 여기서 채워지지 않습니다.
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error finding all inbound requests by status: " + e.getMessage());
+            throw e;
+        }
+        return requestList;
+    }
+
+
 }

@@ -71,11 +71,10 @@ public class WMSMenu {
                 UserVO loggedInUser = userService.login(member.getId());
                 InventoryController.getInstance().inventoryMainMenu(loggedInUser);
                 break;
-            case "4":   // 입고
-                inboundMenu.menuMember(member.getId());
+            case "4":   // 입고'
+                inboundMenu.memberMenu(member);
                 break;
             case "5":   // 출고
-                outboundMenu.menuMember(member.getId());
                 break;
             case "6":   // 로그아웃
                 logout(member.getId());
@@ -106,8 +105,7 @@ public class WMSMenu {
                 InventoryController.getInstance().inventoryMainMenu(loggedInUser);
                 break;
             case "5":   // 입고
-                inboundMenu.menuManager(manager.getId());
-                break;
+=                break;
             case "6":   // 출고
                 outboundMenu.menuManager(manager.getId());
                 break;

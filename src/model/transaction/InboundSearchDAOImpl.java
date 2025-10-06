@@ -58,13 +58,13 @@ public class InboundSearchDAOImpl implements InboundSearchDAO {
 
         sqlBuilder.append("SELECT ");
         sqlBuilder.append("    ir.inbound_request_id, ");
-        sqlBuilder.append("    ir.request_date AS 입고_요청_날짜, ");
-        sqlBuilder.append("    ir.approval_date AS 승인_날짜, "); // 승인되지 않은 요청의 경우 NULL
-        sqlBuilder.append("    mgr.manager_name AS 승인_관리자명, "); // 승인되지 않은 요청의 경우 NULL
-        sqlBuilder.append("    c.coffee_name AS 커피_이름, ");
-        sqlBuilder.append("    iri.inbound_request_quantity AS 요청_수량, ");
-        sqlBuilder.append("    ir.status AS 요청_상태, ");
-        sqlBuilder.append("    ir.boundReceipt AS 입고_고지서 ");
+        sqlBuilder.append("    ir.request_date");
+        sqlBuilder.append("    ir.approval_date"); // 승인되지 않은 요청의 경우 NULL
+        sqlBuilder.append("    mgr.manager_name"); // 승인되지 않은 요청의 경우 NULL
+        sqlBuilder.append("    c.coffee_name");
+        sqlBuilder.append("    iri.inbound_request_quantity");
+        sqlBuilder.append("    ir.status");
+        sqlBuilder.append("    ir.inboundReceipt");
         sqlBuilder.append("FROM ");
         sqlBuilder.append("    inbound_request ir ");
         sqlBuilder.append("JOIN ");

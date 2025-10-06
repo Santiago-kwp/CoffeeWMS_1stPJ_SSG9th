@@ -1,8 +1,7 @@
 package domain.transaction.vo;
 
 
-import java.sql.Date;
-import java.time.LocalDate;
+import java.time.LocalDate; // LocalDate와 같은 불변 객체를 사용함으로써, 날짜 필드의 방어적 복사(defensive copy) 걱정 없이 안전하게 사용할 수 있습니다.
 import java.util.Objects; // Objects.hash() 사용을 위해 추가
 
 public final class InboundRequestVO { // final 클래스로 선언하여 상속 방지
@@ -11,12 +10,12 @@ public final class InboundRequestVO { // final 클래스로 선언하여 상속 
     private final String managerId;
     private final LocalDate requestDate; // LocalDate는 불변 객체이므로 방어적 복사 필요 없음!
     private final LocalDate approvalDate; //
-    private final String status;
+    private final InboundStatus status;
     private final String inboundReceipt;
     private final boolean isDeleted;
     private final LocalDate isDeletedAt; //
 
-    public InboundRequestVO(Long inboundRequestId, String memberId, String managerId, LocalDate requestDate, LocalDate approvalDate, String status, String inboundReceipt, boolean isDeleted, LocalDate isDeletedAt) {
+    public InboundRequestVO(Long inboundRequestId, String memberId, String managerId, LocalDate requestDate, LocalDate approvalDate, InboundStatus status, String inboundReceipt, boolean isDeleted, LocalDate isDeletedAt) {
         this.inboundRequestId = inboundRequestId;
         this.memberId = memberId;
         this.managerId = managerId;
@@ -48,7 +47,7 @@ public final class InboundRequestVO { // final 클래스로 선언하여 상속 
         return approvalDate;
     }
 
-    public String getStatus() {
+    public InboundStatus getStatus() {
         return status;
     }
 
