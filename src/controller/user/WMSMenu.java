@@ -11,13 +11,13 @@ import controller.transaction.OutboundMenu;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-import model.user.LoginDAO;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import service.inventory.UserService;
 import java.sql.SQLException;
+import service.user.LogoutService;
 
 public class WMSMenu {
 
@@ -25,6 +25,7 @@ public class WMSMenu {
 
     private final User currentLoginUser;
     private final MenuNumberValidCheck validCheck;
+    private final LogoutService logoutService;
 
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
@@ -33,9 +34,10 @@ public class WMSMenu {
     private OutboundMenu outboundMenu = new OutboundMenu();
     private CargoController cargoController;
 
-    WMSMenu(User loginUser) {
+    WMSMenu(User loginUser, LogoutService logoutService) {
         this.currentLoginUser = loginUser;
         this.validCheck = new MenuNumberValidCheck();
+        this.logoutService = logoutService;
     }
 
     void run() {
@@ -124,7 +126,7 @@ public class WMSMenu {
         }
     }
 
-    // WMS의 나머지 기능에 관한 컨트롤러를 실행할 메서드를 여기서부터 작성해주시면 됩니다.
+    // 각자 담당하신 기능에 관한 컨트롤러를 실행하는 메서드를 여기서부터 작성해주시면 됩니다.
 
     private void cargoConnect(Manager manager) {
        try {
@@ -136,7 +138,7 @@ public class WMSMenu {
     }
 
     private void logout(String userID) {
-        LoginDAO.logout(userID);
+        logoutService.logout(userID);
         quitWMS = true;
     }
 }

@@ -3,7 +3,6 @@ package controller.user;
 import constant.user.InputMessage;
 import constant.user.LoginPage;
 import constant.user.validation.InputValidCheck;
-import constant.user.validation.LoginValidCheck;
 import constant.user.validation.MenuNumberValidCheck;
 import domain.user.User;
 import exception.user.InvalidUserDataException;
@@ -67,7 +66,7 @@ public class LoginMenu {
 
         User loginUser = loginService.login(userID, userPwd);
 
-        WMSMenu wmsMenu = new WMSMenu(loginUser);
+        WMSMenu wmsMenu = new WMSMenu(loginUser, (LoginServiceImpl)loginService);
         wmsMenu.run();
     }
 

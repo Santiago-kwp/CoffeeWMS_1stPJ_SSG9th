@@ -7,7 +7,7 @@ import exception.user.LoginException;
 import exception.user.UserNotFoundException;
 import model.user.LoginDAO;
 
-public class LoginServiceImpl implements LoginService {
+public class LoginServiceImpl implements LoginService, LogoutService {
 
     private final LoginDAO dao;
 
@@ -43,5 +43,10 @@ public class LoginServiceImpl implements LoginService {
     public void updatePassword(String userID, String newPassword) throws FailedToUserUpdateException {
         boolean ack = dao.updatePassword(userID, newPassword);
         loginValidCheck.checkPwdUpdated(ack);
+    }
+
+    @Override
+    public void logout(String userID) {
+        dao.logout(userID);
     }
 }

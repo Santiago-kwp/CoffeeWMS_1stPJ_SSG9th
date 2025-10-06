@@ -146,7 +146,7 @@ public class LoginDAO {
         return false;
     }
 
-    public static void logout(String userID) {
+    public void logout(String userID) {
         String sql = "call logout(?, ?)";
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
