@@ -3,10 +3,11 @@
 /*
  회원의 입고 요청을 받고 DB 테이블에 저장하는 프로시저
  */
-DELIMITER //
+
 
 DROP PROCEDURE IF EXISTS CreateInboundRequest;
 
+DELIMITER //
 CREATE PROCEDURE CreateInboundRequest(
     IN p_member_id VARCHAR(15),
     IN p_request_date DATE,

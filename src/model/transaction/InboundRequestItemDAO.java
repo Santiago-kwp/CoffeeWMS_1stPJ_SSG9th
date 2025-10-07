@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface InboundRequestItemDAO {
 
+
+
     /**
      * 단일 입고 요청 상세 항목을 데이터베이스에 삽입합니다.
      *

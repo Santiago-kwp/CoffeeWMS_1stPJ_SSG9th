@@ -1,12 +1,28 @@
 package view.transaction;
 
 
+import constant.transaction.ErrorCode;
+import exception.transaction.TransactionException;
 import exception.transaction.ValidationException;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Calendar;
+import java.util.Date;
 
 public class ValidCheck {
+
+    // 1. private static final 인스턴스 변수 선언 및 초기화
+    private static final ValidCheck instance = new ValidCheck();
+
+    // 2. private 생성자
+    private ValidCheck() {}
+
+    // 3. public static getInstance() 메서드
+    public static ValidCheck getInstance() {
+        return instance;
+    }
 
     public long checkLong(String input, String fieldName) throws ValidationException {
         try {
@@ -28,13 +44,54 @@ public class ValidCheck {
         }
     }
 
-    public LocalDate checkDate(String input) throws ValidationException {
+    public String checkMenuInput(String input) throws ValidationException {
+        try {
+            Integer.parseInt(input.trim());
+            return input.trim();
+        } catch (NumberFormatException e) {
+            throw new ValidationException("메뉴 번호는 숫자만 입력 가능합니다.");
+        }
+    }
+
+    /**
+     * [신규] 날짜 형식('YYYY-MM-DD')만 검증하는 범용 메서드입니다.
+     * @param input 사용자가 입력한 날짜 문자열
+     * @return 유효성 검사를 통과한 LocalDate 객체
+     * @throws ValidationException 형식이 맞지 않을 경우
+     */
+    public LocalDate checkDateFormat(String input) throws ValidationException {
         try {
             return LocalDate.parse(input.trim());
         } catch (DateTimeParseException e) {
-            throw new ValidationException("날짜 형식이 올바르지 않습니다. (예: 2025-10-06)");
+            throw new ValidationException("날짜 형식이 올바르지 않습니다. (예: 2025-10-07)");
         }
     }
+
+    /**
+     * [수정] '새로운 입고 요청'에 대한 날짜 유효성을 검증하는 메서드입니다.
+     * 이제 checkDateFormat을 먼저 호출하여 형식 검증을 위임합니다.
+     * 규칙: 날짜는 오늘로부터 최소 한 달 이후여야 합니다.
+     *
+     * @param input 사용자가 입력한 날짜 문자열
+     * @return 유효성 검사를 모두 통과한 LocalDate 객체
+     * @throws ValidationException 형식 또는 규칙에 맞지 않을 경우
+     */
+    public LocalDate checkDate(String input) throws ValidationException {
+        // 1. 형식 검증 (위임)
+        LocalDate parsedDate = checkDateFormat(input);
+
+        // 2. 비즈니스 규칙 검증 (고유의 책임)
+        LocalDate today = LocalDate.now();
+        LocalDate oneMonthLater = today.plusMonths(1);
+
+        if (parsedDate.isBefore(oneMonthLater)) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            throw new ValidationException("입고 요청 날짜는 오늘로부터 최소 한 달 이후여야 합니다. (입력 가능 시작일: " + oneMonthLater.format(formatter) + ")");
+        }
+
+        return parsedDate;
+    }
+
 
     /**
      * "상품번호,수량" 형식의 입력을 검증합니다.
@@ -58,4 +115,6 @@ public class ValidCheck {
 
         return new int[]{itemIndex, quantity};
     }
+
+
 }

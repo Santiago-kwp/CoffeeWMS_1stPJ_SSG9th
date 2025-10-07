@@ -17,6 +17,17 @@ import java.util.List;
 
 public class InboundRequestDAOImpl implements InboundRequestDAO {
 
+    // 1. private static final 인스턴스 변수 선언 및 초기화
+    private static final InboundRequestDAOImpl instance = new InboundRequestDAOImpl();
+
+    // 2. private 생성자 선언하여 외부에서 new 키워드로 생성하는 것을 방지
+    private InboundRequestDAOImpl() {}
+
+    // 3. public static getInstance() 메서드로 유일한 인스턴스에 접근하도록 함
+    public static InboundRequestDAOImpl getInstance() {
+        return instance;
+    }
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -71,12 +82,11 @@ public class InboundRequestDAOImpl implements InboundRequestDAO {
      * @throws SQLException DB 작업 중 오류 발생 시
      */
     @Override
-    public int deleteInboundRequest(Long inboundRequestId) throws SQLException {
+    public int deleteInboundRequest(Connection conn, Long inboundRequestId) throws SQLException {
         String sql = "UPDATE inbound_request SET is_deleted = ?, is_deleted_at = ? WHERE inbound_request_id = ?";
         int rowsAffected = 0;
 
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setBoolean(1, true); // is_deleted = true
             pstmt.setDate(2, Date.valueOf(LocalDate.now())); // is_deleted_at = 현재 날짜
@@ -133,7 +143,7 @@ public class InboundRequestDAOImpl implements InboundRequestDAO {
      * @throws SQLException DB 작업 중 오류 발생 시
      */
     @Override
-    public int updateInboundRequest(InboundRequestDTO dto) throws SQLException {
+    public int updateInboundRequest(Connection conn, InboundRequestDTO dto) throws SQLException {
         // manager_id, approval_date, status, inbound_receipt, is_deleted, is_deleted_at 등
         // 모든 필드를 업데이트 가능한 형태로 쿼리를 작성합니다.
         // 클라이언트(Service)에서 DTO에 필요한 값만 설정하여 호출하면 됩니다.
@@ -143,8 +153,7 @@ public class InboundRequestDAOImpl implements InboundRequestDAO {
                 "WHERE inbound_request_id = ?";
         int rowsAffected = 0;
 
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             int paramIndex = 1;
             pstmt.setString(paramIndex++, dto.getMemberId());
@@ -257,6 +266,88 @@ public class InboundRequestDAOImpl implements InboundRequestDAO {
         }
         return requestList;
     }
+
+    @Override
+    public List<InboundRequestDTO> findRequestsByMemberIdAndDateRange(String memberId, InboundStatus status, LocalDate startDate, LocalDate endDate) throws SQLException {
+        List<InboundRequestDTO> requestList = new ArrayList<>();
+        String sql = "SELECT * FROM inbound_request WHERE member_id = ? AND status = ? AND is_deleted = 0 " +
+                "AND request_date BETWEEN ? AND ? ORDER BY request_date DESC";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, memberId);
+            pstmt.setString(2, status.getDisplayName());
+            pstmt.setDate(3, Date.valueOf(startDate));
+            pstmt.setDate(4, Date.valueOf(endDate));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    requestList.add(new InboundRequestDTO(rs));
+                }
+            }
+        }
+        return requestList;
+    }
+
+    @Override
+    public List<InboundRequestDTO> findRequestsByMemberIdAndMonth(String memberId, InboundStatus status, int year, int month) throws SQLException {
+        List<InboundRequestDTO> requestList = new ArrayList<>();
+        String sql = "SELECT * FROM inbound_request WHERE member_id = ? AND status = ? AND is_deleted = 0 " +
+                "AND YEAR(request_date) = ? AND MONTH(request_date) = ? ORDER BY request_date DESC";
+        try (Connection conn = DBUtil.getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, memberId);
+            pstmt.setString(2, status.getDisplayName());
+            pstmt.setInt(3, year);
+            pstmt.setInt(4, month);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    requestList.add(new InboundRequestDTO(rs));
+                }
+            }
+        }
+        return requestList;
+    }
+
+    @Override
+    public List<InboundRequestDTO> findAllRequestsByDateRange(InboundStatus status, LocalDate startDate, LocalDate endDate) throws SQLException {
+        List<InboundRequestDTO> requestList = new ArrayList<>();
+        String sql = "SELECT * FROM inbound_request WHERE status = ? AND is_deleted = 0 " +
+                "AND request_date BETWEEN ? AND ? ORDER BY request_date DESC";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, status.getDisplayName());
+            pstmt.setDate(2, Date.valueOf(startDate));
+            pstmt.setDate(3, Date.valueOf(endDate));
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    requestList.add(new InboundRequestDTO(rs));
+                }
+            }
+        }
+        return requestList;
+    }
+
+    @Override
+    public List<InboundRequestDTO> findAllRequestsByMonth(InboundStatus status, int year, int month) throws SQLException {
+        List<InboundRequestDTO> requestList = new ArrayList<>();
+        String sql = "SELECT * FROM inbound_request WHERE status = ? AND is_deleted = 0 " +
+                "AND YEAR(request_date) = ? AND MONTH(request_date) = ? ORDER BY request_date DESC";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, status.getDisplayName());
+            pstmt.setInt(2, year);
+            pstmt.setInt(3, month);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    requestList.add(new InboundRequestDTO(rs));
+                }
+            }
+        }
+        return requestList;
+    }
+
+
+
+
+
 
 
 }

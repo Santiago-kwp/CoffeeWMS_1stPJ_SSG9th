@@ -15,6 +15,17 @@ import java.util.List;
  */
 public class InboundRequestItemDAOImpl implements InboundRequestItemDAO {
 
+    // 1. private static final 인스턴스 변수 선언 및 초기화
+    private static final InboundRequestItemDAOImpl instance = new InboundRequestItemDAOImpl();
+
+    // 2. private 생성자 선언하여 외부에서 new 키워드로 생성하는 것을 방지
+    private InboundRequestItemDAOImpl() {}
+
+    // 3. public static getInstance() 메서드로 유일한 인스턴스에 접근하도록 함
+    public static InboundRequestItemDAOImpl getInstance() {
+        return instance;
+    }
+
     @Override
     public int insertInboundRequestItem(InboundRequestItemDTO dto) throws SQLException {
         String sql = "INSERT INTO inbound_request_items (inbound_request_id, coffee_id, inbound_request_quantity) VALUES (?, ?, ?)";

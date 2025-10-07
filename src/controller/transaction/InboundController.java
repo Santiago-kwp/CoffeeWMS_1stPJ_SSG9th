@@ -1,67 +1,86 @@
 package controller.transaction;
 
 import controller.command.Command;
+import controller.command.inbound.*;
 import domain.user.Manager;
 import domain.user.Member;
-import domain.user.User;
+// 필요한 서비스들을 모두 import
+import service.cargo.LocationService;
+import service.cargo.LocationServiceImpl;
+import service.transaction.InboundService;
+import service.transaction.InboundServiceImpl;
 import view.transaction.InboundView;
 
+import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 입고 관리 메뉴의 흐름을 제어하는 컨트롤러 클래스입니다.
- * 사용자 입력을 받아 적절한 Command를 실행시키는 Invoker 역할을 합니다.
- */
 public class InboundController {
+  // 모든 의존성은 final로 선언하여 불변성 보장
+  // 의존성 주입 대신, 각 싱글톤 클래스의 getInstance()를 호출하여 인스턴스를 가져옴
+  private final InboundService inboundService = InboundServiceImpl.getInstance();
+  private final LocationService locationService = LocationServiceImpl.getInstance();
+  private final InboundView inboundView = InboundView.getInstance();
 
-    private final InboundView inboundView;
-    // 이 컨트롤러가 사용할 Command들을 Map 형태로 주입받습니다.
-    private final Map<String, Command> commands;
+  private final Map<String, Command> memberCommands = new HashMap<>();
+  private final Map<String, Command> managerCommands = new HashMap<>();
 
-    /**
-     * 생성자를 통해 의존성을 주입받습니다.
-     * @param inboundView 사용자 입출력을 담당하는 뷰
-     * @param commands 메뉴 번호와 매핑된 커맨드 객체 맵
-     */
-    public InboundController(InboundView inboundView, Map<String, Command> commands) {
-        this.inboundView = inboundView;
-        this.commands = commands;
-    }
 
-    /**
-     * 사용자의 종류에 따라 입고 관리 메인 메뉴를 보여주고 로직을 실행합니다.
-     * @param user 현재 로그인한 사용자(Member 또는 Manager)
-     */
-    public void showInboundMenu(User user) {
-        boolean keepRunning = true;
-        while (keepRunning) {
-            try {
-                // 사용자의 종류에 따라 다른 메뉴를 보여줍니다.
-                if (user instanceof Member) {
-                    inboundView.displayMemberMenu();
-                } else if (user instanceof Manager) {
-                    inboundView.displayManagerMenu();
-                }
 
-                String choice = inboundView.getMenuChoiceFromUser(); // View에서 메뉴 번호 입력 받기
+  public InboundController() {
+    initializeCommands(); // 싱글통 클래스의 객체로 커맨드 초기화
+  }
 
-                if (choice.equals("0")) {
-                    keepRunning = false; // 0 입력 시 루프 종료 (이전 메뉴로)
-                    continue;
-                }
+  private void initializeCommands() {
+    // 회원용 커맨드 초기화 (필요한 모든 의존성 전달)
+    memberCommands.put("1", new RequestInboundCommand(inboundService, inboundView));
+    memberCommands.put("2", new ModifyInboundCommand(inboundService, inboundView));
+    memberCommands.put("3", new CancelInboundCommand(inboundService, inboundView));
+    memberCommands.put("4", new ViewInboundCommand(inboundService, inboundView));
+    memberCommands.put("5", new ViewMemberInboundListCommand(inboundService, inboundView));
 
-                Command command = commands.get(choice);
+    // 관리자용 커맨드 초기화 (필요한 모든 의존성 전달)
+    managerCommands.put("1", new ApproveInboundCommand(inboundService, inboundView, locationService));
+    managerCommands.put("2", new RejectInboundCommand(inboundService, inboundView));
+    managerCommands.put("3", new ViewInboundCommand(inboundService, inboundView));
+    managerCommands.put("4", new ViewAllInboundListCommand(inboundService, inboundView));
+  }
 
-                if (command != null) {
-                    // 선택된 커맨드 실행. 커맨드는 현재 사용자 정보를 알아야 하므로 user 객체 전달
-                    command.execute(user);
-                } else {
-                    inboundView.displayError("잘못된 메뉴 선택입니다. 다시 입력해주세요.");
-                }
-            } catch (Exception e) {
-                // Command 실행 중 발생할 수 있는 모든 예외 처리
-                inboundView.displayError("작업 중 예상치 못한 오류가 발생했습니다: " + e.getMessage());
-            }
+  public void memberMenu(Member member) {
+    while (true) {
+      inboundView.displayMemberMenu(); // 1. 입고 요청, 2. 요청 수정 ...
+      String choice = inboundView.getMenuChoiceFromUser(); // View의 헬퍼 메서드 사용
+      if (choice.equals("0")) break; // 뒤로가기
+
+      Command command = memberCommands.get(choice);
+      if (command != null) {
+        try {
+          command.execute(member); // Member 객체 전달
+        } catch (Exception e) {
+          inboundView.displayError("예상치 못한 오류 발생: " + e.getMessage());
         }
+      } else {
+        inboundView.displayError("잘못된 메뉴 선택입니다.");
+      }
     }
+  }
+
+  // WMSMenu에서 호출하는 메서드
+  public void managerMenu(Manager manager) {
+    while (true) {
+      inboundView.displayManagerMenu(); // 1. 요청 승인, 2. 요청 거절 ...
+      String choice = inboundView.getMenuChoiceFromUser(); // View의 헬퍼 메서드 사용
+      if (choice.equals("0")) break; // 뒤로가기
+
+      Command command = managerCommands.get(choice);
+      if (command != null) {
+        try {
+          command.execute(manager); // Manager 객체 전달
+        } catch (Exception e) {
+          inboundView.displayError("예상치 못한 오류 발생: " + e.getMessage());
+        }
+      } else {
+        inboundView.displayError("잘못된 메뉴 선택입니다.");
+      }
+    }
+  }
 }

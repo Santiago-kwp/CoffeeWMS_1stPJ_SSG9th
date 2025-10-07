@@ -2,6 +2,7 @@ package model.inventory;
 
 import config.DBUtil;
 import domain.transaction.Coffee;
+import model.transaction.InboundRequestItemDAOImpl;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -11,6 +12,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CoffeeDAOImpl implements CoffeeDAO {
+
+    // 1. private static final 인스턴스 변수 선언 및 초기화
+    private static final CoffeeDAOImpl instance = new CoffeeDAOImpl();
+
+    // 2. private 생성자 선언하여 외부에서 new 키워드로 생성하는 것을 방지
+    private CoffeeDAOImpl() {}
+
+    // 3. public static getInstance() 메서드로 유일한 인스턴스에 접근하도록 함
+    public static CoffeeDAOImpl getInstance() {
+        return instance;
+    }
 
 
     /**

@@ -5,7 +5,7 @@ import domain.transaction.dto.InboundRequestDTO;
 import domain.transaction.vo.InboundStatus;
 import domain.user.User;
 import service.transaction.InboundService;
-import view.transaction.InboundViewDeprecated;
+import view.transaction.InboundView;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class ViewMemberInboundListCommand extends AbstractInboundCommand {
 
-    public ViewMemberInboundListCommand(InboundService inboundService, InboundViewDeprecated inboundView) {
+    public ViewMemberInboundListCommand(InboundService inboundService, InboundView inboundView) {
         super(inboundService, inboundView);
     }
 
