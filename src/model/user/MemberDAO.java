@@ -1,6 +1,6 @@
 package model.user;
 
-import config.user.DBUtil;
+import config.DBUtil;
 import constant.user.UserPage;
 import domain.user.Member;
 import domain.user.User;

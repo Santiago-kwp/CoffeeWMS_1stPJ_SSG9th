@@ -1,6 +1,6 @@
 package model.user;
 
-import config.user.DBUtil;
+import config.DBUtil;
 import constant.user.UserPage;
 import domain.user.Manager;
 import domain.user.Member;
@@ -16,7 +16,15 @@ import java.util.List;
 
 public class ManagerDAO implements UserDAO {
 
-    public ManagerDAO() {
+    private static class LazyHolder {
+        private static final ManagerDAO MANAGER_DAO = new ManagerDAO();
+    }
+
+    private ManagerDAO() {
+    }
+
+    public static ManagerDAO getInstance() {
+        return LazyHolder.MANAGER_DAO;
     }
 
     @Override
@@ -76,7 +84,7 @@ public class ManagerDAO implements UserDAO {
         return false;
     }
 
-    public String searchUserTypeBy(String targetID, boolean isApproved) {
+    public String searchRegisterTypeBy(String targetID, boolean isApproved) {
         String sql = isApproved
                 ? "{call other_user_type(?, ?)}"
                 : "{call not_approved_user_type(?, ?)}";
@@ -94,7 +102,7 @@ public class ManagerDAO implements UserDAO {
         }
     }
 
-    public User searchUser(String targetID, String targetType) {
+    public User searchOtherUser(String targetID, String targetType) {
         String sql = (targetType.endsWith("관리자"))
                 ? "{call search_other_manager(?)}"
                 : "{call search_other_member(?)}";

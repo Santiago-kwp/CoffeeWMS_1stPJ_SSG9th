@@ -1,7 +1,7 @@
 package controller.user;
 
 import constant.user.UserPage;
-import constant.user.validation.UserManagementValidCheck;
+import constant.user.validation.MenuNumberValidCheck;
 import exception.user.FailedToUserUpdateException;
 import exception.user.InvalidUserDataException;
 import exception.user.UnableToReadUserException;
@@ -14,12 +14,12 @@ import view.user.ConsoleView;
 public abstract class AbstractUserManageMenu implements UserManageMenu {
 
     protected final BufferedReader input;
-    protected final UserManagementValidCheck validCheck;
+    protected final MenuNumberValidCheck menuNumberValidCheck;
     protected final ConsoleView consoleView;
 
     public AbstractUserManageMenu() {
         this.input = new BufferedReader(new InputStreamReader(System.in));
-        this.validCheck = new UserManagementValidCheck();
+        this.menuNumberValidCheck = new MenuNumberValidCheck();
         this.consoleView = new ConsoleView(this.input);
     }
 
@@ -32,7 +32,7 @@ public abstract class AbstractUserManageMenu implements UserManageMenu {
             try {
                 printMenu();
                 String menuNum = input.readLine();
-                validCheck.checkMenuNumber("^[1-4]", menuNum);
+                menuNumberValidCheck.checkMenuNumber("^[1-4]", menuNum);
                 switch (menuNum) {
                     case "1" -> read();
                     case "2" -> update();

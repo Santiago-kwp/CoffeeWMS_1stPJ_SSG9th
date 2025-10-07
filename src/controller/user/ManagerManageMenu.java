@@ -9,20 +9,19 @@ import domain.user.User;
 import exception.user.*;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.List;
-import model.user.ManagerDAO;
+import service.user.ManagerService;
 
 public class ManagerManageMenu extends AbstractUserManageMenu {
 
-    private final ManagerDAO dao;
+    private final ManagerService managerService;
 
     private Manager currentManager;
 
-    public ManagerManageMenu(Manager manager) {
+    public ManagerManageMenu(Manager manager, ManagerService managerService) {
         super();
         this.currentManager = manager;
-        this.dao = new ManagerDAO();
+        this.managerService = managerService;
     }
 
     @Override
@@ -36,7 +35,7 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         while (!quitRead) {
             try {
                 String menuNum = consoleView.promptAndRead(ManagerPage.MANAGER_SELECT_TITLE.toString());
-                validCheck.checkMenuNumber("^[1-4]", menuNum);
+                menuNumberValidCheck.checkMenuNumber("^[1-4]", menuNum);
                 switch (menuNum) {
                     case "1" -> readOneUser();
                     case "2" -> readAllUsers();
@@ -55,7 +54,7 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         while (!quitRead) {
             try {
                 String menuNum = consoleView.promptAndRead(ManagerPage.MANAGER_DETAIL_INFO_TITLE.toString());
-                validCheck.checkMenuNumber("^[1-3]", menuNum);
+                menuNumberValidCheck.checkMenuNumber("^[1-3]", menuNum);
                 switch (menuNum) {
                     case "1" -> readCurrentUser();
                     case "2" -> readOtherUser();
@@ -69,61 +68,31 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
     }
     private void readCurrentUser() {
         System.out.println(UserPage.CURRENT_USER_SELECT);
-
-        // 서비스 계층으로 분리
-        Manager manager = dao.searchUserDetails(currentManager.getId());
-        validCheck.checkUserFound(manager);
-
-        ManagerPage.details(manager);
+        currentManager = (Manager) managerService.findMyDetails(currentManager.getId());
+        ManagerPage.details(currentManager);
     }
 
     private void readOtherUser() throws IOException {
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_SEARCH.toString());
-
-        // 서비스 계층으로 분리
-        String userType = dao.searchUserTypeBy(targetID, true);
-        validCheck.checkUserType(userType);
-        User foundUser = targetID.equals(currentManager.getId())
-                ? dao.searchUserDetails(currentManager.getId())
-                : dao.searchUser(targetID, userType);
-        validCheck.checkUserFound(foundUser);
-
-        // 여기서부터는 서비스 계층의 로직과 뷰의 기능이 혼재되어 있음
-        switch (currentManager.getPosition()) {
-            case "창고관리자":
-                validCheck.checkPermission(foundUser instanceof Manager);
-                MemberPage.details((Member)foundUser);
-                break;
-            case "총관리자":
-                if (foundUser instanceof Manager) {
-                    ManagerPage.details((Manager)foundUser);
-                } else {
-                    MemberPage.details((Member)foundUser);
-                }
-                break;
+        User foundUser = managerService.findOtherUser(targetID, currentManager);
+        if (foundUser instanceof Manager) {
+            ManagerPage.details((Manager)foundUser);
+        } else {
+            MemberPage.details((Member)foundUser);
         }
     }
 
     // 권한에 관계없이 전체 회원 조회(승인된 회원의 공통 정보만 조회)
     public void readAllUsers() {
-        // 서비스 계층으로 분리
-        // 사전검사 로직
-        validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
-        // 실제 실행로직
-        List<User> allUsers = dao.searchAllUser();
-        validCheck.checkUserFound(allUsers);
-
-        // 정렬 부분을 제외한 나머지 부분은 뷰의 기능으로 분리
+        List<User> allUsers = managerService.findAllUsers(currentManager);
         System.out.print(UserPage.searchAllTitle());
-        allUsers.stream()
-                .sorted(Comparator.comparing(User::getType).reversed().thenComparing(User::getId))
-                .forEach(System.out::println);
+        allUsers.forEach(System.out::println);
     }
 
     // 회원이 보유한 권한에 따라 회원 조회를 진행
     public void readUsersByRole() throws IOException {
         String menuNum = consoleView.promptAndRead(ManagerPage.MANAGER_SEARCH_BY_ROLE_TITLE.toString());
-        validCheck.checkMenuNumber("^[1-2]", menuNum);
+        menuNumberValidCheck.checkMenuNumber("^[1-2]", menuNum);
         switch (menuNum) {
             case "1" -> readMemberList();
             case "2" -> readManagerList();
@@ -131,32 +100,15 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
     }
 
     public void readMemberList() {
-        // 서비스 계층으로 분리
-        List<User> searchResult = dao.searchByRole("members");
-        validCheck.checkUserFound(searchResult);
-
-        // User를 Member로 변환하는 로직은 서비스 계층으로 편입 필요
-        // 나머지 출력 로직은 뷰에서 처리
+        List<String> searchResult = managerService.findMembers(currentManager);
         System.out.print(MemberPage.memberInfoTitle());
-        searchResult.stream()
-                .map(user -> (Member)user)
-                .forEach(member
-                        -> System.out.println(currentManager.getPosition().equals("총관리자") ? member : member.maskedInfo()));
+        searchResult.forEach(System.out::println);
     }
 
     public void readManagerList() {
-        // 서비스 로직으로 분리
-        validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
-        List<User> searchResult = dao.searchByRole("managers");
-        validCheck.checkUserFound(searchResult);
-
-        // User를 Manager로 변환하고, 정렬하는 로직은 서비스 계층으로 편입 필요
-        // 나머지 출력 로직은 뷰에서 처리
+        List<Manager> searchResult = managerService.findManagers(currentManager);
         System.out.print(ManagerPage.managerInfoTitle());
-        searchResult.stream()
-                .map(user -> (Manager)user)
-                .sorted(Comparator.comparing(Manager::getPosition).reversed().thenComparing(Manager::getId))
-                .forEach(System.out::println);
+        searchResult.forEach(System.out::println);
     }
 
     @Override
@@ -165,7 +117,7 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         while (!quitUpdate) {
             try {
                 String menuNum = consoleView.promptAndRead(ManagerPage.MANAGER_UPDATE_TITLE.toString());
-                validCheck.checkMenuNumber("^[1-6]", menuNum);
+                menuNumberValidCheck.checkMenuNumber("^[1-6]", menuNum);
                 switch (menuNum) {
                     case "1" -> updateCurrentUser();
                     case "2" -> approveUser();
@@ -191,81 +143,40 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
             return;
         }
         User newUserInfo = consoleView.inputManagerInfo(true);
-
-        // 서비스 계층으로 분리
-        Manager updatedManager = dao.updateUserInfo(currentManager, newUserInfo);
-        validCheck.checkUserUpdated(updatedManager);
-        currentManager = updatedManager;
-
+        currentManager = (Manager) managerService.updateMyInfo(currentManager, newUserInfo);
         System.out.println(UserPage.USER_UPDATE);
     }
 
     private void approveUser() throws IOException {
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_APPROVE.toString());
-        String userRole = dao.searchUserTypeBy(targetID, false);
-
-        // 서비스 로직으로 몽땅 분리해야 할 로직
-        validCheck.checkRoleExist(userRole);
-        boolean ack = false;
-        switch (userRole) {
-            case "일반회원" -> ack = dao.approve(targetID, false);
-            case "창고관리자" -> {
-                validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
-                ack = dao.approve(targetID, false);
-            }
-        }
-        validCheck.checkUserApproved(ack, false);
-        // 여기까지가 서비스 계층으로 분리해야 할 로직
-
+        managerService.approveUser(targetID, currentManager);
         System.out.println(ManagerPage.APPROVE_COMPLETE);
     }
 
-    // 아무런 권한이 없는 회원에게 권한을 부여
-    // 창고관리자는 일반회원 권한만 부여 가능
     public void restoreUserRole() throws IOException {
-        // 뷰
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_UPDATE_ROLE.toString());
+        managerService.canRoleRestore(targetID);
 
-        // 서비스
-        String userRole = dao.searchUserTypeBy(targetID, true);
-        validCheck.checkRoleDeleted(userRole);
-
-        // 뷰
         String option = consoleView.promptAndRead(ManagerPage.ROLE_UPDATE_OPTION.toString());
-        validCheck.checkMenuNumber("^[1-2]", option);
-
-        // 서비스
-        boolean ack = false;
-        switch (option) {
-            case "1" -> ack = dao.restoreRole(targetID, "일반회원");
-            case "2" -> {
-                validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
-                ack = dao.restoreRole(targetID, "창고관리자");
-            }
-        }
-        validCheck.checkRoleUpdated(ack);
+        menuNumberValidCheck.checkMenuNumber("^[1-2]", option);
+        managerService.restoreUserRole(targetID, option, currentManager);
 
         System.out.println(ManagerPage.ROLE_UPDATE_COMPLETE);
     }
 
     public void restoreUser() throws IOException {
-        validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
+        managerService.canUpdateManager(currentManager);
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_RESTORE.toString());
-        boolean ack = dao.approve(targetID, true);
-        validCheck.checkUserApproved(ack, true);
+        managerService.restoreUser(targetID);
         System.out.println(ManagerPage.RESTORE_COMPLETE);
     }
 
     public void addCargoToManager() throws IOException {
-        validCheck.checkPermission(currentManager.getPosition(), "총관리자", false);
+        managerService.canUpdateManager(currentManager);
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_MANAGER_FOR_ADD_CARGO.toString());
         int cargoID = Integer.parseInt(consoleView.promptAndRead(ManagerPage.INPUT_CARGO_ID.toString()));
 
-        // 창고를 배정할 아이디에 해당하는 회원의 권한이 관리자인지 확인
-        String userType = dao.searchUserTypeBy(targetID, true);
-        validCheck.checkPermission(!userType.contains("관리자"));  // 창고관리자, 총관리자가 아니면 예외 처리
-        boolean isAdded = dao.insertCargoToManager(targetID, cargoID);
-        validCheck.checkCargoAdded(isAdded);
+        managerService.assignCargo(targetID, cargoID);
         System.out.printf(ManagerPage.CARGO_ADD_SUCCESS.toString(), cargoID);
     }
 
@@ -276,7 +187,7 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         while (!quitDelete && !isUserDeleted) {
             try {
                 String menuNum = consoleView.promptAndRead(ManagerPage.MANAGER_DELETE_TITLE.toString());
-                validCheck.checkMenuNumber("^[1-3]", menuNum);
+                menuNumberValidCheck.checkMenuNumber("^[1-3]", menuNum);
                 switch (menuNum) {
                     case "1" -> isUserDeleted = deleteCurrentUser();
                     case "2" -> deleteUserRole();
@@ -292,35 +203,19 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
     }
 
     public boolean deleteCurrentUser() throws IOException {
-        // 서비스
-        validCheck.checkPermission(currentManager.getPosition(), "창고관리자", true);
-
-        // 뷰
+        managerService.canDelete(currentManager);
         if (consoleView.checkCancel(UserPage.USER_DELETE_TITLE.toString(), UserPage.USER_NOT_DELETE.toString())) {
             return false;
         }
-
-        // 서비스
-        boolean ack = dao.deleteUserInfo(currentManager.getId());
-        validCheck.checkUserDeleted(ack);
-
+        managerService.deleteMyAccount(currentManager.getId());
         System.out.println(UserPage.USER_DELETE);
         return true;
     }
 
     public void deleteUserRole() throws IOException {
-        // 서비스
-        validCheck.checkPermission(currentManager.getPosition(), "총관리자", true);
-
-        // 뷰
+        managerService.canDelete(currentManager);
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_DELETE_ROLE.toString());
-
-        // 서비스
-        String targetType = dao.searchUserTypeBy(targetID, true);
-        validCheck.checkDeleteRoleAvailable(targetType);
-        boolean ack = dao.deleteRole(targetID, targetType);
-        validCheck.checkRoleDeleted(ack);
-
+        managerService.deleteUserRole(targetID);
         System.out.println(ManagerPage.ROLE_DELETE_COMPLETE);
     }
 

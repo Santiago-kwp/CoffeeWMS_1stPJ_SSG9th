@@ -1,5 +1,5 @@
 use railway;
-# use testdb1;
+use testdb1;
 ##########################################################
 # 2. 관리자 전용 회원관리 기능
 ##########################################################
@@ -7,6 +7,7 @@ use railway;
 
 -- 회원 상세조회
 -- 현재 관리자 자신의 정보 조회
+DROP PROCEDURE IF EXISTS current_manager_info;
 DELIMITER $$
 CREATE PROCEDURE current_manager_info(IN currentID varchar(15))
 BEGIN
@@ -171,23 +172,26 @@ DROP PROCEDURE IF EXISTS restore_role;
 DELIMITER $$
 CREATE PROCEDURE restore_role(IN targetID varchar(15), IN newRole varchar(10), OUT updateCount INT)
 BEGIN
-    SET @targetID = targetID;
-    SET @newRole = newRole;
-    SET @updateRole = 'update users set user_type = ? where user_id = ? and user_approval = \'승인완료\' and user_type is null';
     SET updateCount = 0;
+    IF (newRole = '일반회원' AND EXISTS(select member_id
+                                    from members
+                                    where member_id = targetID and member_login is null)) THEN
 
-    PREPARE updateRole from @updateRole;
-    EXECUTE updateRole USING @newRole, @targetID;
-    DEALLOCATE PREPARE updateRole;
+        update users set user_type = newRole
+                     where user_id = targetID and user_approval = '승인완료' and user_type is null;
 
-    IF (newRole = '일반회원') THEN
         select count(member_id) into updateCount
         from members
         where member_id = (
             select user_id from users
             where user_id = targetID and user_approval = '승인완료' and user_type = newRole
         );
-    ELSEIF (newRole = '창고관리자') THEN
+    ELSEIF (newRole = '창고관리자' AND EXISTS(select manager_id
+                                         from managers
+                                         where manager_id = targetID and manager_login is null)) THEN
+        update users set user_type = newRole
+                     where user_id = targetID and user_approval = '승인완료' and user_type is null;
+
         select count(manager_id) into updateCount
         from managers
         where manager_id = (
@@ -205,7 +209,12 @@ CREATE TRIGGER update_to_member_trigger
     FOR EACH ROW
 BEGIN
     IF (OLD.user_type is null and NEW.user_type = '일반회원') THEN
-        IF EXISTS(select members.member_id from members where members.member_id = NEW.user_id) THEN
+        IF EXISTS(select members.member_id
+                  from members
+                  where members.member_id = (
+                      select user_id from users
+                      where user_id = NEW.user_id and user_approval = '승인완료' and user_type = NEW.user_type
+                  )) THEN
             update members set member_login = false where member_id = NEW.user_id;
         END IF;
     END IF;
@@ -220,7 +229,12 @@ CREATE TRIGGER update_to_manager_trigger
     FOLLOWS update_to_member_trigger
 BEGIN
     IF (OLD.user_type is null and NEW.user_type = '창고관리자') THEN
-        IF EXISTS(select managers.manager_id from managers where managers.manager_id = NEW.user_id) THEN
+        IF EXISTS(select managers.manager_id
+                  from managers
+                  where managers.manager_id = (
+                      select user_id from users
+                      where user_id = NEW.user_id and user_approval = '승인완료' and user_type = NEW.user_type
+                  )) THEN
             update managers set manager_login = false, manager_position = NEW.user_type where manager_id = NEW.user_id;
         END IF;
     END IF;

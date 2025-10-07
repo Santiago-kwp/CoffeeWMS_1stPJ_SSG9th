@@ -7,7 +7,7 @@ import exception.user.*;
 
 import java.util.List;
 
-public class UserManagementValidCheck extends MenuNumberValidCheck {
+public class UserManagementValidCheck {
 
     public void checkUserType(String userType) {
         if (userType == null) {
@@ -26,8 +26,8 @@ public class UserManagementValidCheck extends MenuNumberValidCheck {
         }
     }
 
-    public void checkPermission(boolean notHavePermission) {
-        if (notHavePermission) {
+    public void checkPermission(boolean allowCondition) {
+        if (!allowCondition) {
             throw new NotAllowedUserException(ManagerPage.NOT_HAVE_PERMISSION.toString());
         }
     }
@@ -67,12 +67,6 @@ public class UserManagementValidCheck extends MenuNumberValidCheck {
         }
     }
 
-    public void checkRoleExist(String userRole) {
-        if (userRole == null) {
-            throw new FailedToUserRoleUpdateException(ManagerPage.ALREADY_DELETED_OR_NOT_EXIST.toString());
-        }
-    }
-
     public void checkRoleUpdated(boolean isRoleUpdated) {
         if (!isRoleUpdated) {
             throw new FailedToUserRoleUpdateException(ManagerPage.ROLE_UPDATE_FAILED.toString());
@@ -91,9 +85,14 @@ public class UserManagementValidCheck extends MenuNumberValidCheck {
         }
     }
 
-    public void checkRoleDeleted(String userRole) {
-        if (userRole != null) {
+    public void checkRoleDeleted(String userRole, boolean restoreOption) {
+        // 권한을 복구하려는데 이미 보유한 권한이 있는 경우
+        if (userRole != null && restoreOption) {
             throw new FailedToDeleteUserRoleException(ManagerPage.ALREADY_HAVE_ROLE.toString());
+        }
+        // 권한을 삭제하려는데 보유한 권한이 없는 경우
+        if (userRole == null && !restoreOption) {
+            throw new FailedToUserUpdateException(ManagerPage.ALREADY_DELETED_OR_NOT_EXIST.toString());
         }
     }
 

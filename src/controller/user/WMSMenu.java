@@ -15,10 +15,12 @@ import domain.user.User;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import model.user.ManagerDAO;
 import model.user.MemberDAO;
 import service.inventory.UserService;
 import java.sql.SQLException;
 import service.user.LogoutService;
+import service.user.ManagerServiceImpl;
 import service.user.MemberServiceImpl;
 
 public class WMSMenu {
@@ -120,7 +122,7 @@ public class WMSMenu {
     private void userManagement(User user) {
         // 회원 탈퇴 시 자동 종료
         if (user instanceof Manager manager) {
-            userManageMenu = new ManagerManageMenu(manager);
+            userManageMenu = new ManagerManageMenu(manager, new ManagerServiceImpl(ManagerDAO.getInstance()));
             quitWMS = userManageMenu.run();
         } else if (user instanceof Member member) {
             userManageMenu = new MemberManageMenu(member, new MemberServiceImpl(MemberDAO.getInstance()));
