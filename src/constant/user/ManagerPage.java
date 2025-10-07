@@ -66,8 +66,8 @@ public enum ManagerPage {
             -------------------<< 회원가입 승인 >>--------------------
             회원가입을 승인할 아이디를 입력해주세요.
             """),
-    APPROVE_COMPLETE("회원가입 승인이 완료되었습니다."),
-    APPROVE_FAILED("이미 사용 중인 계정입니다. 승인을 진행할 수 없습니다."),
+    APPROVE_COMPLETE("[회원가입 승인이 완료되었습니다.]"),
+    APPROVE_FAILED("[이미 사용 중인 계정입니다. 승인을 진행할 수 없습니다.]"),
 
     INPUT_ID_FOR_UPDATE_ROLE("""
             -------------------<< 회원 권한 부여 >>--------------------
@@ -79,21 +79,21 @@ public enum ManagerPage {
             ----------------------------------------------------------
             회원에게 부여할 권한을 선택해주세요.(1,2 중 택1)
             """),
-    ALREADY_HAVE_ROLE("이미 부여된 권한이 있는 회원입니다."),
-    ROLE_UPDATE_COMPLETE("회원 권한 부여가 완료되었습니다."),
-    ROLE_UPDATE_FAILED("회원 권한 부여를 수행하지 못했습니다."),
+    ALREADY_HAVE_ROLE("[이미 부여된 권한이 있는 회원입니다.]"),
+    ROLE_UPDATE_COMPLETE("[회원 권한 부여가 완료되었습니다.]"),
+    ROLE_UPDATE_FAILED("[회원 권한 부여를 수행하지 못했습니다.]"),
 
     INPUT_ID_FOR_RESTORE("""
             -------------------<< 회원 계정 복구 >>--------------------
             회원탈퇴 철회를 진행할 회원의 아이디를 입력해주세요.
             """),
-    RESTORE_COMPLETE("회원탈퇴 철회가 완료되었습니다."),
-    RESTORE_FAILED("이미 사용 중이거나 이전에 가입한 적이 없는 아이디입니다. 회원 복구를 진행할 수 없습니다."),
+    RESTORE_COMPLETE("[회원탈퇴 철회가 완료되었습니다.]"),
+    RESTORE_FAILED("[이미 사용 중이거나 이전에 가입한 적이 없는 아이디입니다. 회원 복구를 진행할 수 없습니다.]"),
 
     INPUT_MANAGER_FOR_ADD_CARGO("창고를 배정할 창고관리자의 아이디를 입력해주세요.\n"),
     INPUT_CARGO_ID("관리자에게 배정할 창고의 아이디를 입력해주세요.\n"),
-    CARGO_ADD_SUCCESS("관리자에게 %s번 창고가 배정되었습니다.\n"),
-    CARGO_ADD_FAILED("관리자에게 창고를 배정하지 못했습니다."),
+    CARGO_ADD_SUCCESS("[관리자에게 %s번 창고가 배정되었습니다.]\n"),
+    CARGO_ADD_FAILED("[관리자에게 창고를 배정하지 못했습니다.]"),
 
     // 관리자 전용 삭제 기능
     MANAGER_DELETE_TITLE("""
@@ -109,9 +109,17 @@ public enum ManagerPage {
     ROLE_DELETE_COMPLETE("회원 권한 삭제가 완료되었습니다."),
     ROLE_DELETE_FAILED("회원 권한 삭제를 완료하지 못했습니다."),
 
-    NOT_HAVE_PERMISSION("권한이 낮아 해당 작업을 수행할 수 없습니다."),
-    ALREADY_DELETED_OR_NOT_EXIST("이미 권한이 삭제되었거나 존재하지 않는 회원입니다."),
-    CHIEF_MANAGER_CANNOT_DELETE("총관리자는 삭제할 수 없습니다.");
+    NOT_HAVE_PERMISSION("[권한이 낮아 해당 작업을 수행할 수 없습니다.]"),
+    ALREADY_DELETED_OR_NOT_EXIST("[이미 권한이 삭제되었거나 존재하지 않는 회원입니다.]"),
+    CHIEF_MANAGER_CANNOT_DELETE("[총관리자는 삭제할 수 없습니다.]"),
+
+    DB_ACCESS_ERROR_USER_SEARCH("[입력한 ID에 해당하는 회원 조회 중 DB 오류 발생]"),
+    DB_ACCESS_ERROR_SEARCH_ALL("[전체 회원 목록 조회 중 DB 오류 발생]"),
+    DB_ACCESS_ERROR_SEARCH_BY_ROLE("[권한별 회원 목록 조회 중 DB 오류 발생]"),
+    DB_ACCESS_ERROR_APPROVE_USER("[미승인 회원 승인 중 DB 오류 발생]"),
+    DB_ACCESS_ERROR_RESTORE_USER_ROLE("[회원 권한 복구 중 DB 오류 발생]"),
+    DB_ACCESS_ERROR_ASSIGN_CARGO("[담당 창고 배정 중 DB 오류 발생]"),
+    DB_ACCESS_ERROR_DELETE_USER_ROLE("[회원 권한 삭제 중 DB 오류 발생]");
 
     private final String page;
 

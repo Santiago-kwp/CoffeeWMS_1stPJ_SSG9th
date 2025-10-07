@@ -1,9 +1,9 @@
 package service.user;
 
 import domain.user.User;
-import exception.user.FailedToUserRegisterException;
-import exception.user.FailedToUserUpdateException;
-import exception.user.LoginException;
+import exception.user.FailedToRegisterException;
+import exception.user.FailedToUpdateUserException;
+import exception.user.FailedToLoginException;
 import exception.user.UserNotFoundException;
 import model.user.LoginDAO;
 
@@ -16,7 +16,7 @@ public class LoginServiceImpl implements LoginService, LogoutService {
     }
 
     @Override
-    public User login(String userID, String userPwd) throws LoginException {
+    public User login(String userID, String userPwd) throws FailedToLoginException {
         String userType = dao.searchUserTypeBy(userID, userPwd);
         loginValidCheck.checkUserType(userType);
 
@@ -29,7 +29,7 @@ public class LoginServiceImpl implements LoginService, LogoutService {
     }
 
     @Override
-    public void register(User user) throws FailedToUserRegisterException {
+    public void register(User user) throws FailedToRegisterException {
         boolean ack = dao.register(user);
         loginValidCheck.checkUserRegistered(ack);
     }
@@ -42,7 +42,7 @@ public class LoginServiceImpl implements LoginService, LogoutService {
     }
 
     @Override
-    public void updatePassword(String userID, String newPassword) throws FailedToUserUpdateException {
+    public void updatePassword(String userID, String newPassword) throws FailedToUpdateUserException {
         boolean ack = dao.updatePassword(userID, newPassword);
         loginValidCheck.checkPwdUpdated(ack);
     }

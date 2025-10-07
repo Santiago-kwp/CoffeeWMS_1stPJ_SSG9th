@@ -4,9 +4,7 @@ import config.DBUtil;
 import constant.user.UserPage;
 import domain.user.Member;
 import domain.user.User;
-import exception.user.FailedToUserUpdateException;
-import exception.user.UserDeleteFailedException;
-import exception.user.UserNotFoundException;
+import exception.user.FailedToAccessUserDataException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -41,7 +39,8 @@ public class MemberDAO implements UserDAO {
                 return Member.Builder.from(rs);
             }
         } catch (SQLException e) {
-            throw new UserNotFoundException(UserPage.CANNOT_SEARCH_USER.toString(), e);
+            System.out.println(e.getMessage());
+            throw new FailedToAccessUserDataException(UserPage.DB_ACCESS_ERROR_CURRENT_USER.toString(), e);
         }
     }
 
@@ -63,7 +62,8 @@ public class MemberDAO implements UserDAO {
             // 현재 사용자 정보 갱신 -> 다음에 자신의 정보 조회할 때 반영해야 함
             return Member.Builder.from((Member)original, newInfo);
         } catch (SQLException e) {
-            throw new FailedToUserUpdateException(UserPage.USER_UPDATE_FAILED.toString(), e);
+            System.out.println(e.getMessage());
+            throw new FailedToAccessUserDataException(UserPage.DB_ACCESS_ERROR_CURRENT_USER_UPDATE.toString(), e);
         }
     }
 
@@ -79,7 +79,8 @@ public class MemberDAO implements UserDAO {
             int affected = call.getInt(2);
             return affected > 0;
         } catch (SQLException e) {
-            throw new UserDeleteFailedException(UserPage.USER_DELETE_FAILED.toString(), e);
+            System.out.println(e.getMessage());
+            throw new FailedToAccessUserDataException(UserPage.DB_ACCESS_ERROR_CURRENT_USER_DELETE.toString(), e);
         }
     }
 }

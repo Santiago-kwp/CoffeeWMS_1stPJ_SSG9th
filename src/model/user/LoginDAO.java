@@ -33,8 +33,6 @@ public class LoginDAO {
 
     public Manager loginManagerBy(String userID, String userPwd, String userType) {
         String sql = "{call login_manager(?, ?, ?)}";
-        Manager manager = null;
-
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, userID);
@@ -42,6 +40,7 @@ public class LoginDAO {
             call.setString(3, userType);
 
             boolean hasResultSet = call.execute();
+            Manager manager = null;
             do {
                 ResultSet rs = call.getResultSet();
                 if (hasResultSet && rs.next()) {
@@ -57,7 +56,6 @@ public class LoginDAO {
 
     public Member loginMemberBy(String userID, String userPwd, String userType) {
         String sql = "{call login_member(?, ?, ?)}";
-        Member member = null;
         try (Connection conn = DBUtil.getConnection();
              CallableStatement call = conn.prepareCall(sql)) {
             call.setString(1, userID);
@@ -65,6 +63,8 @@ public class LoginDAO {
             call.setString(3, userType);
 
             call.execute();
+
+            Member member = null;
             try (ResultSet rs = call.getResultSet()) {
                 if (rs.next()) {
                     member = Member.Builder.from(rs);

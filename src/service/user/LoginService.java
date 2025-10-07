@@ -2,9 +2,9 @@ package service.user;
 
 import constant.user.validation.LoginValidCheck;
 import domain.user.User;
-import exception.user.FailedToUserRegisterException;
-import exception.user.FailedToUserUpdateException;
-import exception.user.LoginException;
+import exception.user.FailedToRegisterException;
+import exception.user.FailedToUpdateUserException;
+import exception.user.FailedToLoginException;
 import exception.user.UserNotFoundException;
 
 public interface LoginService {
@@ -16,16 +16,16 @@ public interface LoginService {
      * @param userID 사용자 ID
      * @param userPwd 사용자 비밀번호
      * @return 로그인한 User 객체
-     * @throws LoginException 로그인 실패 시 발생
+     * @throws FailedToLoginException 로그인 실패 시 발생
      */
-    User login(String userID, String userPwd) throws LoginException;
+    User login(String userID, String userPwd) throws FailedToLoginException;
 
     /**
      * 사용자 정보를 시스템에 등록합니다.
      * @param user 등록할 User 객체
-     * @throws FailedToUserRegisterException 등록 실패 시 발생
+     * @throws FailedToRegisterException 등록 실패 시 발생
      */
-    void register(User user) throws FailedToUserRegisterException;
+    void register(User user) throws FailedToRegisterException;
 
     /**
      * 이메일 주소로 사용자 ID를 찾습니다.
@@ -39,7 +39,7 @@ public interface LoginService {
      * 사용자의 비밀번호를 업데이트합니다.
      * @param userID 사용자 ID
      * @param newPassword 새로운 비밀번호
-     * @throws FailedToUserUpdateException 업데이트 실패 시 발생
+     * @throws FailedToUpdateUserException 업데이트 실패 시 발생
      */
-    void updatePassword(String userID, String newPassword) throws FailedToUserUpdateException;
+    void updatePassword(String userID, String newPassword) throws FailedToUpdateUserException;
 }

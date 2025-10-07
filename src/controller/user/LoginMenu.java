@@ -7,10 +7,10 @@ import constant.user.validation.MenuNumberValidCheck;
 import domain.user.User;
 import exception.user.FailedToAccessLoginDataException;
 import exception.user.InvalidUserDataException;
-import exception.user.LoginException;
+import exception.user.FailedToLoginException;
 import exception.user.UserNotFoundException;
-import exception.user.FailedToUserRegisterException;
-import exception.user.FailedToUserUpdateException;
+import exception.user.FailedToRegisterException;
+import exception.user.FailedToUpdateUserException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,9 +53,9 @@ public class LoginMenu {
                     case "5" -> exitLoginMenu();
                 }
             } catch (IllegalArgumentException | IOException
-                     | FailedToAccessLoginDataException | LoginException
-                     | InvalidUserDataException | FailedToUserRegisterException
-                     | UserNotFoundException | FailedToUserUpdateException e) {
+                     | FailedToAccessLoginDataException | FailedToLoginException
+                     | InvalidUserDataException | FailedToRegisterException
+                     | UserNotFoundException | FailedToUpdateUserException e) {
                 System.out.println(e.getMessage());
             }
         }

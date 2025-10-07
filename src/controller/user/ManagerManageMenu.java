@@ -42,8 +42,9 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
                     case "3" -> readUsersByRole();
                     case "4" -> quitRead = quit();
                 }
-            } catch (NotAllowedUserException
-                     | UnableToReadUserException e) {
+            } catch (IllegalArgumentException
+                     | NotAllowedUserException
+                     | FailedToReadUserException e) {
                 System.out.println(e.getMessage());
             }
         }
@@ -60,7 +61,8 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
                     case "2" -> readOtherUser();
                     case "3" -> quitRead = quit();
                 }
-            } catch (UnableToReadUserException
+            } catch (IllegalArgumentException
+                     | FailedToReadUserException
                      | NotAllowedUserException e) {
                 System.out.println(e.getMessage());
             }
@@ -126,19 +128,18 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
                     case "5" -> addCargoToManager();
                     case "6" -> quitUpdate = quit();
                 }
-            } catch (InvalidUserDataException
-                     | FailedToUserUpdateException
-                     | FailedToUserRoleUpdateException
+            } catch (IllegalArgumentException
+                     | InvalidUserDataException
                      | NotAllowedUserException
+                     | FailedToUpdateUserException
                      | FailedToApproveUserException
-                     | FailedToUserRestoreException
-                     | CargoAddToManagerFailedException e) {
+                     | FailedToAssignCargoToManagerException e) {
                 System.out.println(e.getMessage());
             }
         }
     }
 
-    public void updateCurrentUser() throws IOException, InvalidUserDataException {
+    public void updateCurrentUser() throws IOException {
         if (consoleView.checkCancel(UserPage.USER_UPDATE_TITLE.toString(), UserPage.TO_PREVIOUS_MENU.toString())) {
             return;
         }
@@ -193,9 +194,9 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
                     case "2" -> deleteUserRole();
                     case "3" -> quitDelete = quit();
                 }
-            } catch (NotAllowedUserException
-                     | FailedToDeleteUserRoleException
-                     | UserDeleteFailedException e) {
+            } catch (IllegalArgumentException
+                     | NotAllowedUserException
+                     | FailedToDeleteUserException e) {
                 System.out.println(e.getMessage());
             }
         }

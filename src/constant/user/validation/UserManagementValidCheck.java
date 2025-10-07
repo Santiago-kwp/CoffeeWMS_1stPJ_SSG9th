@@ -11,18 +11,18 @@ public class UserManagementValidCheck {
 
     public void checkUserType(String userType) {
         if (userType == null) {
-            throw new UnableToReadUserException(UserPage.CANNOT_SEARCH_USER.toString());
+            throw new FailedToReadUserException(UserPage.CANNOT_SEARCH_USER.toString());
         }
     }
 
     public void checkUserFound(User foundUser) {
         if (foundUser == null) {
-            throw new UnableToReadUserException(UserPage.CANNOT_SEARCH_USER.toString());
+            throw new FailedToReadUserException(UserPage.CANNOT_SEARCH_USER.toString());
         }
     }
     public void checkUserFound(List<User> users) {
         if (users.isEmpty()) {
-            throw new UnableToReadUserException(UserPage.CANNOT_SEARCH_USER.toString());
+            throw new FailedToReadUserException(UserPage.CANNOT_SEARCH_USER.toString());
         }
     }
 
@@ -47,7 +47,7 @@ public class UserManagementValidCheck {
 
     public void checkUserUpdated(User user) {
         if (user == null) {
-            throw new FailedToUserUpdateException(UserPage.USER_UPDATE_FAILED.toString());
+            throw new FailedToUpdateUserException(UserPage.USER_UPDATE_FAILED.toString());
         }
     }
 
@@ -56,26 +56,26 @@ public class UserManagementValidCheck {
             if (!restoreOption) {
                 throw new FailedToApproveUserException(ManagerPage.APPROVE_FAILED.toString());
             } else {
-                throw new FailedToUserRestoreException(ManagerPage.RESTORE_FAILED.toString());
+                throw new FailedToRestoreUserException(ManagerPage.RESTORE_FAILED.toString());
             }
         }
     }
 
     public void checkUserDeleted(boolean isUserDeleted) {
         if (!isUserDeleted) {
-            throw new UserDeleteFailedException(UserPage.USER_DELETE_FAILED.toString());
+            throw new FailedToDeleteUserException(UserPage.USER_DELETE_FAILED.toString());
         }
     }
 
     public void checkRoleUpdated(boolean isRoleUpdated) {
         if (!isRoleUpdated) {
-            throw new FailedToUserRoleUpdateException(ManagerPage.ROLE_UPDATE_FAILED.toString());
+            throw new FailedToUpdateUserRoleException(ManagerPage.ROLE_UPDATE_FAILED.toString());
         }
     }
 
     public void checkCargoAdded(boolean isAdded) {
         if (!isAdded) {
-            throw new CargoAddToManagerFailedException(ManagerPage.CARGO_ADD_FAILED.toString());
+            throw new FailedToAssignCargoToManagerException(ManagerPage.CARGO_ADD_FAILED.toString());
         }
     }
 
@@ -92,7 +92,7 @@ public class UserManagementValidCheck {
         }
         // 권한을 삭제하려는데 보유한 권한이 없는 경우
         if (userRole == null && !restoreOption) {
-            throw new FailedToUserUpdateException(ManagerPage.ALREADY_DELETED_OR_NOT_EXIST.toString());
+            throw new FailedToUpdateUserException(ManagerPage.ALREADY_DELETED_OR_NOT_EXIST.toString());
         }
     }
 

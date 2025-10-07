@@ -1,11 +1,12 @@
 package model.user;
 
 import config.DBUtil;
+import constant.user.ManagerPage;
 import constant.user.UserPage;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-import exception.user.UserNotFoundException;
+import exception.user.FailedToAccessUserDataException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -42,7 +43,8 @@ public class ManagerDAO implements UserDAO {
                 return Manager.Builder.from(rs);
             }
         } catch (SQLException e) {
-            throw new UserNotFoundException(UserPage.CANNOT_SEARCH_USER.toString(), e);
+            System.out.println(e.getMessage());
+            throw new FailedToAccessUserDataException(UserPage.DB_ACCESS_ERROR_CURRENT_USER.toString(), e);
         }
     }
 
@@ -63,7 +65,7 @@ public class ManagerDAO implements UserDAO {
             return Manager.Builder.from((Manager)original, newInfo);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return null;
+            throw new FailedToAccessUserDataException(UserPage.DB_ACCESS_ERROR_CURRENT_USER_UPDATE.toString(), e);
         }
     }
 
@@ -80,8 +82,8 @@ public class ManagerDAO implements UserDAO {
             return affected > 0;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            throw new FailedToAccessUserDataException(UserPage.DB_ACCESS_ERROR_CURRENT_USER_DELETE.toString(), e);
         }
-        return false;
     }
 
     public String searchRegisterTypeBy(String targetID, boolean isApproved) {
@@ -98,7 +100,7 @@ public class ManagerDAO implements UserDAO {
             return call.getString(2);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return null;
+            throw new FailedToAccessUserDataException(UserPage.DB_ACCESS_ERROR_USER_TYPE.toString());
         }
     }
 
@@ -119,6 +121,7 @@ public class ManagerDAO implements UserDAO {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            throw new FailedToAccessUserDataException(ManagerPage.DB_ACCESS_ERROR_USER_SEARCH.toString(), e);
         }
         return null;
     }
@@ -138,6 +141,7 @@ public class ManagerDAO implements UserDAO {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            throw new FailedToAccessUserDataException(ManagerPage.DB_ACCESS_ERROR_SEARCH_ALL.toString(), e);
         }
         return allUsers;
     }
@@ -161,6 +165,7 @@ public class ManagerDAO implements UserDAO {
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
+            throw new FailedToAccessUserDataException(ManagerPage.DB_ACCESS_ERROR_SEARCH_BY_ROLE.toString(), e);
         }
         return searchResult;
     }
@@ -180,7 +185,7 @@ public class ManagerDAO implements UserDAO {
             return affected == 1;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return false;
+            throw new FailedToAccessUserDataException(ManagerPage.DB_ACCESS_ERROR_APPROVE_USER.toString(), e);
         }
     }
 
@@ -198,7 +203,7 @@ public class ManagerDAO implements UserDAO {
             return affected == 1;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return false;
+            throw new FailedToAccessUserDataException(ManagerPage.DB_ACCESS_ERROR_RESTORE_USER_ROLE.toString(), e);
         }
     }
 
@@ -216,7 +221,7 @@ public class ManagerDAO implements UserDAO {
             return call.getBoolean(4);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return false;
+            throw new FailedToAccessUserDataException(ManagerPage.DB_ACCESS_ERROR_ASSIGN_CARGO.toString(), e);
         }
     }
 
@@ -234,7 +239,7 @@ public class ManagerDAO implements UserDAO {
             return affected == 1;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-            return false;
+            throw new FailedToAccessUserDataException(ManagerPage.DB_ACCESS_ERROR_DELETE_USER_ROLE.toString(), e);
         }
     }
 }

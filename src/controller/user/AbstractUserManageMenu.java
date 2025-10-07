@@ -2,10 +2,11 @@ package controller.user;
 
 import constant.user.UserPage;
 import constant.user.validation.MenuNumberValidCheck;
-import exception.user.FailedToUserUpdateException;
+import exception.user.FailedToAccessUserDataException;
+import exception.user.FailedToUpdateUserException;
 import exception.user.InvalidUserDataException;
-import exception.user.UnableToReadUserException;
-import exception.user.UserDeleteFailedException;
+import exception.user.FailedToReadUserException;
+import exception.user.FailedToDeleteUserException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -42,9 +43,10 @@ public abstract class AbstractUserManageMenu implements UserManageMenu {
             } catch (IOException
                      | IllegalArgumentException
                      | InvalidUserDataException
-                     | UnableToReadUserException
-                     | FailedToUserUpdateException
-                     | UserDeleteFailedException e) {
+                     | FailedToReadUserException
+                     | FailedToUpdateUserException
+                     | FailedToDeleteUserException
+                     | FailedToAccessUserDataException e) {
                 System.out.println(e.getMessage());
             }
         }
