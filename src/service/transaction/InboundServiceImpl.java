@@ -97,8 +97,7 @@ public class InboundServiceImpl implements InboundService {
       inboundRequestItemDAO.insertItems(conn, requestDto.getItems());
 
       // 만약 헤더 정보(예: 요청 날짜)도 수정해야 한다면 여기서 inboundRequestDAO.updateInboundRequest(conn, requestDto) 호출
-      // (현재 DAO의 update는 conn을 받지 않으므로 수정 필요, 혹은 프로시저 사용 고려)
-      // 간단하게는 아이템만 수정하는 것으로 가정.
+      // 간단하게 아이템만 수정하는 것으로 가정.
 
       conn.commit(); // 성공 시 커밋
     } catch (SQLException e) {

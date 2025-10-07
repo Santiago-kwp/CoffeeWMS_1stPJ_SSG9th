@@ -34,7 +34,7 @@ public class CancelInboundCommand extends AbstractInboundCommand {
             Long inboundRequestId = inboundView.getInboundRequestIdFromUser();
 
             if (inboundRequestId == null) {
-                inboundView.displayMessage("수정 작업을 취소했습니다.");
+                inboundView.displayMessage("입고 요청 취소 작업을 취소했습니다.");
                 return; // 작업 중단
             }
 

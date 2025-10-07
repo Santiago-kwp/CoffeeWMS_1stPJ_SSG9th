@@ -5,7 +5,6 @@ package model.transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import config.DBUtil;
-import domain.transaction.Coffee;
 import domain.transaction.dto.InboundRequestDTO;
 import domain.transaction.vo.InboundStatus;
 
@@ -70,8 +69,6 @@ public class InboundRequestDAOImpl implements InboundRequestDAO {
         return generatedId;
     }
 
-
-    // ... 다른 DAO 메서드들 ...
 
     /**
      * 입고 요청을 논리적으로 삭제합니다.

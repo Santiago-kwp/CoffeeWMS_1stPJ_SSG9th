@@ -87,7 +87,7 @@ public class InboundView {
             System.out.println("조회된 입고 요청이 없습니다.");
         } else {
             System.out.println("요청 ID | 요청자 ID | 요청일 | 상태");
-            System.out.println("----------------------------------------------------------");
+            System.out.println(TransactionText.BORDER_LINE.getText());
             for (InboundRequestDTO dto : dtoList) {
                 System.out.printf("%-7d | %-10s | %-12s | %s\n",
                         dto.getInboundRequestId(),
@@ -248,7 +248,7 @@ public class InboundView {
     }
 
     /**
-     * [수정] '새로운 입고 요청' 전용 날짜 입력 메서드. (내부 로직 변경 없음)
+     * '새로운 입고 요청' 전용 날짜 입력 메서드.
      * 이 메서드는 이제 명확하게 '신규 요청' 시에만 사용됩니다.
      */
     public LocalDate getRequestDateFromUser() throws IOException {
@@ -264,7 +264,7 @@ public class InboundView {
     }
 
     /**
-     * [신규] 기간별 조회 등 비즈니스 규칙이 없는 범용 날짜를 입력받는 메서드입니다.
+     * 기간별 조회 등 비즈니스 규칙이 없는 범용 날짜를 입력받는 메서드입니다.
      * @param prompt 사용자에게 보여줄 안내 메시지
      * @return 사용자가 입력한 LocalDate, 취소 시 null
      */

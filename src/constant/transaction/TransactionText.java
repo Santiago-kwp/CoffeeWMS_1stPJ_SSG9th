@@ -97,7 +97,10 @@ public enum TransactionText {
   EMPTY_MEMBER_APPROVED_INBOUND("현재 승인된 입고 내역이 없습니다."),
   MEMBER_APPROVED_INBOUNDS_HEADER("-".repeat(50)+"<< 입고 승인 완료 회원 ID 목록 >>" + "-".repeat(50)),
   MEMBER_APPROVED_INBOUNDS_LIST(String.format("%-15s | %-15s\n", "회원 ID", "입고 승인 건수")),
-  COMMON_OUTBOUND_REQUESTS_HEADER("-".repeat(55)+"<< 출고 요청 >>" + "-".repeat(55));
+  COMMON_OUTBOUND_REQUESTS_HEADER("-".repeat(55)+"<< 출고 요청 >>" + "-".repeat(55)),
+
+  CANCEL_APPROVAL("승인 작업을 취소했습니다.");
+
 
 
   private final String text;

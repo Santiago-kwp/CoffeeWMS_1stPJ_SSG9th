@@ -27,7 +27,7 @@ public class InboundController {
 
 
   public InboundController() {
-    initializeCommands(); // 싱글통 클래스의 객체로 커맨드 초기화
+    initializeCommands(); // 커맨드 초기화
   }
 
   private void initializeCommands() {

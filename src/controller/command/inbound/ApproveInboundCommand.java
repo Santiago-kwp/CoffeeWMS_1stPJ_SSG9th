@@ -1,5 +1,6 @@
 package controller.command.inbound;
 
+import constant.transaction.TransactionText;
 import controller.command.AbstractInboundCommand;
 import domain.cargo.dto.LocationDTO;
 import domain.transaction.Coffee;
@@ -42,7 +43,7 @@ public class ApproveInboundCommand extends AbstractInboundCommand {
             Long inboundRequestId = inboundView.getInboundRequestIdFromUser();
 
             if (inboundRequestId == null) {
-                inboundView.displayMessage("승인 작업을 취소했습니다.");
+                inboundView.displayMessage(TransactionText.CANCEL_APPROVAL.getText());
                 return; // 작업 중단
             }
 
@@ -63,7 +64,7 @@ public class ApproveInboundCommand extends AbstractInboundCommand {
             String selectedLocationPlaceId = inboundView.getLocationChoiceFromUser(locations);
 
             if (selectedLocationPlaceId == null) {
-                inboundView.displayMessage("승인 작업을 취소했습니다.");
+                inboundView.displayMessage(TransactionText.CANCEL_APPROVAL.getText());
                 return; // 작업 중단
             }
             // 선택된 LocationDTO 객체를 찾는다 (확인 화면에 필요)
