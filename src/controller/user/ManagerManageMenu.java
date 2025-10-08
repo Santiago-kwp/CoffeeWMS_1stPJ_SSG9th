@@ -50,7 +50,7 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         }
     }
 
-    public void readOneUser() throws IOException {
+    void readOneUser() throws IOException {
         boolean quitRead = false;
         while (!quitRead) {
             try {
@@ -68,13 +68,13 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
             }
         }
     }
-    private void readCurrentUser() {
+    void readCurrentUser() {
         System.out.println(UserPage.CURRENT_USER_SELECT);
         currentManager = (Manager) managerService.findMyDetails(currentManager.getId());
         ManagerPage.details(currentManager);
     }
 
-    private void readOtherUser() throws IOException {
+    void readOtherUser() throws IOException {
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_SEARCH.toString());
         User foundUser = managerService.findOtherUser(targetID, currentManager);
         if (foundUser instanceof Manager) {
@@ -85,14 +85,14 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
     }
 
     // 권한에 관계없이 전체 회원 조회(승인된 회원의 공통 정보만 조회)
-    public void readAllUsers() {
+    void readAllUsers() {
         List<User> allUsers = managerService.findAllUsers(currentManager);
         System.out.print(UserPage.searchAllTitle());
         allUsers.forEach(System.out::println);
     }
 
     // 회원이 보유한 권한에 따라 회원 조회를 진행
-    public void readUsersByRole() throws IOException {
+    void readUsersByRole() throws IOException {
         String menuNum = consoleView.promptAndRead(ManagerPage.MANAGER_SEARCH_BY_ROLE_TITLE.toString());
         menuNumberValidCheck.checkMenuNumber("^[1-2]", menuNum);
         switch (menuNum) {
@@ -101,13 +101,13 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         }
     }
 
-    public void readMemberList() {
+    private void readMemberList() {
         List<String> searchResult = managerService.findMembers(currentManager);
         System.out.print(MemberPage.memberInfoTitle());
         searchResult.forEach(System.out::println);
     }
 
-    public void readManagerList() {
+    private void readManagerList() {
         List<Manager> searchResult = managerService.findManagers(currentManager);
         System.out.print(ManagerPage.managerInfoTitle());
         searchResult.forEach(System.out::println);
@@ -139,7 +139,7 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         }
     }
 
-    public void updateCurrentUser() throws IOException {
+    void updateCurrentUser() throws IOException {
         if (consoleView.checkCancel(UserPage.USER_UPDATE_TITLE.toString(), UserPage.TO_PREVIOUS_MENU.toString())) {
             return;
         }
@@ -148,13 +148,13 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         System.out.println(UserPage.USER_UPDATE);
     }
 
-    private void approveUser() throws IOException {
+    void approveUser() throws IOException {
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_APPROVE.toString());
         managerService.approveUser(targetID, currentManager);
         System.out.println(ManagerPage.APPROVE_COMPLETE);
     }
 
-    public void restoreUserRole() throws IOException {
+    void restoreUserRole() throws IOException {
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_UPDATE_ROLE.toString());
         managerService.canRoleRestore(targetID);
 
@@ -165,14 +165,14 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         System.out.println(ManagerPage.ROLE_UPDATE_COMPLETE);
     }
 
-    public void restoreUser() throws IOException {
+    void restoreUser() throws IOException {
         managerService.canUpdateManager(currentManager);
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_RESTORE.toString());
         managerService.restoreUser(targetID);
         System.out.println(ManagerPage.RESTORE_COMPLETE);
     }
 
-    public void addCargoToManager() throws IOException {
+    void addCargoToManager() throws IOException {
         managerService.canUpdateManager(currentManager);
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_MANAGER_FOR_ADD_CARGO.toString());
         int cargoID = Integer.parseInt(consoleView.promptAndRead(ManagerPage.INPUT_CARGO_ID.toString()));
@@ -203,7 +203,7 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         return isUserDeleted;
     }
 
-    public boolean deleteCurrentUser() throws IOException {
+    boolean deleteCurrentUser() throws IOException {
         managerService.canDelete(currentManager);
         if (consoleView.checkCancel(UserPage.USER_DELETE_TITLE.toString(), UserPage.USER_NOT_DELETE.toString())) {
             return false;
@@ -213,7 +213,7 @@ public class ManagerManageMenu extends AbstractUserManageMenu {
         return true;
     }
 
-    public void deleteUserRole() throws IOException {
+    void deleteUserRole() throws IOException {
         managerService.canDelete(currentManager);
         String targetID = consoleView.promptAndRead(ManagerPage.INPUT_ID_FOR_DELETE_ROLE.toString());
         managerService.deleteUserRole(targetID);

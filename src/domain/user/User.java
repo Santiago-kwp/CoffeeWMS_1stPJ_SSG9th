@@ -97,7 +97,7 @@ public class User {
             return User.Builder.create(rs.getString("user_id"), rs.getString("user_pwd"), rs.getString("user_name"))
                     .phone(rs.getString("user_phone"))
                     .email(rs.getString("user_email"))
-                    .registerType(rs.getString("user_type"))
+                    .registerType(rs.getString("user_type") == null ? "권한없음" : rs.getString("user_type"))
                     .build();
         }
 

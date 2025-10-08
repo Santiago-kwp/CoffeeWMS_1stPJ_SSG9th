@@ -304,7 +304,7 @@ BEGIN
         -- 로그인한 상태면 로그아웃한다.
         if (found_count = 1 and already_login = true) then
 			update members set member_login = false where member_id = logout_id;
-            set message = '로그아웃 완료';
+            set message = '[로그아웃 완료]';
         end if;
 	elseif (register_type like '%관리자') then
 		-- 현재 회원의 로그인 여부를 확인한다.
@@ -313,7 +313,7 @@ BEGIN
         -- 로그인한 상태면 로그아웃한다.
 		if (found_count = 1 and already_login = true) then
 			update managers set manager_login = false where manager_id = logout_id;
-            set message = '로그아웃 완료';
+            set message = '[로그아웃 완료]';
         end if;
 	end if;
     commit;
