@@ -58,7 +58,7 @@ public class CSController {
                 String choice = inputHandler.fourMenuChoice();
                 switch (choice) {
                     case "1" -> noticeMenu.managerNoticeMenu(manager);
-                    case "2"->{
+                    case "2" -> {
                         validHandler.managerCheck(manager);
                         inquiryMenu.managerInquiryMenu(manager.getId());
                     }

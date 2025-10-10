@@ -16,11 +16,6 @@ public interface FaqRepository {
     // FAQ 삭제하는 기능으로 '총관리자' 권한을 가진 유저만 이 기능을 사용할 수 있다.
     boolean deleteFaq(Integer faqId, String faqManagerId);
 
-
-
-    /**
-     * 조회
-     * */
     // FAQ 전체 데이터를 조회하는 기능이다.
     List<Board> readFaqAll();
 

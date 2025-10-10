@@ -19,21 +19,29 @@ public class PrintBoardImpl implements PrintBoard {
     public void printAll(List<Board> boards) {
         if (!boards.isEmpty() && boards.get(0) instanceof Notice) {
             System.out.println(BoardText.NOTICE_READ_ALL.getMessage());
-            System.out.printf("%-5S\t | %-10S\t | %-35S\t | %-10S\t\n",
-                    "NO", "날짜", "제목", "내용");
+            System.out.printf(BoardText.NOTICE_TAP.getMessage(),
+                    BoardText.NUMBER.getMessage(),
+                    BoardText.NOTICE_DATE.getMessage(),
+                    BoardText.TITLE_.getMessage(),
+                    BoardText.CONTENT_.getMessage());
             System.out.println(BoardText.LINE.getMessage());
 
             List<Notice> noticeList = boards.stream().map(board -> (Notice) board).toList();
             for (Notice notice : noticeList) {
                 String content = notice.getNoticeContent();
                 if (content.length() > 10) content = content.substring(0, 10);
-                System.out.printf("%-5S\t | %-10S\t | %-30S\t | %-10S\t",
+                System.out.printf(BoardText.NOTICE_LIST_TAP.getMessage(),
                         notice.getNoticeId(), notice.getNoticeDate(), notice.getNoticeTitle(), content);
                 System.out.println();
             }
         } else if (!boards.isEmpty() && boards.get(0) instanceof Inquiry) {
             System.out.println(BoardText.INQUIRY_READ_ALL.getMessage());
-            System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t\n", "NO", "문의날짜", "카테고리", "문의", "답변 상태");
+            System.out.printf(BoardText.INQUIRY_TAP.getMessage(),
+                    BoardText.NUMBER.getMessage(),
+                    BoardText.CREATE_DATE.getMessage(),
+                    BoardText.CATEGORY.getMessage(),
+                    BoardText.QUEST.getMessage(),
+                    BoardText.REPLY_STATUS.getMessage());
             System.out.println(BoardText.LINE.getMessage());
 
             List<Inquiry> inquiryList = boards.stream().map(board -> (Inquiry) board).toList();
@@ -42,16 +50,21 @@ public class PrintBoardImpl implements PrintBoard {
                 if (content.length() > 10) content = content.substring(0, 10);
                 String status = null;
                 switch (inquiry.getInquiryStatus()) {
-                    case PENDING -> status = "답변 대기";
-                    case DONE -> status = "답변 완료";
+                    case PENDING -> status = BoardText.REPLY_PENDING.getMessage();
+                    case DONE -> status = BoardText.REPLY_DONE.getMessage();
                 }
-                System.out.printf("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t",
+                System.out.printf(BoardText.INQUIRY_LIST_TAP.getMessage(),
                         inquiry.getInquiryId(), inquiry.getInquiryDate(), inquiry.getInquiryCategoryName(), content, status);
                 System.out.println();
             }
         } else if (!boards.isEmpty() && boards.get(0) instanceof Faq) {
             System.out.println(BoardText.FAQ_READ_ALL.getMessage());
-            System.out.printf("%-5S\t | %-10S\t | %-13S\t | %-18S\t | %-15S\t\n", "NO", "날짜", "카테고리", "질문", "답변");
+            System.out.printf(BoardText.FAQ_TAP.getMessage(),
+                    BoardText.NUMBER.getMessage(),
+                    BoardText.WRITE_DATE.getMessage(),
+                    BoardText.CATEGORY.getMessage(),
+                    BoardText.QUEST.getMessage(),
+                    BoardText.ANSWER.getMessage());
             System.out.println(BoardText.LINE.getMessage());
 
             List<Faq> faqList = boards.stream().map(board -> (Faq) board).toList();
@@ -60,7 +73,7 @@ public class PrintBoardImpl implements PrintBoard {
                 if (q.length() > 10) q = q.substring(0, 10);
                 String r = faq.getFaqReply();
                 if (r.length() > 10) r = r.substring(0, 10);
-                System.out.printf("%-5S\t | %-10S\t | %-13S\t | %-15S\t | %-15S\t", faq.getFaqId(), faq.getFaqDate(), faq.getFaqCategoryName(), q, r);
+                System.out.printf(BoardText.FAQ_LIST_TAP.getMessage(), faq.getFaqId(), faq.getFaqDate(), faq.getFaqCategoryName(), q, r);
                 System.out.println();
             }
         }
@@ -70,22 +83,16 @@ public class PrintBoardImpl implements PrintBoard {
     @Override
     public void printOne(Board board) {
         if (board instanceof Notice oneNotice) {
-            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                BoardText.CREATE_DATE.getMessage(), oneNotice.getNoticeDate(),
-                BoardText.TITLE_.getMessage(), oneNotice.getNoticeTitle(),
-                BoardText.CONTENT_.getMessage(), oneNotice.getNoticeContent());
-        } else if (board instanceof Faq oneFaq) {
-            System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
-                BoardText.CREATE_DATE.getMessage(), oneFaq.getFaqDate(),
-                BoardText.CATEGORY.getMessage(), oneFaq.getFaqCategoryName(),
-                BoardText.QUEST.getMessage(), oneFaq.getFaqQuestion(),
-                BoardText.ANSWER.getMessage(), oneFaq.getFaqReply());
-        } else if (board instanceof Inquiry oneInquiry){
+            System.out.printf(BoardText.ONE_NOTICE_TAP.getMessage(),
+                    BoardText.CREATE_DATE.getMessage(), oneNotice.getNoticeDate(),
+                    BoardText.TITLE_.getMessage(), oneNotice.getNoticeTitle(),
+                    BoardText.CONTENT_.getMessage(), oneNotice.getNoticeContent());
+        } else if (board instanceof Inquiry oneInquiry) {
             String status;
             switch (oneInquiry.getInquiryStatus()) {
                 case PENDING -> {
                     status = BoardText.REPLY_PENDING.getMessage();
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                    System.out.printf(BoardText.ONE_INQUIRY_PENDING_TAP.getMessage(),
                             BoardText.CREATE_DATE.getMessage(), oneInquiry.getInquiryDate(),
                             BoardText.CATEGORY.getMessage(), oneInquiry.getInquiryCategoryName(),
                             BoardText.QUEST.getMessage(), oneInquiry.getInquiryContent(),
@@ -93,7 +100,7 @@ public class PrintBoardImpl implements PrintBoard {
                 }
                 case DONE -> {
                     status = BoardText.REPLY_DONE.getMessage();
-                    System.out.printf("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n",
+                    System.out.printf(BoardText.ONE_INQUIRY_DONE_TAP.getMessage(),
                             BoardText.CREATE_DATE.getMessage(), oneInquiry.getInquiryDate(),
                             BoardText.CATEGORY.getMessage(), oneInquiry.getInquiryCategoryName(),
                             BoardText.QUEST.getMessage(), oneInquiry.getInquiryContent(),
@@ -102,9 +109,16 @@ public class PrintBoardImpl implements PrintBoard {
                             BoardText.ANSWER.getMessage(), oneInquiry.getReplyContent());
                 }
             }
+        } else if (board instanceof Faq oneFaq) {
+            System.out.printf(BoardText.ONE_FAQ_TAP.getMessage(),
+                    BoardText.CREATE_DATE.getMessage(), oneFaq.getFaqDate(),
+                    BoardText.CATEGORY.getMessage(), oneFaq.getFaqCategoryName(),
+                    BoardText.QUEST.getMessage(), oneFaq.getFaqQuestion(),
+                    BoardText.ANSWER.getMessage(), oneFaq.getFaqReply());
         }
     }
 
+    // 메인화면 공지 출력
     @Override
     public void printTopNotices(List<Board> boards) {
         List<Notice> noticeList = boards.stream().map(board -> (Notice) board).toList();
@@ -112,7 +126,7 @@ public class PrintBoardImpl implements PrintBoard {
             for (Notice notice : noticeList) {
                 notice.setNoticeDate(notice.getNoticeDate());
                 notice.setNoticeTitle(notice.getNoticeTitle());
-                System.out.printf("%S %S", notice.getNoticeDate(), notice.getNoticeTitle());
+                System.out.printf(BoardText.TOP_NOTICE_TAP.getMessage(), notice.getNoticeDate(), notice.getNoticeTitle());
                 System.out.println();
             }
         }

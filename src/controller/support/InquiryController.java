@@ -16,7 +16,7 @@ public class InquiryController {
         this.boardService = boardService;
     }
 
-    // 회원의 1:1 문의 메뉴
+    // 일반회원의 1:1 문의 메뉴
     public void memberInquiryMenu(String memberId) {
         KI:
         while (true) {
@@ -65,7 +65,7 @@ public class InquiryController {
         }
     }
 
-    // 회원의 1:1 문의 상세 메뉴
+    // 일반회원의 1:1 문의 상세 메뉴
     public void memberInquiryDetailMenu(String memberIdEx, Integer readChoice) {
         System.out.print(BoardText.INQUIRY_DETAIL_MENU_MEMBER.getMessage());
         String choice = inputHandler.threeMenuChoice();

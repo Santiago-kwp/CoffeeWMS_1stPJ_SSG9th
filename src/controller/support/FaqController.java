@@ -22,7 +22,7 @@ public class FaqController {
         this.boardService = boardService;
     }
 
-    // 회원의 FAQ 메뉴
+    // 일반회원의 FAQ 메뉴
     public void memberFaqMenu() {
         KIKI:
         while (true) {

@@ -22,9 +22,6 @@ public interface InquiryRepository {
     // 1:1 문의를 삭제하는 기능으로 '총관리자' 권한을 가진 유저가 문의를 삭제할 수 있게 하는 기능이다.
     boolean deleteInquiryManager(Integer inquiryId);
 
-    /**
-     * 조회
-     * */
     // 1:1 문의 목록 전체를 조회하는 기능으로 로그인한 유저가 작성한 문의만 조회할 수 있는 기능이다.
     List<Board> readInquiryMemberAll(String memberId);
 
@@ -36,7 +33,6 @@ public interface InquiryRepository {
 
     // 선택한 1:1 문의를 조회하는 기능으로 '총관리자' 권한을 가진 유저만 이 기능을 사용할 수 있다.
     Board readInquiryManagerOne(Integer inquiryId);
-
 
     // 1:1 문의 카테고리 목록을 조회하는 기능이다.
     List<Category> readInquiryCategory();
