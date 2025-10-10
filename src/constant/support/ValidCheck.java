@@ -1,12 +1,11 @@
 package constant.support;
 
+import controller.support.CSController;
+import controller.support.InquiryController;
 import domain.support.Board;
-import domain.support.Faq;
-import domain.support.Inquiry;
-import domain.support.Notice;
 import domain.user.Manager;
-import domain.user.User;
 import exception.support.InputException;
+import exception.support.IsNotManagerException;
 import exception.support.NotFoundException;
 
 import java.util.List;
@@ -77,7 +76,7 @@ public class ValidCheck {
 
     public static void managerCheck(Manager manager) {
         if (!manager.getPosition().equals("총관리자")) {
-            throw new InputException(BoardErrorCode.YOU_ARE_NOT.getMessage());
+            throw new IsNotManagerException(BoardErrorCode.YOU_ARE_NOT.getMessage());
         }
     }
 

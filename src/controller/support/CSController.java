@@ -5,6 +5,7 @@ import constant.support.BoardText;
 import domain.user.Manager;
 import domain.user.Member;
 import exception.support.InputException;
+import exception.support.IsNotManagerException;
 import exception.support.NotFoundException;
 import handler.support.inputHandler.InputHandler;
 import handler.support.inputHandler.InputHandlerImpl;
@@ -27,7 +28,7 @@ public class CSController {
 
     // 일반회원의 고객센터 메뉴
     public void memberCSMenu(Member member) {
-        TheEndCS:
+        EndMenu:
         while (true) {
             try {
                 System.out.print(BoardText.CS_MENU.getMessage());
@@ -38,7 +39,7 @@ public class CSController {
                     case "3" -> faqMenu.memberFaqMenu();
                     case "4" -> {
                         System.out.println(BoardText.BACK.getMessage());
-                        break TheEndCS;
+                        break EndMenu;
                     }
                 }
             } catch (NullPointerException e) {
@@ -51,7 +52,7 @@ public class CSController {
 
     // 관리자의 고객센터 메뉴
     public void managerCSMenu(Manager manager) {
-        TheEndCS:
+        EndMenu:
         while (true) {
             try {
                 System.out.print(BoardText.CS_MENU.getMessage());
@@ -65,12 +66,12 @@ public class CSController {
                     case "3" -> faqMenu.managerFaqMenu(manager);
                     case "4" -> {
                         System.out.println(BoardText.BACK.getMessage());
-                        break TheEndCS;
+                        break EndMenu;
                     }
                 }
             } catch (NullPointerException e) {
                 System.out.println(BoardErrorCode.PLEASE_AGAIN.getMessage());
-            } catch (InputException | NotFoundException e) {
+            } catch (InputException | NotFoundException | IsNotManagerException e) {
                 System.out.println(e.getMessage());
             }
         }
