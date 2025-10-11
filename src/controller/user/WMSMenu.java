@@ -2,23 +2,23 @@ package controller.user;
 
 import constant.user.WMSPage;
 import controller.inventory.InventoryController;
-import controller.support.CSMenu;
+import controller.support.CSController;
 import domain.inventory.UserVO;
 import controller.cargo.CargoController;
 import constant.user.validation.WMSValidCheck;
-import controller.support.CSMenu;
 import controller.transaction.InboundMenu;
 import controller.transaction.OutboundMenu;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
-import exception.support.InputException;
 import model.user.LoginDAO;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import service.inventory.UserService;
+import service.support.BoardServiceImpl;
+
 import java.sql.SQLException;
 
 public class WMSMenu {
@@ -30,7 +30,7 @@ public class WMSMenu {
 
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
-    private CSMenu csMenu = new CSMenu();
+    private CSController csMenu = new CSController(new BoardServiceImpl());
     private InboundMenu inboundMenu = new InboundMenu();
     private OutboundMenu outboundMenu = new OutboundMenu();
 
