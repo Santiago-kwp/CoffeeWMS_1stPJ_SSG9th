@@ -157,8 +157,10 @@ public enum BoardText {
     INQUIRY_READ_ALL("------------------------------<< 1:1 문의 전체 목록 >>-----------------------------"),
     FAQ_READ_ALL("-------------------------------<< FAQ 전체 목록 >>--------------------------------"),
 
+    NOTICE_DATE("공지일"),
     CREATE_DATE("문의일"),
     REPLY_DATE("답변일"),
+    WRITE_DATE("작성일"),
     CATEGORY("카테고리"),
     TITLE_("제목"),
     CONTENT_("내용"),
@@ -170,6 +172,25 @@ public enum BoardText {
     REPLY_PENDING("[대기]"),
     REPLY_DONE("[완료]"),
     BACK_OPTION("[뒤로가시려면 'Y'를 입력해주세요]"),
+
+    NOTICE_TAP("%-5S\t | %-10S\t | %-35S\t | %-10S\t\n"),
+    NOTICE_LIST_TAP("%-5S\t | %-10S\t | %-30S\t | %-10S\t"),
+
+    ONE_NOTICE_TAP("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n"),
+
+    INQUIRY_TAP("%-5S\t | %-10S\t | %-12S\t | %-18S\t | %-10S\t\n"),
+    INQUIRY_LIST_TAP("%-5S\t | %-10S\t | %-12S\t | %-15S\t | %-10S\t"),
+
+    ONE_INQUIRY_PENDING_TAP("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n"),
+    ONE_INQUIRY_DONE_TAP("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n"),
+
+    FAQ_TAP("%-5S\t | %-10S\t | %-13S\t | %-18S\t | %-15S\t\n"),
+    FAQ_LIST_TAP("%-5S\t | %-10S\t | %-13S\t | %-15S\t | %-15S\t"),
+
+    ONE_FAQ_TAP("%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n%-4s\t| %s\n"),
+
+    TOP_NOTICE_TAP("%S %S"),
+
 
 
     ;
@@ -183,4 +204,8 @@ public enum BoardText {
         return message;
     }
 
+    @Override
+    public String toString() {
+        return message;
+    }
 }
