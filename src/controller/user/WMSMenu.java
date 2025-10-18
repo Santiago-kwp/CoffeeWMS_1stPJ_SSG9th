@@ -2,23 +2,21 @@ package controller.user;
 
 import constant.user.WMSPage;
 import controller.inventory.InventoryController;
-import controller.support.CSController;
+//import controller.support.CSMenu;
 import domain.inventory.UserVO;
 import controller.cargo.CargoController;
 import constant.user.validation.WMSValidCheck;
-import controller.transaction.InboundMenu;
-import controller.transaction.OutboundMenu;
+import controller.transaction.InboundController;
 import domain.user.Manager;
 import domain.user.Member;
 import domain.user.User;
+import exception.support.InputException;
 import model.user.LoginDAO;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import service.inventory.UserService;
-import service.support.BoardServiceImpl;
-
 import java.sql.SQLException;
 
 public class WMSMenu {
@@ -30,14 +28,18 @@ public class WMSMenu {
 
     private boolean quitWMS;
     private UserManageMenu userManageMenu;
-    private CSController csMenu = new CSController(new BoardServiceImpl());
-    private InboundMenu inboundMenu = new InboundMenu();
-    private OutboundMenu outboundMenu = new OutboundMenu();
+//    private CSMenu csMenu = new CSMenu();
+
+    private final InboundController inboundMenu; // final로 변경
+
 
     private CargoController cargoController;
     public WMSMenu(User loginUser) {
         this.currentLoginUser = loginUser;
         this.validCheck = new WMSValidCheck();
+        // 입고 컨트롤러 생성
+        this.inboundMenu = new InboundController();
+
     }
 
     public void run() {
@@ -64,7 +66,7 @@ public class WMSMenu {
                 userManagement(member);
                 break;
             case "2":   // 고객센터
-                csMenu.memberCSMenu(member);
+//                csMenu.memberCSMenu(member);
                 break;
             case "3":   // 재고관리
                 UserService userService = new UserService();
@@ -72,10 +74,9 @@ public class WMSMenu {
                 InventoryController.getInstance().inventoryMainMenu(loggedInUser);
                 break;
             case "4":   // 입고
-                inboundMenu.menuMember(member.getId());
+                inboundMenu.memberMenu(member);
                 break;
             case "5":   // 출고
-                outboundMenu.menuMember(member.getId());
                 break;
             case "6":   // 로그아웃
                 logout(member.getId());
@@ -95,7 +96,7 @@ public class WMSMenu {
                 userManagement(manager);
                 break;
             case "2":   // 고객센터
-                csMenu.managerCSMenu(manager);
+//                csMenu.managerCSMenu(manager);
                 break;
             case "3":   // 창고관리
                 cargoConnect(manager);
@@ -106,10 +107,9 @@ public class WMSMenu {
                 InventoryController.getInstance().inventoryMainMenu(loggedInUser);
                 break;
             case "5":   // 입고
-                inboundMenu.menuManager(manager.getId());
+                inboundMenu.managerMenu(manager);
                 break;
             case "6":   // 출고
-                outboundMenu.menuManager(manager.getId());
                 break;
             case "7":   // 로그아웃
                 logout(manager.getId());

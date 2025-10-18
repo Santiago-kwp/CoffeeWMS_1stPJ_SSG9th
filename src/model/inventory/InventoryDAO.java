@@ -6,9 +6,9 @@ import config.DBUtil;
 import domain.inventory.InventoryVO;
 
 import domain.inventory.UserVO;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ResultSet;
+import domain.transaction.dto.InboundRequestItemDTO;
+
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +16,19 @@ import java.util.List;
  * 재고 관련 데이터베이스 작업을 처리하는 DAO(Data Access Object).
  */
 public class InventoryDAO {
+
+  // ----------- kwp singleton pattern added ----------
+  // 1. private static final 인스턴스 변수 선언 및 초기화
+  private static final InventoryDAO instance = new InventoryDAO();
+
+  // 2. private 생성자 선언하여 외부에서 new 키워드로 생성하는 것을 방지
+  private InventoryDAO() {}
+
+  // 3. public static getInstance() 메서드로 유일한 인스턴스에 접근하도록 함
+  public static InventoryDAO getInstance() {
+    return instance;
+  }
+  //---------------------------------------------------
 
   /**
    * 통합 재고 목록 조회를 위해 search_inventory 프로시저를 호출합니다.
@@ -80,4 +93,52 @@ public class InventoryDAO {
     }
     return list;
   }
+
+
+
+  /** added by kwpark
+   * 특정 위치에 있는 특정 커피의 재고를 증가시킵니다.
+   * 재고가 없으면 새로 생성하고, 있으면 수량을 더합니다.
+   * @param conn 서비스 계층에서 관리하는 Connection 객체
+   * @param item 추가할 입고 항목 (coffeeId, quantity 포함)
+   * @param locationPlaceId 재고를 추가할 위치 ID
+   */
+  public void upsertInventory(Connection conn, InboundRequestItemDTO item, String locationPlaceId) throws SQLException {
+    // 1. 해당 위치에 해당 커피 재고가 이미 있는지 확인
+    String selectSql = "SELECT inventory_id, inventory_quantity FROM inventory WHERE coffee_id = ? AND location_place_id = ?";
+    try (PreparedStatement selectPstmt = conn.prepareStatement(selectSql)) {
+      selectPstmt.setString(1, item.getCoffeeId());
+      selectPstmt.setString(2, locationPlaceId);
+
+      try (ResultSet rs = selectPstmt.executeQuery()) {
+        if (rs.next()) {
+          // 2-1. 재고가 있으면 UPDATE
+          long inventoryId = rs.getLong("inventory_id");
+          int currentQuantity = rs.getInt("inventory_quantity");
+          int newQuantity = currentQuantity + item.getInboundRequestQuantity();
+
+          String updateSql = "UPDATE inventory SET inventory_quantity = ? WHERE inventory_id = ?";
+          try (PreparedStatement updatePstmt = conn.prepareStatement(updateSql)) {
+            updatePstmt.setInt(1, newQuantity);
+            updatePstmt.setLong(2, inventoryId);
+            updatePstmt.executeUpdate();
+          }
+        } else {
+          // 2-2. 재고가 없으면 INSERT
+          String insertSql = "INSERT INTO inventory (inventory_id, coffee_id, location_place_id, inventory_quantity) VALUES (?, ?, ?, ?)";
+          try (PreparedStatement insertPstmt = conn.prepareStatement(insertSql)) {
+            // inventory_id는 char(12)이므로 고유 ID 생성 필요 (예: INV- + timestamp)
+            String newInventoryId = "INV-" + System.currentTimeMillis();
+            insertPstmt.setString(1, newInventoryId.substring(0, 12));
+            insertPstmt.setString(2, item.getCoffeeId());
+            insertPstmt.setString(3, locationPlaceId);
+            insertPstmt.setInt(4, item.getInboundRequestQuantity());
+            insertPstmt.executeUpdate();
+          }
+        }
+      }
+    }
+}
+
+
 }
